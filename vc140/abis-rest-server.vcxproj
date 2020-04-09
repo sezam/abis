@@ -19,37 +19,29 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9A2FD8A1-3F25-4001-BB9B-06B5B2470A40}</ProjectGuid>
+    <ProjectGuid>{738C99E4-032D-45BF-9FBF-F50324D66AD4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>abisrestserver</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -71,86 +63,91 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\lib\boost_1_72_0;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\lib\boost_1_72_0;$(IncludePath)</IncludePath>
+    <ExecutablePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\dll\x86;D:\lib\vcpkg\installed\x86-windows\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\include;D:\lib\vcpkg\installed\x86-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;D:\lib\vcpkg\installed\x86-windows\lib;$(LibraryPath)</LibraryPath>
+    <ReferencePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\dll\x86;D:\lib\vcpkg\installed\x86-windows\bin;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\lib\boost_1_72_0;$(IncludePath)</IncludePath>
+    <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\dll\x86;D:\lib\vcpkg\installed\x86-windows\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\include;D:\lib\vcpkg\installed\x86-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\lib\x86;D:\lib\vcpkg\installed\x86-windows\lib;$(LibraryPath)</LibraryPath>
+    <ReferencePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\dll\x86;D:\lib\vcpkg\installed\x86-windows\bin;$(ReferencePath)</ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ExecutablePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\dll\x64;D:\lib\vcpkg\installed\x64-windows\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\include;D:\lib\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64;D:\lib\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <ReferencePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\dll\x64;D:\lib\vcpkg\installed\x64-windows\bin;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\lib\boost_1_72_0;$(IncludePath)</IncludePath>
+    <ExecutablePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\dll\x64;D:\lib\vcpkg\installed\x64-windows\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\include;D:\lib\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\lib\x64;D:\lib\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <ReferencePath>D:\lib\pthreads-w32-2-9-1-release\Pre-built.2\dll\x64;D:\lib\vcpkg\installed\x64-windows\bin;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>cpprest_2_10.lib;pthreadVC2.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>cpprest_2_10.lib;pthreadVC2.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <AdditionalDependencies>cpprest_2_10.lib;pthreadVC2.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>cpprest_2_10.lib;pthreadVC2.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
+    <ClCompile Include="..\abis-rest-server\biocard.cpp" />
+    <ClCompile Include="..\abis-rest-server\compare.cpp" />
+    <ClCompile Include="..\abis-rest-server\ebsclient.cpp" />
+    <ClCompile Include="..\abis-rest-server\extract.cpp" />
+    <ClCompile Include="..\abis-rest-server\main.cpp" />
+    <ClCompile Include="..\abis-rest-server\restutils.cpp" />
+    <ClCompile Include="..\abis-rest-server\search.cpp" />
+    <ClCompile Include="..\abis-rest-server\stdafx.cpp" />
+    <ClCompile Include="..\abis-rest-server\verify.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="abis-rest-server.cpp" />
-    <ClCompile Include="stdafx.cpp" />
+    <ClInclude Include="..\abis-rest-server\AbisRest.h" />
+    <ClInclude Include="..\abis-rest-server\biocard.h" />
+    <ClInclude Include="..\abis-rest-server\compare.h" />
+    <ClInclude Include="..\abis-rest-server\extract.h" />
+    <ClInclude Include="..\abis-rest-server\restutils.h" />
+    <ClInclude Include="..\abis-rest-server\search.h" />
+    <ClInclude Include="..\abis-rest-server\stdafx.h" />
+    <ClInclude Include="..\abis-rest-server\verify.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

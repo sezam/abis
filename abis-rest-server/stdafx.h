@@ -1,15 +1,21 @@
-// stdafx.h: включаемый файл дл€ стандартных системных включаемых файлов
-// или включаемых файлов дл€ конкретного проекта, которые часто используютс€, но
-// не часто измен€ютс€
-//
+/***
+ * Copyright (C) Microsoft. All rights reserved.
+ * Licensed under the MIT license. See LICENSE.txt file in the project root for full license information.
+ *
+ * =+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+ *
+ * stdafx.h : include file for standard system include files,
+ * or project specific include files that are used frequently, but
+ * are changed infrequently
+ *
+ * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ ****/
 
 #pragma once
 
-#include "targetver.h"
-
+#include <exception>
+#include <map>
 #include <stdio.h>
+#include <string>
 #include <tchar.h>
-
-
-
-// TODO: ”становите здесь ссылки на дополнительные заголовки, требующиес€ дл€ программы
+#include <vector>
