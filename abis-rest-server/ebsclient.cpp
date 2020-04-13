@@ -1,43 +1,36 @@
-#ifdef _WIN32
-#include <winsock2.h>
-#define HAVE_STRUCT_TIMESPEC
-#else
-#include <arpa/inet.h>
-#define SOCKET int
-#endif //  WIN32
-
-#include <pthread.h> 
-#include <semaphore.h> 
 #include <stdio.h>
+
 #include "AbisRest.h"
 #include "ebsclient.h"
 
-int loglevel = debug;
+int loglevel = log_debug;
 
-sem_t mkey1;
-sem_t mx_logger;
-sem_t mkey3;
-sem_t mx_socket;
-sem_t mx_ports[4];
+interprocess_semaphore mkey1(1);
+interprocess_semaphore mx_logger(1);
+interprocess_semaphore mkey3(1);
+interprocess_semaphore mx_socket(1);
+interprocess_semaphore mx_ports[4] = { 1, 1, 1, 1 };
 
-FILE *logFile;
+FILE* logFile;
+
+io_service boost_io_service;
 
 char* getLogName(int log_level)
 {
-	if (log_level == error) return (char*)"[ERROR] ";
-	if (log_level == user) return (char*)"[USER] ";
-	if (log_level == info) return (char*)"[INFO] ";
-	if (log_level == debug) return (char*)"[DEBUG] ";
+	if (log_level == log_error) return (char*)"[ERROR] ";
+	if (log_level == log_user) return (char*)"[USER] ";
+	if (log_level == log_info) return (char*)"[INFO] ";
+	if (log_level == log_debug) return (char*)"[DEBUG] ";
 	return (char*)" ";
 }
 
-void getTime(char *sTime)
+void getTime(char* sTime)
 {
 	for (int i = 0; i < 64; i++) sTime[i] = 0;
 	time_t t = time(NULL);
-	struct tm *ltm;
+	struct tm* ltm;
 	ltm = localtime(&t);
-	char *sTime1 = asctime(ltm);
+	char* sTime1 = asctime(ltm);
 	for (int i = 0; i < strlen(sTime1); i++) *(sTime + i) = *(sTime1 + i);
 	for (int i = 0; i < strlen(sTime1); i++) if (*(sTime + i) == 0x0A)
 	{
@@ -46,12 +39,12 @@ void getTime(char *sTime)
 	}
 }
 
-void saveToLog(int elev, char *log, char *data)
+void saveToLog(int elev, char* log, const char* data)
 {
 	if (elev <= loglevel)
 	{
-		sem_wait(&mx_logger);
-		char *tstr = new char[64];
+		mx_logger.wait();
+		char* tstr = new char[64];
 		getTime(tstr);
 		*(tstr + strlen(tstr) - 2) = 0;
 		logFile = fopen("../log/gzface.log", "a");
@@ -61,168 +54,137 @@ void saveToLog(int elev, char *log, char *data)
 			fclose(logFile);
 		}
 		delete[] tstr;
-		sem_post(&mx_logger);
+		mx_logger.post();
 	}
 }
 
-int getPortIndex()
+int find_free_port()
 {
-	int pNumber = -1;
-	sem_wait(&mx_socket);
-
-	do
+	mx_socket.wait();
+	while (true)
 	{
 		for (size_t i = 0; i < 4; i++)
 		{
 			int value;
-			sem_getvalue(&mx_ports[i], &value);
-
-			if (value == 0) {
-				pNumber = i;
-				break;
+			if (mx_ports[i].try_wait()) {
+				mx_socket.post();
+				return i;
 			}
 		}
-		if (pNumber < 0) this_thread::sleep_for(milliseconds(100));
-	} while (pNumber < 0);
+		this_thread::sleep_for(milliseconds(100));
+	};
 
-	sem_post(&mx_socket);
-	return pNumber;
-
+	mx_socket.post();
+	return -1;
 }
 
-int get_face_template(const unsigned char *data, unsigned int dataLen, float *fTemplate)
+int get_face_template(const unsigned char* send_data, const unsigned int send_data_len,
+	float* template_buf, const unsigned int template_buf_size)
 {
 	int rs = 0;
-	SOCKET myClientSocket;
-	sockaddr_in addr;
 
-	int port_index = getPortIndex();
+	int port_index = find_free_port();
 	int current_port = port_index + 10080;
-
-	sem_wait(&mx_ports[port_index]);
+	saveToLog(log_debug, "Extract from port ", to_string(current_port).c_str());
 	cout << "Mutex lock: " << &mx_ports[port_index] << " port index: " << port_index << endl;
 
-	if ((myClientSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	try
 	{
-		perror("socket");
-		saveToLog(error, (char*)"Error create socket\n", "");
-		return 0;
-	}
+		tcp::socket client_socket(boost_io_service);
+		tcp::resolver::query query("10.6.46.147", to_string(current_port));
+		tcp::resolver::iterator endpoint_iterator = tcp::resolver(boost_io_service).resolve(query);
+
+		boost::system::error_code err = boost::asio::error::would_block;
+		deadline_timer deadline(boost_io_service, boost::posix_time::seconds(3));
+
+		async_connect(client_socket, endpoint_iterator, var(err) = _1);
+
+		do boost_io_service.run_one(); while (err == boost::asio::error::would_block);
+
+		if (err || !client_socket.is_open())
+			throw(err ? err : boost::system::errc::make_error_code(boost::system::errc::connection_aborted));
 
 
-	char ss[50];
-	sprintf(ss, "%d", current_port);
-	saveToLog(debug, (char*)"Extract from port ", ss);
+		char send_header[8];
+		send_header[0] = 'r';
+		send_header[1] = 'e';
+		send_header[2] = 'q';
+		send_header[3] = 'f';
+		send_header[7] = (unsigned char)(send_data_len & 0xFF);
+		send_header[6] = (unsigned char)((send_data_len >> 8) & 0xFF);
+		send_header[5] = (unsigned char)((send_data_len >> 16) & 0xFF);
+		send_header[4] = (unsigned char)((send_data_len >> 24) & 0xFF);
 
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(current_port);
-	//addr1.sin_addr.s_addr = inet_addr("127.0.0.1");
-	addr.sin_addr.s_addr = inet_addr("10.6.46.147");
-	if (connect(myClientSocket, (sockaddr *)&addr, sizeof(addr)))
-	{
-		saveToLog(error, (char*)"Error connect\n", "");
+		write(client_socket, buffer(send_header, 8), err);
+		write(client_socket, buffer(send_data, send_data_len), err);
+		if (err) {
+			client_socket.close();
+			throw(err);
+		}
 
-#ifdef  _WIN32
-		closesocket(myClientSocket);
-#else
-		close(myClientSocket);
-#endif //  _WIN32
-		sem_post(&mx_ports[port_index]);
-		cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
+		char recv_header[20];
+		int io_len = client_socket.read_some(buffer(recv_header), err);
+		if (err) {
+			client_socket.close();
+			throw(err);
+		}
 
-		return 0;
-	}
-
-	char header[8];
-	header[0] = 'r';
-	header[1] = 'e';
-	header[2] = 'q';
-	header[3] = 'f';
-	header[7] = (unsigned char)(dataLen & 0xFF);
-	header[6] = (unsigned char)((dataLen >> 8) & 0xFF);
-	header[5] = (unsigned char)((dataLen >> 16) & 0xFF);
-	header[4] = (unsigned char)((dataLen >> 24) & 0xFF);
-
-	send(myClientSocket, header, 0x08, 0);
-
-	send(myClientSocket, (char*)data, dataLen, 0);
-
-	char pData[65536];
-	int dl = recv(myClientSocket, pData, 0x08, 0);
-
-	if (pData[0] == 'a' && pData[1] == 'n' && pData[2] == 's' && pData[3] == 'w')
-	{
-		int dataLen1 = 0;
-		unsigned int p1 = (unsigned int)pData[4];
-		unsigned int p2 = (unsigned int)pData[5];
-		unsigned int p3 = (unsigned int)pData[6];
-		unsigned int p4 = (unsigned int)pData[7];
-		dataLen1 = p1 * 16777216 + p2 * 65536 + p3 * 256 + p4;
-
-		char *data = new char[dataLen1];
-		if (data)
+		if (recv_header[0] == 'a' && recv_header[1] == 'n' && recv_header[2] == 's' && recv_header[3] == 'w')
 		{
-			dl = recv(myClientSocket, data, dataLen1, 0);
-			if (dl == 4)
-			{
-				delete[] data;
-				data = NULL;
-#ifdef  _WIN32
-				closesocket(myClientSocket);
-#else
-				close(myClientSocket);
-#endif //  _WIN32
-				sem_post(&mx_ports[port_index]);
-				cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
+			unsigned int p1 = (unsigned int)recv_header[4];
+			unsigned int p2 = (unsigned int)recv_header[5];
+			unsigned int p3 = (unsigned int)recv_header[6];
+			unsigned int p4 = (unsigned int)recv_header[7];
+			int recv_data_len = p1 * 16777216 + p2 * 65536 + p3 * 256 + p4;
 
-				return 0;
-			}
-			if (dl == dataLen1)
-			{
-				rs = data[0];
-				unsigned char *p;
-				p = (unsigned char*)fTemplate;
-				for (int i = 0; i < sizeof(float)*FACESIZE; i++) p[i] = data[i + 1];
+			char* recv_data = new char[recv_data_len];
+			io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
+			cout << "Recv len: " << io_len << endl;
+			if (err) {
+				delete[] recv_data;
+				client_socket.close();
+				throw(err);
 			}
 
-			delete[] data;
-			data = NULL;
+
+			if (io_len == recv_data_len)
+			{
+				rs = recv_data[0];
+				memcpy_s(template_buf, template_buf_size, &recv_data[1], recv_data_len - 1);
+				delete[] recv_data;
+			}
+			else
+			{
+				delete[] recv_data;
+				client_socket.close();
+				throw(boost::system::errc::make_error_code(boost::system::errc::bad_message));
 			}
 		}
 
-#ifdef  _WIN32
-	closesocket(myClientSocket);
-#else
-	close(myClientSocket);
-#endif //  _WIN32
-	sem_post(&mx_ports[port_index]);
-	cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
+		client_socket.close();
+	}
+	catch (const boost::system::error_code& ec)
+	{
+		mx_ports[port_index].post();
+		cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
+		throw(ec);
+	}
+	catch (const std::exception& ec)
+	{
+		mx_ports[port_index].post();
+		cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
+		throw(boost::system::errc::make_error_code(boost::system::errc::io_error));
+	}
 
+	mx_ports[port_index].post();
+	cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
 	return rs;
 }
 
 void ebs_client_init()
 {
-	int res = sem_init(&mkey1, 1, 0);
-	res = sem_init(&mx_logger, 1, 0);
-	res = sem_init(&mkey3, 1, 0);
-	res = sem_init(&mx_socket, 1, 0);
-
-	for (size_t i = 0; i < 4; i++)
-	{
-		res = sem_init(&mx_ports[i], 1, 0);
-	}
 }
 
 void ebs_client_done()
 {
-	for (size_t i = 0; i < 4; i++)
-	{
-		sem_destroy(&mx_ports[i]);
-	}
-
-	sem_destroy(&mx_socket);
-	sem_destroy(&mkey3);
-	sem_destroy(&mx_logger);
-	sem_destroy(&mkey1);
 }

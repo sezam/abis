@@ -68,5 +68,11 @@
     <ClInclude Include="..\abis-rest-server\restutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\abis-rest-server\ebsclient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

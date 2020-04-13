@@ -220,7 +220,7 @@ void test_ebs_client()
 	fclose(file);
 
 	float biotemplate[FACESIZE];
-	int res = get_face_template(buffer, fileLen + 1, biotemplate);
+	int res = get_face_template(buffer, fileLen + 1, biotemplate, sizeof(biotemplate));
 	printf("result is %d \n", res);
 
 
@@ -230,6 +230,14 @@ void test_ebs_client()
 
 int main()
 {
+
+	//localization_backend_manager my = localization_backend_manager::global();
+	//my.select("std");
+
+	//std::locale loc = boost::locale::generator().generate("us_US.UTF-8");
+	//std::locale::global(loc);
+	
+	
 	//test_ebs_client();
 	rest_server();
 
