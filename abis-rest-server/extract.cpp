@@ -2,6 +2,7 @@
 #include "extract.h"
 #include "restutils.h"
 #include "ebsclient.h"
+#include "fplibclient.h"
 
 http_listener register_extract(web::uri url)
 {
@@ -28,29 +29,68 @@ void extract_get(http_request request)
 
 				auto element_image = req_json.at(U("element_image")).as_string();
 
-				if (element_type == ABIS_BIO_FACE) {
-					vector<unsigned char> buf = conversions::from_base64(element_image);
-
-					float* face_tmp = new float[FACESIZE];
-					int count = get_face_template(&buf[0], buf.size(), face_tmp, sizeof(float) * FACESIZE);
-
-					if (count != 1) {
-						delete[] face_tmp;
-						throw(boost::system::errc::make_error_code(boost::system::errc::no_message));
-					}
-					for (size_t i = 0; i < FACESIZE; i++)
+				vector<unsigned char> buf = conversions::from_base64(element_image);
+				if (element_type == ABIS_BIO_FACE)
+				{
+					float* face_tmp = new float[FACE_TEMPLATE_SIZE];
+					int count = 0;
+					try
 					{
-						answer[U("element_vector")][i] = json::value::number(face_tmp[i]);
+						count = get_face_template(buf.data(), buf.size(), face_tmp, FACE_TEMPLATE_SIZE * sizeof(float));
+					}
+					catch (const std::exception&)
+					{
+						delete[] face_tmp;
+						throw runtime_error("get_face_template");
+					}
+
+					if (count == 1)
+					{
+						for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
+						{
+							answer[U("element_vector")][i] = json::value::number(face_tmp[i]);
+						}
+					}
+					else {
+						answer[U("element_vector")] = json::value::object();
 					}
 					delete[] face_tmp;
-					answer[U("element_type")] = json::value::string(conversions::to_string_t(to_string(element_type)));
 				}
+
+				if (element_type == ABIS_BIO_FINGER)
+				{
+					unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+					try
+					{
+						get_fingerprint_template(buf.data(), buf.size(), finger_tmp);
+
+					}
+					catch (const std::exception&)
+					{
+						free(finger_tmp);
+						throw runtime_error("get_fingerprint_template");
+					}
+
+					for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
+					{
+						answer[U("element_vector")][i] = json::value::number(finger_tmp[i]);
+					}
+					free(finger_tmp);
+				}
+
 				answer[U("ok")] = json::value::boolean(true);
+				answer[U("element_type")] = json::value::string(conversions::to_string_t(to_string(element_type)));
 			}
-			catch (boost::system::error_code ec)
+			catch (const boost::system::error_code& ec)
 			{
 				answer[U("ok")] = json::value::boolean(false);
 				std::string val = STD_TO_UTF(ec.message());
+				answer[U("error")] = json::value::string(conversions::to_string_t(val));
+			}
+			catch (const std::exception& ec)
+			{
+				answer[U("ok")] = json::value::boolean(false);
+				std::string val = STD_TO_UTF(ec.what());
 				answer[U("error")] = json::value::string(conversions::to_string_t(val));
 			}
 		});

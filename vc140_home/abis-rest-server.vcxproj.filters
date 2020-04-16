@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\finger">
+      <UniqueIdentifier>{ba43084b-e1c2-4431-a715-49d9ca044999}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\abis-rest-server\stdafx.cpp">
@@ -40,6 +43,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\abis-rest-server\restutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\abis-rest-server\fplibclient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\abis-rest-server\imgutils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,8 +80,23 @@
     <ClInclude Include="..\abis-rest-server\ebsclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\abis-rest-server\fplibclient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\abis-rest-server\finger\fp_internal.h">
+      <Filter>Header Files\finger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\abis-rest-server\finger\libfprint.h">
+      <Filter>Header Files\finger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\abis-rest-server\imgutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\readme.txt" />
   </ItemGroup>
 </Project>

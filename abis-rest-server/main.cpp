@@ -1,4 +1,3 @@
-
 #include "AbisRest.h"
 #include "extract.h"
 #include "compare.h"
@@ -16,7 +15,7 @@ void handle_get(http_request request)
 
 	auto answer = json::value::object();
 
-	for (auto const & p : dictionary)
+	for (auto const& p : dictionary)
 	{
 		answer[p.first] = json::value::string(p.second);
 	}
@@ -33,26 +32,25 @@ void handle_post(http_request request)
 
 	handle_request(
 		request,
-		[](json::value const & jvalue, json::value & answer)
-	{
-		for (auto const & e : jvalue.as_array())
-		{
-			if (e.is_string())
+		[](json::value const& jvalue, json::value& answer) {
+			for (auto const& e : jvalue.as_array())
 			{
-				auto key = e.as_string();
-				auto pos = dictionary.find(key);
+				if (e.is_string())
+				{
+					auto key = e.as_string();
+					auto pos = dictionary.find(key);
 
-				if (pos == dictionary.end())
-				{
-					answer[key] = json::value::string(L"<nil>");
-				}
-				else
-				{
-					answer[pos->first] = json::value::string(pos->second);
+					if (pos == dictionary.end())
+					{
+						answer[key] = json::value::string(L"<nil>");
+					}
+					else
+					{
+						answer[pos->first] = json::value::string(pos->second);
+					}
 				}
 			}
-		}
-	});
+		});
 }
 
 void handle_put(http_request request)
@@ -61,30 +59,29 @@ void handle_put(http_request request)
 
 	handle_request(
 		request,
-		[](json::value const & jvalue, json::value & answer)
-	{
-		for (auto const & e : jvalue.as_object())
-		{
-			if (e.second.is_string())
+		[](json::value const& jvalue, json::value& answer) {
+			for (auto const& e : jvalue.as_object())
 			{
-				auto key = e.first;
-				auto value = e.second.as_string();
-
-				if (dictionary.find(key) == dictionary.end())
+				if (e.second.is_string())
 				{
-					TRACE_ACTION(L"added", key, value);
-					answer[key] = json::value::string(L"<put>");
-				}
-				else
-				{
-					TRACE_ACTION(L"updated", key, value);
-					answer[key] = json::value::string(L"<updated>");
-				}
+					auto key = e.first;
+					auto value = e.second.as_string();
 
-				dictionary[key] = value;
+					if (dictionary.find(key) == dictionary.end())
+					{
+						TRACE_ACTION("added", key, value);
+						answer[key] = json::value::string(L"<put>");
+					}
+					else
+					{
+						TRACE_ACTION("updated", key, value);
+						answer[key] = json::value::string(L"<updated>");
+					}
+
+					dictionary[key] = value;
+				}
 			}
-		}
-	});
+		});
 }
 
 void handle_del(http_request request)
@@ -93,32 +90,31 @@ void handle_del(http_request request)
 
 	handle_request(
 		request,
-		[](json::value const & jvalue, json::value & answer)
-	{
-		set<utility::string_t> keys;
-		for (auto const & e : jvalue.as_array())
-		{
-			if (e.is_string())
+		[](json::value const& jvalue, json::value& answer) {
+			set<utility::string_t> keys;
+			for (auto const& e : jvalue.as_array())
 			{
-				auto key = e.as_string();
+				if (e.is_string())
+				{
+					auto key = e.as_string();
 
-				auto pos = dictionary.find(key);
-				if (pos == dictionary.end())
-				{
-					answer[key] = json::value::string(L"<failed>");
-				}
-				else
-				{
-					TRACE_ACTION(L"deleted", pos->first, pos->second);
-					answer[key] = json::value::string(L"<deleted>");
-					keys.insert(key);
+					auto pos = dictionary.find(key);
+					if (pos == dictionary.end())
+					{
+						answer[key] = json::value::string(L"<failed>");
+					}
+					else
+					{
+						TRACE_ACTION("deleted", pos->first, pos->second);
+						answer[key] = json::value::string(L"<deleted>");
+						keys.insert(key);
+					}
 				}
 			}
-		}
 
-		for (auto const & key : keys)
-			dictionary.erase(key);
-	});
+			for (auto const& key : keys)
+				dictionary.erase(key);
+		});
 }
 
 void rest_server()
@@ -140,40 +136,35 @@ void rest_server()
 	{
 		listener
 			.open()
-			.then([&listener]() {TRACE(L"\nstarting to listen demo\n"); })
+			.then([&listener]() { TRACE(L"\nstarting to listen demo\n"); })
 			.wait();
 
 		extract_listener
 			.open()
-			.then([&extract_listener]() {TRACE(L"\nstarting to listen extract\n"); })
+			.then([&extract_listener]() { TRACE(L"\nstarting to listen extract\n"); })
 			.wait();
 
 		compare_listener
 			.open()
-			.then([&compare_listener]() {TRACE(L"\nstarting to listen compare\n"); })
+			.then([&compare_listener]() { TRACE(L"\nstarting to listen compare\n"); })
 			.wait();
 
 		biocard_listener
 			.open()
-			.then([&compare_listener]() {TRACE(L"\nstarting to listen biocard\n"); })
+			.then([&compare_listener]() { TRACE(L"\nstarting to listen biocard\n"); })
 			.wait();
 
 		verify_listener
 			.open()
-			.then([&compare_listener]() {TRACE(L"\nstarting to listen verify\n"); })
+			.then([&compare_listener]() { TRACE(L"\nstarting to listen verify\n"); })
 			.wait();
 
 		search_listener
 			.open()
-			.then([&compare_listener]() {TRACE(L"\nstarting to listen search\n"); })
+			.then([&compare_listener]() { TRACE(L"\nstarting to listen search\n"); })
 			.wait();
 
-
-		ebs_client_init();
-
 		while (true);
-
-		ebs_client_done();
 
 		listener.close().wait();
 		extract_listener.close().wait();
@@ -182,7 +173,7 @@ void rest_server()
 		verify_listener.close().wait();
 		search_listener.close().wait();
 	}
-	catch (exception const & e)
+	catch (exception const& e)
 	{
 		wcout << e.what() << endl;
 	}
@@ -190,10 +181,8 @@ void rest_server()
 
 void test_ebs_client()
 {
-	ebs_client_init();
-
-	FILE *file;
-	unsigned char *buffer;
+	FILE* file;
+	unsigned char* buffer;
 	unsigned long fileLen;
 
 	file = fopen("c:\\temp\\1\\1.png", "rb");
@@ -207,7 +196,7 @@ void test_ebs_client()
 	fileLen = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	buffer = (unsigned char *)malloc(fileLen + 1);
+	buffer = (unsigned char*)malloc(fileLen + 1);
 
 	if (!buffer)
 	{
@@ -219,25 +208,15 @@ void test_ebs_client()
 	fread(buffer, fileLen, 1, file);
 	fclose(file);
 
-	float biotemplate[FACESIZE];
+	float biotemplate[FACE_TEMPLATE_SIZE];
 	int res = get_face_template(buffer, fileLen + 1, biotemplate, sizeof(biotemplate));
 	printf("result is %d \n", res);
 
-
 	free(buffer);
-	ebs_client_done();
 }
 
 int main()
 {
-
-	//localization_backend_manager my = localization_backend_manager::global();
-	//my.select("std");
-
-	//std::locale loc = boost::locale::generator().generate("us_US.UTF-8");
-	//std::locale::global(loc);
-	
-	
 	//test_ebs_client();
 	rest_server();
 

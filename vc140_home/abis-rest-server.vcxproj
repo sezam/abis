@@ -129,7 +129,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <AdditionalDependencies>cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
     <ClCompile>
@@ -138,7 +138,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>cpprest_2_10.lib;boost_locale-vc140-mt.lib;boost_date_time-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cpprest_2_10.lib;boost_locale-vc140-mt.lib;boost_date_time-vc140-mt.lib;boost_regex-vc140-mt.lib;libpng16.lib;jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
@@ -151,6 +151,8 @@
     <ClCompile Include="..\abis-rest-server\compare.cpp" />
     <ClCompile Include="..\abis-rest-server\ebsclient.cpp" />
     <ClCompile Include="..\abis-rest-server\extract.cpp" />
+    <ClCompile Include="..\abis-rest-server\fplibclient.cpp" />
+    <ClCompile Include="..\abis-rest-server\imgutils.cpp" />
     <ClCompile Include="..\abis-rest-server\main.cpp" />
     <ClCompile Include="..\abis-rest-server\restutils.cpp" />
     <ClCompile Include="..\abis-rest-server\search.cpp" />
@@ -163,6 +165,10 @@
     <ClInclude Include="..\abis-rest-server\compare.h" />
     <ClInclude Include="..\abis-rest-server\ebsclient.h" />
     <ClInclude Include="..\abis-rest-server\extract.h" />
+    <ClInclude Include="..\abis-rest-server\finger\fp_internal.h" />
+    <ClInclude Include="..\abis-rest-server\finger\libfprint.h" />
+    <ClInclude Include="..\abis-rest-server\fplibclient.h" />
+    <ClInclude Include="..\abis-rest-server\imgutils.h" />
     <ClInclude Include="..\abis-rest-server\restutils.h" />
     <ClInclude Include="..\abis-rest-server\search.h" />
     <ClInclude Include="..\abis-rest-server\stdafx.h" />
@@ -170,6 +176,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\readme.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,3 +1,7 @@
+зависимости
+	cpprestsdk	2.10 (собирается статически с Boost 1.54)
+	boost		1.72 
+
 
 #define MAX_BOZORTH_MINUTIAE		200
 

@@ -3,15 +3,9 @@
 #ifndef EBSCLIENT_H
 #define EBSCLIENT_H
 
-#define FACESIZE 512
+#define FACE_TEMPLATE_SIZE	512
 
-void saveToLog(int elev, char *log, const char *data);
-
-int get_face_template(const unsigned char* send_data, const unsigned int send_data_len,
-	float* template_buf, const unsigned int template_buf_size);
-
-void ebs_client_init();
-
-void ebs_client_done();
+int get_face_template(const unsigned char* image_data, const unsigned int image_data_len,
+	void* template_buf, const unsigned int template_buf_size);
 
 #endif
