@@ -21,4 +21,6 @@ struct xyt_struct {
 int get_fingerprint_template(const unsigned char* image_data, const unsigned int image_data_len, 
 	unsigned char* template_buf, const unsigned int template_buf_len);
 
+float cmp_fingerprint_template(void* tmp1, void* tmp2);
+
 #endif

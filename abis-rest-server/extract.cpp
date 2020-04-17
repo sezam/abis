@@ -21,16 +21,16 @@ void extract_get(http_request request)
 		{
 			try
 			{
-				int element_type = ABIS_TYPE_DATA;
+				int element_type = ABIS_DATA;
 
-				json::value el_type = req_json.at(U("element_type"));
+				json::value el_type = req_json.at(ELEMENT_TYPE);
 				if (el_type.is_integer()) element_type = el_type.as_integer();
 				if (el_type.is_string()) element_type = stoi(el_type.as_string());
 
-				auto element_image = req_json.at(U("element_image")).as_string();
+				auto element_image = req_json.at(ELEMENT_VALUE).as_string();
 
 				vector<unsigned char> buf = conversions::from_base64(element_image);
-				if (element_type == ABIS_TYPE_FACE)
+				if (element_type == ABIS_FACE_IMAGE)
 				{
 					float* face_tmp = new float[FACE_TEMPLATE_SIZE];
 					int count = 0;
@@ -41,23 +41,25 @@ void extract_get(http_request request)
 					catch (const std::exception&)
 					{
 						delete[] face_tmp;
-						throw runtime_error("get_face_template");
+						throw runtime_error("extract: get_face_template");
 					}
 
 					if (count == 1)
 					{
 						for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
 						{
-							answer[U("element_vector")][i] = json::value::number(face_tmp[i]);
+							answer[ELEMENT_VALUE][i] = json::value::number(face_tmp[i]);
 						}
+						delete[] face_tmp;
 					}
-					else {
-						answer[U("element_vector")] = json::value::object();
+					else
+					{
+						delete[] face_tmp;
+						throw runtime_error("extract: get_face_template");
 					}
-					delete[] face_tmp;
 				}
 
-				if (element_type == ABIS_TYPE_FINGER)
+				if (element_type == ABIS_FINGER_IMAGE)
 				{
 					unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
 					try
@@ -68,30 +70,30 @@ void extract_get(http_request request)
 					catch (const std::exception&)
 					{
 						free(finger_tmp);
-						throw runtime_error("get_fingerprint_template");
+						throw runtime_error("extract: get_fingerprint_template");
 					}
 
 					for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
 					{
-						answer[U("element_vector")][i] = json::value::number(finger_tmp[i]);
+						answer[ELEMENT_VALUE][i] = json::value::number(finger_tmp[i]);
 					}
 					free(finger_tmp);
 				}
 
-				answer[U("ok")] = json::value::boolean(true);
-				answer[U("element_type")] = json::value::string(conversions::to_string_t(to_string(element_type)));
+				answer[ELEMENT_RESULT] = json::value::boolean(true);
+				answer[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(element_type)));
 			}
 			catch (const boost::system::error_code& ec)
 			{
-				answer[U("ok")] = json::value::boolean(false);
+				answer[ELEMENT_RESULT] = json::value::boolean(false);
 				std::string val = STD_TO_UTF(ec.message());
-				answer[U("error")] = json::value::string(conversions::to_string_t(val));
+				answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
 			}
 			catch (const std::exception& ec)
 			{
-				answer[U("ok")] = json::value::boolean(false);
+				answer[ELEMENT_RESULT] = json::value::boolean(false);
 				std::string val = STD_TO_UTF(ec.what());
-				answer[U("error")] = json::value::string(conversions::to_string_t(val));
+				answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
 			}
 		});
 

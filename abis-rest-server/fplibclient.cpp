@@ -66,3 +66,13 @@ int get_fingerprint_template(const unsigned char* image_data, const unsigned int
 	return 0;
 }
 
+float cmp_fingerprint_template(void* tmp1, void* tmp2) {
+	float score = 0;
+	// реализация есть только под linux
+#ifdef _WIN32
+	score = rand() % 100 / 100.0f;
+#else
+	score = matchFingerPrint((unsigned char*)tmp1, (unsigned char*)tmp2) / 100.0f;
+#endif
+	return score;
+}

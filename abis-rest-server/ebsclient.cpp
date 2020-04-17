@@ -82,7 +82,7 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 
 						char* recv_data = new char[recv_data_len];
 						io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
-						if (!err) 
+						if (!err)
 						{
 							if (io_len == recv_data_len)
 							{
@@ -107,4 +107,21 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 	mx_ports[port_index].post();
 	cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
 	return rs;
+}
+
+float fvec_eq_dis(const float* x, const float* y, size_t d)
+{
+	size_t i;
+	float res;
+
+	res = (x[0] - y[0]);
+	for (i = 1; i < d; i++) {
+		const float tmp = x[i] - y[i];
+		res += tmp * tmp;
+	}
+	return sqrt(res);
+}
+
+float cmp_face_template(void* tmp1, void* tmp2) {
+	return fvec_eq_dis((const float*)tmp1, (const float*)tmp1, FACE_TEMPLATE_SIZE);
 }
