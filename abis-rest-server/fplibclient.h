@@ -18,6 +18,7 @@ struct xyt_struct {
 
 #define FINGER_TEMPLATE_SIZE sizeof(xyt_struct)
 
-int get_fingerprint_template(const unsigned char* image_data, const unsigned int image_data_len, unsigned char* template_buf);
+int get_fingerprint_template(const unsigned char* image_data, const unsigned int image_data_len, 
+	unsigned char* template_buf, const unsigned int template_buf_len);
 
 #endif

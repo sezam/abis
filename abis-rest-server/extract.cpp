@@ -21,7 +21,7 @@ void extract_get(http_request request)
 		{
 			try
 			{
-				int element_type = ABIS_BIO_DATA;
+				int element_type = ABIS_TYPE_DATA;
 
 				json::value el_type = req_json.at(U("element_type"));
 				if (el_type.is_integer()) element_type = el_type.as_integer();
@@ -30,7 +30,7 @@ void extract_get(http_request request)
 				auto element_image = req_json.at(U("element_image")).as_string();
 
 				vector<unsigned char> buf = conversions::from_base64(element_image);
-				if (element_type == ABIS_BIO_FACE)
+				if (element_type == ABIS_TYPE_FACE)
 				{
 					float* face_tmp = new float[FACE_TEMPLATE_SIZE];
 					int count = 0;
@@ -57,12 +57,12 @@ void extract_get(http_request request)
 					delete[] face_tmp;
 				}
 
-				if (element_type == ABIS_BIO_FINGER)
+				if (element_type == ABIS_TYPE_FINGER)
 				{
 					unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
 					try
 					{
-						get_fingerprint_template(buf.data(), buf.size(), finger_tmp);
+						get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
 
 					}
 					catch (const std::exception&)

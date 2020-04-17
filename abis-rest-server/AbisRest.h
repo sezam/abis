@@ -80,10 +80,10 @@ namespace gil = boost::gil;
 #define TRACE_ACTION(a, k, v) wcout << a << L" (" << k << L", " << v << L")\n"
 
 // abis bio data types
-#define ABIS_BIO_DATA		0x00
-#define ABIS_BIO_FACE		0x01
-#define ABIS_BIO_FINGER		0x02
-#define ABIS_BIO_IRIS		0x03
+#define ABIS_TYPE_DATA		0x00
+#define ABIS_TYPE_FACE		0x01
+#define ABIS_TYPE_FINGER	0x02
+#define ABIS_TYPE_IRIS		0x03
 
 #endif
 

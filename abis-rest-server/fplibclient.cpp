@@ -2,9 +2,12 @@
 #include "fplibclient.h"
 #include "imgutils.h"
 
-int get_fingerprint_template(const unsigned char* image_data, const unsigned int image_data_len, unsigned char* template_buf)
+int get_fingerprint_template(const unsigned char* image_data, const unsigned int image_data_len,
+	unsigned char* template_buf, const unsigned int template_buf_len)
 {
 	fp_img* in_fpimg = NULL;
+
+	if (template_buf_len < FINGER_TEMPLATE_SIZE) throw runtime_error("Buffer too small.");
 
 	try
 	{
@@ -38,7 +41,7 @@ int get_fingerprint_template(const unsigned char* image_data, const unsigned int
 		unsigned char* fp_data = in_fpimg->data;
 		for (auto it = img_view.begin(); it != img_view.end(); ++it) fp_data++[*it];
 
-		memset(template_buf, 0, sizeof(xyt_struct));
+		memset(template_buf, 0, FINGER_TEMPLATE_SIZE);
 
 		// реализация есть только под linux
 #ifdef _WIN32
