@@ -34,7 +34,7 @@ int find_free_port()
 int get_face_template(const unsigned char* image_data, const unsigned int image_data_len,
 	void* template_buf, const unsigned int template_buf_size)
 {
-	int rs = 0;
+	int res = -1;
 
 	int port_index = find_free_port();
 	int current_port = port_index + 10080;
@@ -86,7 +86,7 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 						{
 							if (io_len == recv_data_len)
 							{
-								rs = recv_data[0];
+								res = recv_data[0];
 								memcpy_s(template_buf, template_buf_size, &recv_data[1], recv_data_len - 1);
 								delete[] recv_data;
 							}
@@ -100,13 +100,12 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 	}
 	catch (const std::exception& ec)
 	{
-		mx_ports[port_index].post();
-		cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
+		res = std::error_code().value();
 	}
 
 	mx_ports[port_index].post();
 	cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
-	return rs;
+	return res;
 }
 
 float fvec_eq_dis(const float* x, const float* y, size_t d)

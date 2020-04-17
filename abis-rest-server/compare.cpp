@@ -59,7 +59,7 @@ void compare_get(http_request request)
 
 						if (count != 1)
 						{
-							throw runtime_error("compare: get_face_template, return faces > 1");
+							throw runtime_error("compare: get_face_template, return faces <> 1");
 						}
 					}
 
@@ -98,7 +98,8 @@ void compare_get(http_request request)
 						tmps[i] = face_tmp;
 
 						auto element_tmp = arr[i].at(ELEMENT_VALUE).as_array();
-						for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
+						//for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
+						for (size_t i = 0; i < element_tmp.size(); i++)
 						{
 							face_tmp[i] = element_tmp[i].as_integer();
 						}
@@ -115,7 +116,8 @@ void compare_get(http_request request)
 						tmps[i] = finger_tmp;
 
 						auto element_tmp = arr[i].at(ELEMENT_VALUE).as_array();
-						for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
+						//for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
+						for (size_t i = 0; i < element_tmp.size(); i++)
 						{
 							finger_tmp[i] = element_tmp[i].as_integer();
 						}

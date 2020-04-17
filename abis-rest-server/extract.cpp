@@ -22,6 +22,7 @@ void extract_get(http_request request)
 			try
 			{
 				int element_type = ABIS_DATA;
+				int template_type = ABIS_DATA;
 
 				json::value el_type = req_json.at(ELEMENT_TYPE);
 				if (el_type.is_integer()) element_type = el_type.as_integer();
@@ -32,6 +33,7 @@ void extract_get(http_request request)
 				vector<unsigned char> buf = conversions::from_base64(element_image);
 				if (element_type == ABIS_FACE_IMAGE)
 				{
+					template_type = ABIS_FACE_TEMPLATE;
 					float* face_tmp = new float[FACE_TEMPLATE_SIZE];
 					int count = 0;
 					try
@@ -44,23 +46,22 @@ void extract_get(http_request request)
 						throw runtime_error("extract: get_face_template");
 					}
 
-					if (count == 1)
-					{
-						for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
-						{
-							answer[ELEMENT_VALUE][i] = json::value::number(face_tmp[i]);
-						}
-						delete[] face_tmp;
-					}
-					else
+					if (count != 1)
 					{
 						delete[] face_tmp;
-						throw runtime_error("extract: get_face_template");
+						throw runtime_error("compare: get_face_template, return faces <> 1");
 					}
+
+					for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
+					{
+						answer[ELEMENT_VALUE][i] = json::value::number(face_tmp[i]);
+					}
+					delete[] face_tmp;
 				}
 
 				if (element_type == ABIS_FINGER_IMAGE)
 				{
+					template_type = ABIS_FINGER_TEMPLATE;
 					unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
 					try
 					{
@@ -81,7 +82,7 @@ void extract_get(http_request request)
 				}
 
 				answer[ELEMENT_RESULT] = json::value::boolean(true);
-				answer[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(element_type)));
+				answer[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(template_type)));
 			}
 			catch (const boost::system::error_code& ec)
 			{
