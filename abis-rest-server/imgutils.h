@@ -13,4 +13,6 @@ bool isPng(const unsigned char * img);
 bool isJpg(const unsigned char* img);
 bool isBmp(const unsigned char* img);
 
+float fvec_eq_dis(const float* x, const float* y, size_t d);
+
 #endif
