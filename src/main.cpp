@@ -20,8 +20,8 @@ void handle_get(http_request request)
 		answer[p.first] = json::value::string(p.second);
 	}
 
-	display_json(json::value::null(), L"R: ");
-	display_json(answer, L"S: ");
+	display_json(json::value::null(), U("R: "));
+	display_json(answer, U("S: "));
 
 	request.reply(status_codes::OK, answer);
 }
@@ -42,7 +42,7 @@ void handle_post(http_request request)
 
 					if (pos == dictionary.end())
 					{
-						answer[key] = json::value::string(L"<nil>");
+						answer[key] = json::value::string(U("<nil>"));
 					}
 					else
 					{
@@ -70,12 +70,12 @@ void handle_put(http_request request)
 					if (dictionary.find(key) == dictionary.end())
 					{
 						TRACE_ACTION("added", key, value);
-						answer[key] = json::value::string(L"<put>");
+						answer[key] = json::value::string(U("<put>"));
 					}
 					else
 					{
 						TRACE_ACTION("updated", key, value);
-						answer[key] = json::value::string(L"<updated>");
+						answer[key] = json::value::string(U("<updated>"));
 					}
 
 					dictionary[key] = value;
@@ -101,12 +101,12 @@ void handle_del(http_request request)
 					auto pos = dictionary.find(key);
 					if (pos == dictionary.end())
 					{
-						answer[key] = json::value::string(L"<failed>");
+						answer[key] = json::value::string(U("<failed>"));
 					}
 					else
 					{
 						TRACE_ACTION("deleted", pos->first, pos->second);
-						answer[key] = json::value::string(L"<deleted>");
+						answer[key] = json::value::string(U("<deleted>"));
 						keys.insert(key);
 					}
 				}
@@ -119,49 +119,49 @@ void handle_del(http_request request)
 
 void rest_server()
 {
-	http_listener listener(L"http://localhost/restdemo");
+	http_listener listener(U("http://localhost/restdemo"));
 
 	listener.support(methods::GET, handle_get);
 	listener.support(methods::POST, handle_post);
 	listener.support(methods::PUT, handle_put);
 	listener.support(methods::DEL, handle_del);
 
-	http_listener extract_listener = register_extract(L"http://localhost/extract");
-	http_listener compare_listener = register_compare(L"http://localhost/compare");
-	http_listener biocard_listener = register_biocard(L"http://localhost/biocard");
-	http_listener verify_listener = register_verify(L"http://localhost/verify");
-	http_listener search_listener = register_search(L"http://localhost/search");
+	http_listener extract_listener = register_extract(U("http://localhost/extract"));
+	http_listener compare_listener = register_compare(U("http://localhost/compare"));
+	http_listener biocard_listener = register_biocard(U("http://localhost/biocard"));
+	http_listener verify_listener = register_verify(U("http://localhost/verify"));
+	http_listener search_listener = register_search(U("http://localhost/search"));
 
 	try
 	{
 		listener
 			.open()
-			.then([&listener]() { TRACE(L"\nstarting to listen demo\n"); })
+			.then([&listener]() { TRACE("\nstarting to listen demo\n"); })
 			.wait();
 
 		extract_listener
 			.open()
-			.then([&extract_listener]() { TRACE(L"\nstarting to listen extract\n"); })
+			.then([&extract_listener]() { TRACE("\nstarting to listen extract\n"); })
 			.wait();
 
 		compare_listener
 			.open()
-			.then([&compare_listener]() { TRACE(L"\nstarting to listen compare\n"); })
+			.then([&compare_listener]() { TRACE("\nstarting to listen compare\n"); })
 			.wait();
 
 		biocard_listener
 			.open()
-			.then([&compare_listener]() { TRACE(L"\nstarting to listen biocard\n"); })
+			.then([&compare_listener]() { TRACE("\nstarting to listen biocard\n"); })
 			.wait();
 
 		verify_listener
 			.open()
-			.then([&compare_listener]() { TRACE(L"\nstarting to listen verify\n"); })
+			.then([&compare_listener]() { TRACE("\nstarting to listen verify\n"); })
 			.wait();
 
 		search_listener
 			.open()
-			.then([&compare_listener]() { TRACE(L"\nstarting to listen search\n"); })
+			.then([&compare_listener]() { TRACE("\nstarting to listen search\n"); })
 			.wait();
 
 		while (true);
@@ -175,7 +175,7 @@ void rest_server()
 	}
 	catch (exception const& e)
 	{
-		wcout << e.what() << endl;
+		cout << e.what() << endl;
 	}
 }
 

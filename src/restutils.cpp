@@ -4,26 +4,26 @@ void display_json(
 	json::value const& jvalue,
 	utility::string_t const& prefix)
 {
-	//wcout << prefix << jvalue.serialize() << endl;
+	//cout << prefix << jvalue.serialize() << endl;
 
-	wcout << prefix << endl;
+	cout << prefix.c_str() << endl;
 
 	if (jvalue.is_object())
 	{
 		for (auto const& e : jvalue.as_object())
 		{
-			wcout << "\t{ " << e.first.substr(0, 20);
-			wcout << " : \t" << e.second.to_string().substr(0, 50) << "}" << endl;
+			cout << "\t{ " << e.first.substr(0, 20).c_str();
+			cout << " : \t" << e.second.to_string().substr(0, 50).c_str() << "}" << endl;
 		}
 	}
 	if (jvalue.is_array())
 	{
-		wcout << "  [";
+		cout << "  [";
 		for (auto const& e : jvalue.as_array())
 		{
 			display_json(e, U(""));
 		}
-		wcout << "  ]" << endl;
+		cout << "  ]" << endl;
 	}
 }
 
@@ -42,7 +42,7 @@ void handle_request(
 					try
 					{
 						auto const& jvalue = task.get();
-						display_json(jvalue, L"Recv: ");
+						display_json(jvalue, U("Recv: "));
 
 						if (!jvalue.is_null())
 						{
@@ -51,7 +51,7 @@ void handle_request(
 					}
 					catch (http_exception const& e)
 					{
-						wcout << e.what() << endl;
+						cout << e.what() << endl;
 					}
 				})
 			.wait();
@@ -63,6 +63,6 @@ void handle_request(
 #endif // DEBUG
 	}
 
-	display_json(answer, L"Send: ");
+	display_json(answer, U("Send: "));
 	request.reply(status_codes::OK, answer);
 }

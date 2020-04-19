@@ -3,9 +3,7 @@
 #include "AbisRest.h"
 #include "ebsclient.h"
 
-interprocess_semaphore mkey1(1);
 interprocess_semaphore mx_logger(1);
-interprocess_semaphore mkey3(1);
 interprocess_semaphore mx_socket(1);
 interprocess_semaphore mx_ports[4] = { 1, 1, 1, 1 };
 

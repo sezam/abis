@@ -17,5 +17,4 @@
 #include <map>
 #include <stdio.h>
 #include <string>
-#include <tchar.h>
 #include <vector>
