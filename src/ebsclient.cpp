@@ -5,7 +5,7 @@
 
 interprocess_semaphore mx_logger(1);
 interprocess_semaphore mx_socket(1);
-interprocess_semaphore mx_ports[4] = { 1, 1, 1, 1 };
+interprocess_semaphore mx_ports[4] = { {1}, {1}, {1}, {1} };
 
 io_service boost_io_service;
 
@@ -16,7 +16,6 @@ int find_free_port()
 	{
 		for (size_t i = 0; i < 4; i++)
 		{
-			int value;
 			if (mx_ports[i].try_wait()) {
 				mx_socket.post();
 				return i;
@@ -85,7 +84,7 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 							if (io_len == recv_data_len)
 							{
 								res = recv_data[0];
-								memcpy_s(template_buf, template_buf_size, &recv_data[1], recv_data_len - 1);
+								memcpy(template_buf, &recv_data[1], template_buf_size);
 								delete[] recv_data;
 							}
 						}

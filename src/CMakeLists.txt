@@ -13,8 +13,8 @@ if (MSVC)
     link_directories(
         d:/lib/vcpkg/installed/x64-windows/lib/
     )
-elseif(LINUX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-long-long -Wno-deprecated-declarations -Wno-unknown-pragmas")
+elseif(UNIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wall -Wno-long-long -Wno-deprecated-declarations -Wno-unknown-pragmas")
 
     include_directories(
         /opt/vcpkg/installed/x64-linux/include
@@ -29,21 +29,24 @@ endif()
 file (GLOB COMMON_SRC *.cpp *.h finger/*.h)
 set (SOURCE  ${COMMON_SRC})
 
+find_package(Boost 1.72.0 REQUIRED COMPONENTS locale regex date_time)
+find_package(cpprestsdk REQUIRED NAMES cpprestsdk cpprest)
+find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(JPEG REQUIRED)
+find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(Boost REQUIRED)
-find_package(cpprestsdk REQUIRED)
 
 #Финальный штрих и сборка.
-add_executable(${PACKAGE_TARNAME} ${SOURCE}) 
+add_executable(${PACKAGE_TARNAME} ${SOURCE})
 
-if (MSVC)
-    target_link_libraries(${PACKAGE_TARNAME} 
-        cpprest_2_10.lib 
-        boost_locale-vc140-mt.lib
-        boost_date_time-vc140-mt.lib
-        boost_regex-vc140-mt.lib
-        jpeg.lib 
-        libpng16.lib
-    )
-elseif(LINUX)
-endif()
+target_link_libraries(${PACKAGE_TARNAME}
+    cpprestsdk::cpprest
+    Boost::regex
+    Boost::locale
+    Boost::date_time
+    ${OpenSSL_LIBRARIES}
+    ${JPEG_LIBRARIES}
+    ${PNG_LIBRARIES}
+    ${ZLIB_LIBRARIES}
+)

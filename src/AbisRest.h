@@ -11,17 +11,11 @@
 	#endif
 
 	#define _CRT_SECURE_NO_WARNINGS
-
 	#pragma warning( disable : 4996)
-
-	#ifdef _DEBUG
-		// #pragma comment(lib, "cpprest_2_10d")
-	#else
-		// #pragma comment(lib, "cpprest_2_10")
-	#endif
 #endif
 
 #define BOOST_NO_ANSI_APIS
+#define __STDC_WANT_LIB_EXT1__ 1
 
 #include <iostream>
 #include <map>

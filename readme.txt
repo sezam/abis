@@ -8,6 +8,8 @@ vcpkg install cpprestsdk // собирает zlib, boost, openssl, cpprest, bzip2, liblz
 vcpkg install boost
 vcpkg install boost-interprocess
 vcpkg install boost-gil
+vcpkg install libjpeg-turbo
+vcpkg install libpng
 
 сборка под win7
 	cd build
@@ -16,7 +18,7 @@ vcpkg install boost-gil
 
 сборка под linux
 	cd build
-	cmake .. /opt/vcpkg/scripts/buildsystems/vcpkg.cmake
+	cmake .. -DCMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake
 	cmake --build . --config Release -j 4
 
 зависимости
