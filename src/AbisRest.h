@@ -6,19 +6,19 @@
 
 //system dependency
 #ifdef _WIN32
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0601
-#endif
+	#ifndef _WIN32_WINNT
+		#define _WIN32_WINNT 0x0601
+	#endif
 
-#define _CRT_SECURE_NO_WARNINGS
+	#define _CRT_SECURE_NO_WARNINGS
 
-#pragma warning( disable : 4996)
+	#pragma warning( disable : 4996)
 
-#ifdef _DEBUG
-#pragma comment(lib, "cpprest_2_10d")
-#else
-#pragma comment(lib, "cpprest_2_10")
-#endif
+	#ifdef _DEBUG
+		// #pragma comment(lib, "cpprest_2_10d")
+	#else
+		// #pragma comment(lib, "cpprest_2_10")
+	#endif
 #endif
 
 #define BOOST_NO_ANSI_APIS

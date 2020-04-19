@@ -1,6 +1,14 @@
+сборка под win7
+	cd build
+	cmake .. -T v140 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_TOOLCHAIN_FILE=D:\lib\vcpkg\scripts\buildsystems\vcpkg.cmake
+	cmake --build . --config Release -j 4
+
 зависимости
 	cpprestsdk	2.10 (собирается статически с Boost 1.54)
 	boost		1.72 
+	zlib
+	libpng
+	libjpeg
 
 
 #define MAX_BOZORTH_MINUTIAE		200
