@@ -65,8 +65,8 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 			write(client_socket, buffer(image_data, image_data_len), err);
 			if (!err)
 			{
-				char recv_header[20];
-				int io_len = client_socket.read_some(buffer(recv_header), err);
+				char recv_header[8];
+				int io_len = client_socket.read_some(buffer(recv_header, 8), err);
 				if (!err)
 				{
 					if (recv_header[0] == 'a' && recv_header[1] == 'n' && recv_header[2] == 's' && recv_header[3] == 'w')
