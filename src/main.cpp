@@ -119,18 +119,32 @@ void handle_del(http_request request)
 
 void rest_server()
 {
-	http_listener listener(U("http://*:10101/test"));
+	uri_builder endpointBuilder;
+	endpointBuilder.set_scheme(U("http"));
+	endpointBuilder.set_port(10101);
+	endpointBuilder.set_host(U("*"));
 
+	endpointBuilder.set_path(U("test"));
+	http_listener listener(endpointBuilder.to_uri());
 	listener.support(methods::GET, handle_get);
 	listener.support(methods::POST, handle_post);
 	listener.support(methods::PUT, handle_put);
 	listener.support(methods::DEL, handle_del);
 
-	http_listener extract_listener = register_extract(U("http://*:10101/extract"));
-	http_listener compare_listener = register_compare(U("http://*:10101/compare"));
-	http_listener biocard_listener = register_biocard(U("http://*:10101/biocard"));
-	http_listener verify_listener = register_verify(U("http://*:10101/verify"));
-	http_listener search_listener = register_search(U("http://*:10101/search"));
+	endpointBuilder.set_path(U("extract"));
+	http_listener extract_listener = register_extract(endpointBuilder.to_uri());
+
+	endpointBuilder.set_path(U("compare"));
+	http_listener compare_listener = register_compare(endpointBuilder.to_uri());
+
+	endpointBuilder.set_path(U("biocard"));
+	http_listener biocard_listener = register_biocard(endpointBuilder.to_uri());
+
+	endpointBuilder.set_path(U("verify"));
+	http_listener verify_listener = register_verify(endpointBuilder.to_uri());
+
+	endpointBuilder.set_path(U("search"));
+	http_listener search_listener = register_search(endpointBuilder.to_uri());
 
 	try
 	{
