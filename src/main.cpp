@@ -150,32 +150,32 @@ void rest_server()
 	{
 		listener
 			.open()
-			.then([&listener]() { TRACE("\nstarting to listen demo\n"); })
+			.then([&listener]() { cout << "starting to listen test\n" << endl; })
 			.wait();
 
 		extract_listener
 			.open()
-			.then([&extract_listener]() { TRACE("\nstarting to listen extract\n"); })
+			.then([&listener]() { cout << "starting to listen extract\n" << endl; })
 			.wait();
 
 		compare_listener
 			.open()
-			.then([&compare_listener]() { TRACE("\nstarting to listen compare\n"); })
+			.then([&listener]() { cout << "starting to listen compare\n" << endl; })
 			.wait();
 
 		biocard_listener
 			.open()
-			.then([&compare_listener]() { TRACE("\nstarting to listen biocard\n"); })
+			.then([&listener]() { cout << "starting to listen biocard\n" << endl; })
 			.wait();
 
 		verify_listener
 			.open()
-			.then([&compare_listener]() { TRACE("\nstarting to listen verify\n"); })
+			.then([&listener]() { cout << "starting to listen verify\n" << endl; })
 			.wait();
 
 		search_listener
 			.open()
-			.then([&compare_listener]() { TRACE("\nstarting to listen search\n"); })
+			.then([&listener]() { cout << "starting to listen search\n" << endl; })
 			.wait();
 
 		while (true);

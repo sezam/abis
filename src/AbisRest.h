@@ -70,8 +70,8 @@ namespace gil = boost::gil;
 #define	STD_TO_UTF(mbstr) mbstr
 #endif
 
-#define TRACE(msg)            cout << msg
-#define TRACE_ACTION(a, k, v) cout << a << " (" << k.c_str() << ", " << v.c_str() << ")\n"
+#define TRACE(msg)            wcout << msg
+#define TRACE_ACTION(a, k, v) wcout << a << " (" << k << ", " << v << ")\n"
 
 // abis bio data types
 #define ABIS_DATA				0x00

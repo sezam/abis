@@ -49,7 +49,7 @@ void extract_get(http_request request)
 					if (count != 1)
 					{
 						delete[] face_tmp;
-						throw runtime_error("compare: get_face_template, return faces <> 1");
+						throw runtime_error("extract: get_face_template, return faces <> 1");
 					}
 
 					for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)

@@ -78,7 +78,7 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 						int recv_data_len = p1 * 16777216 + p2 * 65536 + p3 * 256 + p4;
 
 						char* recv_data = new char[recv_data_len];
-						io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
+						io_len = read(client_socket, buffer(recv_data, recv_data_len), transfer_exactly(recv_data_len), err);
 						if (!err)
 						{
 							if (io_len == recv_data_len && template_buf_size == recv_data_len - 1)
