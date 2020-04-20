@@ -24,6 +24,13 @@ elseif(UNIX)
         /opt/vcpkg/installed/x64-linux/lib
     )
 
+
+    find_library(FPRINT_LIB libfprint.so ${PROJECT_SOURCE_DIR}/shared/)
+    if(FPRINT_LIB)
+        MESSAGE(STATUS "Found libfprint: ${FPRINT_LIB}")
+    else()
+        MESSAGE(STATUS "Looking for libfprint - not found")
+    endif()
 endif()
 
 file (GLOB COMMON_SRC *.cpp *.h finger/*.h)
@@ -50,3 +57,7 @@ target_link_libraries(${PACKAGE_TARNAME}
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}
 )
+
+if(UNIX)
+    target_link_libraries(${PACKAGE_TARNAME} ${FPRINT_LIB})
+endif()
