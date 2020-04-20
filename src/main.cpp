@@ -122,7 +122,12 @@ void rest_server()
 	uri_builder endpointBuilder;
 	endpointBuilder.set_scheme(U("http"));
 	endpointBuilder.set_port(10101);
-	endpointBuilder.set_host(U("*"));
+#ifdef _WIN32
+    endpointBuilder.set_host(U("*"));
+#else
+    endpointBuilder.set_host(U("0.0.0.0"));
+#endif // _WIN32
+
 
 	endpointBuilder.set_path(U("test"));
 	http_listener listener(endpointBuilder.to_uri());
