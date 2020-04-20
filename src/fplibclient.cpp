@@ -2,8 +2,8 @@
 #include "fplibclient.h"
 #include "imgutils.h"
 
-int get_fingerprint_template(const unsigned char* image_data, const unsigned int image_data_len,
-	unsigned char* template_buf, const unsigned int template_buf_len)
+int get_fingerprint_template(const unsigned char* image_data, const size_t image_data_len,
+	unsigned char* template_buf, const size_t template_buf_len)
 {
 	int res = -1;
 	fp_img* in_fpimg = NULL;
@@ -50,14 +50,14 @@ int get_fingerprint_template(const unsigned char* image_data, const unsigned int
 
 			memset(template_buf, 0, FINGER_TEMPLATE_SIZE);
 
-			// реализация есть только под linux
 #ifdef _WIN32
 			for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
 			{
 				template_buf[i] = i % 255;
 			}
 #else
-			getFingerPrint(in_fpimg, template_buf);
+            // реализация есть только под linux
+            getFingerPrint(in_fpimg, template_buf);
 #endif
 			res = 0;
 		}
@@ -79,11 +79,11 @@ int get_fingerprint_template(const unsigned char* image_data, const unsigned int
 
 float cmp_fingerprint_template(void* tmp1, void* tmp2) {
 	float score = 0;
-	// реализация есть только под linux
 #ifdef _WIN32
 	score = rand() % 100 / 100.0f;
 #else
-	score = matchFingerPrint((unsigned char*)tmp1, (unsigned char*)tmp2) / 100.0f;
+    // реализация есть только под linux
+    score = matchFingerPrint((unsigned char*)tmp1, (unsigned char*)tmp2) / 100.0f;
 #endif
 	return score;
 }
