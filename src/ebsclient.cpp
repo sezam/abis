@@ -4,52 +4,52 @@
 #include "ebsclient.h"
 
 interprocess_semaphore mx_logger(1);
-interprocess_semaphore mx_socket(1);
+interprocess_semaphore mx_finder(1);
 interprocess_semaphore mx_ports[4] = { {1}, {1}, {1}, {1} };
 
 io_service boost_io_service;
 
 int find_free_port()
 {
-	mx_socket.wait();
+	mx_finder.wait();
+
 	while (true)
 	{
 		for (size_t i = 0; i < 4; i++)
 		{
-			if (mx_ports[i].try_wait()) {
-				mx_socket.post();
+			cout << i << " ";
+			if (mx_ports[i].try_wait())
+			{
+				mx_finder.post();
 				return i;
 			}
+			this_thread::yield();
 		}
 		this_thread::sleep_for(milliseconds(100));
 	};
 
-	mx_socket.post();
+	mx_finder.post();
 	return -1;
 }
 
 int get_face_template(const unsigned char* image_data, const unsigned int image_data_len,
 	void* template_buf, const unsigned int template_buf_size)
 {
-	int res = -1;
-
 	int port_index = find_free_port();
-	int current_port = port_index + 10080;
-	cout << "Mutex lock: " << &mx_ports[port_index] << " port index: " << port_index << endl;
+	if (port_index < 0) return -1;
 
+	int res = -1;
+	int current_port = port_index + 10080;
 	try
 	{
 		tcp::socket client_socket(boost_io_service);
 		tcp::resolver::query query("10.6.46.147", to_string(current_port));
 		tcp::resolver::iterator endpoint_iterator = tcp::resolver(boost_io_service).resolve(query);
 
-		boost::system::error_code err = boost::asio::error::would_block;
-		deadline_timer deadline(boost_io_service, boost::posix_time::seconds(3));
+        boost::system::error_code err = boost::asio::error::would_block;        
+        connect(client_socket, endpoint_iterator, err);
 
-		async_connect(client_socket, endpoint_iterator, var(err) = _1);
-		do boost_io_service.run_one(); while (err == boost::asio::error::would_block);
-
-		if (!err || client_socket.is_open())
+        if (!err || client_socket.is_open())
 		{
 			char send_header[8];
 			send_header[0] = 'r';
@@ -75,10 +75,9 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 						unsigned int p2 = (unsigned int)recv_header[5];
 						unsigned int p3 = (unsigned int)recv_header[6];
 						unsigned int p4 = (unsigned int)recv_header[7];
-						int recv_data_len = p1 * 16777216 + p2 * 65536 + p3 * 256 + p4;
+                        unsigned int recv_data_len = p1 * 16777216 + p2 * 65536 + p3 * 256 + p4;
 
 						char* recv_data = new char[recv_data_len];
-						//io_len = read(client_socket, buffer(recv_data, recv_data_len), transfer_exactly(recv_data_len), err);
 						io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
 						if (!err)
 						{
@@ -92,16 +91,16 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 					}
 				}
 			}
-			client_socket.close();
+            client_socket.close();
 		}
 	}
 	catch (const std::exception& ec)
 	{
 		res = std::error_code().value();
+		cout << "Exception: " << ec.what() << endl;
 	}
 
 	mx_ports[port_index].post();
-	cout << "Mutex free: " << &mx_ports[port_index] << " port index: " << port_index << endl;
 	return res;
 }
 
