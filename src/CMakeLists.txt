@@ -29,7 +29,7 @@ elseif(UNIX)
     if(FPRINT_LIB)
         MESSAGE(STATUS "Found libfprint: ${FPRINT_LIB}")
     else()
-        MESSAGE(STATUS "Looking for libfprint - not found")
+        MESSAGE(FATAL_ERROR "Looking for libfprint - not found")
     endif()
 endif()
 

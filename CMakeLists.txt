@@ -12,4 +12,10 @@ project(${PACKAGE_NAME} C CXX)
 SET( CMAKE_CXX_STANDARD 11 )
 SET( CMAKE_CXX_STANDARD_REQUIRED ON )
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.1)
+        message(FATAL_ERROR "GCC version must be at least 7.1!")
+    endif()
+endif()
+
 add_subdirectory (src)
