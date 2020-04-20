@@ -17,13 +17,13 @@ int find_free_port()
     {
         for (size_t i = 0; i < 4; i++)
         {
-            cout << i << " ";
             if (mx_ports[i].try_wait())
             {
                 mx_finder.post();
                 return i;
             }
             this_thread::yield();
+            cout << "extract face service busy" << endl;
         }
         this_thread::sleep_for(milliseconds(100));
     };

@@ -9,12 +9,18 @@ http_listener register_compare(uri url)
 {
     http_listener listener(url);
     listener.support(methods::GET, compare_get);
+
+    listener
+        .open()
+        .then([&listener]() { cout << "starting to listen compare" << endl; })
+        .wait();
+
     return listener;
 }
 
 void compare_get(http_request request)
 {
-    TRACE(L"\nhandle compare GET\n");
+    TRACE(L"GET compare\n");
 
     handle_request(
         request,

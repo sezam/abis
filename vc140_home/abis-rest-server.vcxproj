@@ -155,6 +155,7 @@
     <ClCompile Include="..\src\biocard.cpp" />
     <ClCompile Include="..\src\compare.cpp" />
     <ClCompile Include="..\src\ebsclient.cpp" />
+    <ClCompile Include="..\src\echotest.cpp" />
     <ClCompile Include="..\src\extract.cpp" />
     <ClCompile Include="..\src\fplibclient.cpp" />
     <ClCompile Include="..\src\imgutils.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="..\src\biocard.h" />
     <ClInclude Include="..\src\compare.h" />
     <ClInclude Include="..\src\ebsclient.h" />
+    <ClInclude Include="..\src\echotest.h" />
     <ClInclude Include="..\src\extract.h" />
     <ClInclude Include="..\src\finger\fp_internal.h" />
     <ClInclude Include="..\src\finger\libfprint.h" />

@@ -1,121 +1,12 @@
 #include "AbisRest.h"
-#include "extract.h"
-#include "compare.h"
 #include "biocard.h"
+#include "compare.h"
+#include "echotest.h"
+#include "extract.h"
 #include "verify.h"
 #include "search.h"
 #include "ebsclient.h"
 #include "restutils.h"
-
-map<utility::string_t, utility::string_t> dictionary;
-
-void handle_get(http_request request)
-{
-	TRACE("handle GET\n");
-
-	auto answer = json::value::object();
-
-	for (auto const& p : dictionary)
-	{
-		answer[p.first] = json::value::string(p.second);
-	}
-
-	display_json(json::value::null(), "R: ");
-	display_json(answer, "S: ");
-
-	request.reply(status_codes::OK, answer);
-}
-
-void handle_post(http_request request)
-{
-	TRACE("handle POST\n");
-
-	handle_request(
-		request,
-		[](json::value const& jvalue, json::value& answer) {
-			for (auto const& e : jvalue.as_array())
-			{
-				if (e.is_string())
-				{
-					auto key = e.as_string();
-					auto pos = dictionary.find(key);
-
-					if (pos == dictionary.end())
-					{
-						answer[key] = json::value::string(U("<nil>"));
-					}
-					else
-					{
-						answer[pos->first] = json::value::string(pos->second);
-					}
-				}
-			}
-		});
-}
-
-void handle_put(http_request request)
-{
-	TRACE("handle PUT\n");
-
-	handle_request(
-		request,
-		[](json::value const& jvalue, json::value& answer) {
-			for (auto const& e : jvalue.as_object())
-			{
-				if (e.second.is_string())
-				{
-					auto key = e.first;
-					auto value = e.second.as_string();
-
-					if (dictionary.find(key) == dictionary.end())
-					{
-						TRACE_ACTION("added", key, value);
-						answer[key] = json::value::string(U("<put>"));
-					}
-					else
-					{
-						TRACE_ACTION("updated", key, value);
-						answer[key] = json::value::string(U("<updated>"));
-					}
-
-					dictionary[key] = value;
-				}
-			}
-		});
-}
-
-void handle_del(http_request request)
-{
-	TRACE("handle DEL\n");
-
-	handle_request(
-		request,
-		[](json::value const& jvalue, json::value& answer) {
-			set<utility::string_t> keys;
-			for (auto const& e : jvalue.as_array())
-			{
-				if (e.is_string())
-				{
-					auto key = e.as_string();
-
-					auto pos = dictionary.find(key);
-					if (pos == dictionary.end())
-					{
-						answer[key] = json::value::string(U("<failed>"));
-					}
-					else
-					{
-						TRACE_ACTION("deleted", pos->first, pos->second);
-						answer[key] = json::value::string(U("<deleted>"));
-						keys.insert(key);
-					}
-				}
-			}
-
-			for (auto const& key : keys)
-				dictionary.erase(key);
-		});
-}
 
 void rest_server()
 {
@@ -129,63 +20,29 @@ void rest_server()
 #endif // _WIN32
 
 
-	endpointBuilder.set_path(U("test"));
-	http_listener listener(endpointBuilder.to_uri());
-	listener.support(methods::GET, handle_get);
-	listener.support(methods::POST, handle_post);
-	listener.support(methods::PUT, handle_put);
-	listener.support(methods::DEL, handle_del);
-
-	endpointBuilder.set_path(U("extract"));
-	http_listener extract_listener = register_extract(endpointBuilder.to_uri());
-
-	endpointBuilder.set_path(U("compare"));
-	http_listener compare_listener = register_compare(endpointBuilder.to_uri());
-
-	endpointBuilder.set_path(U("biocard"));
-	http_listener biocard_listener = register_biocard(endpointBuilder.to_uri());
-
-	endpointBuilder.set_path(U("verify"));
-	http_listener verify_listener = register_verify(endpointBuilder.to_uri());
-
-	endpointBuilder.set_path(U("search"));
-	http_listener search_listener = register_search(endpointBuilder.to_uri());
-
 	try
 	{
-		listener
-			.open()
-			.then([&listener]() { cout << "starting to listen test\n" << endl; })
-			.wait();
+        endpointBuilder.set_path(U("echo"));
+        http_listener echo_listener = register_echo(endpointBuilder.to_uri());
 
-		extract_listener
-			.open()
-			.then([&listener]() { cout << "starting to listen extract\n" << endl; })
-			.wait();
+        endpointBuilder.set_path(U("extract"));
+        http_listener extract_listener = register_extract(endpointBuilder.to_uri());
 
-		compare_listener
-			.open()
-			.then([&listener]() { cout << "starting to listen compare\n" << endl; })
-			.wait();
+        endpointBuilder.set_path(U("compare"));
+        http_listener compare_listener = register_compare(endpointBuilder.to_uri());
 
-		biocard_listener
-			.open()
-			.then([&listener]() { cout << "starting to listen biocard\n" << endl; })
-			.wait();
+        endpointBuilder.set_path(U("biocard"));
+        http_listener biocard_listener = register_biocard(endpointBuilder.to_uri());
 
-		verify_listener
-			.open()
-			.then([&listener]() { cout << "starting to listen verify\n" << endl; })
-			.wait();
+        endpointBuilder.set_path(U("verify"));
+        http_listener verify_listener = register_verify(endpointBuilder.to_uri());
 
-		search_listener
-			.open()
-			.then([&listener]() { cout << "starting to listen search\n" << endl; })
-			.wait();
+        endpointBuilder.set_path(U("search"));
+        http_listener search_listener = register_search(endpointBuilder.to_uri());
 
 		while (true);
 
-		listener.close().wait();
+		echo_listener.close().wait();
 		extract_listener.close().wait();
 		compare_listener.close().wait();
 		biocard_listener.close().wait();

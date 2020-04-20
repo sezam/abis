@@ -58,6 +58,9 @@
     <ClCompile Include="..\src\verify.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\echotest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AbisRest.h">
@@ -98,6 +101,9 @@
     </ClInclude>
     <ClInclude Include="..\src\finger\libfprint.h">
       <Filter>Header Files\finger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\echotest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
