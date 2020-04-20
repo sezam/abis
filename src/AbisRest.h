@@ -71,7 +71,7 @@ namespace gil = boost::gil;
 #endif
 
 #define TRACE(msg)            wcout << msg
-#define TRACE_ACTION(a, k, v) wcout << a << " (" << k << ", " << v << ")\n"
+#define TRACE_ACTION(a, k, v) wcout << a << " (" << k.c_str() << ", " << v.c_str() << ")\n"
 
 // abis bio data types
 #define ABIS_DATA				0x00
