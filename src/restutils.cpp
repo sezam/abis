@@ -20,8 +20,8 @@ void display_json(json::value const& jvalue, std::string const& prefix)
 	{
 		for (auto const& e : jvalue.as_object())
 		{
-			cout << "\t{ " << ws2s(e.first.substr(0, 20));
-			cout << " : \t" << ws2s(e.second.to_string().substr(0, 50)) << "}" << endl;
+			wcout << "\t{ " << e.first.substr(0, 20);
+			wcout << " : \t" << e.second.to_string().substr(0, 50) << "}" << endl;
 		}
 	}
 	if (jvalue.is_array())

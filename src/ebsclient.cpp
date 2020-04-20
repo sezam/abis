@@ -81,7 +81,7 @@ int get_face_template(const unsigned char* image_data, const unsigned int image_
 						io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
 						if (!err)
 						{
-							if (io_len == recv_data_len && template_buf_size <= recv_data_len)
+							if (io_len == recv_data_len && template_buf_size == recv_data_len - 1)
 							{
 								res = recv_data[0];
 								memcpy(template_buf, &recv_data[1], recv_data_len);
