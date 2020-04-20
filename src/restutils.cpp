@@ -2,18 +2,12 @@
 
 std::wstring s2ws(const std::string& str)
 {
-	using convert_typeX = std::codecvt_utf8<wchar_t>;
-	std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-	return converterX.from_bytes(str);
+	return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
 }
 
 std::string ws2s(const std::wstring& wstr)
 {
-	using convert_typeX = std::codecvt_utf8<wchar_t>;
-	std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-	return converterX.to_bytes(wstr);
+	return utf_to_utf<char>(wstr.c_str(), wstr.c_str() + wstr.size());
 }
 
 void display_json(json::value const& jvalue, std::string const& prefix)
