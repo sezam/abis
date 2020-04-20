@@ -13,66 +13,91 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\finger">
+      <UniqueIdentifier>{bb7bc86d-f791-42b0-b689-452669b76ff6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\abis-rest-server\stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\abis-rest-server\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\abis-rest-server\extract.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\abis-rest-server\compare.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\abis-rest-server\biocard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\abis-rest-server\verify.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\abis-rest-server\search.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\abis-rest-server\ebsclient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\abis-rest-server\restutils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\abis-rest-server\stdafx.h">
+    <ClInclude Include="..\src\AbisRest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\abis-rest-server\AbisRest.h">
+    <ClInclude Include="..\src\biocard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\abis-rest-server\extract.h">
+    <ClInclude Include="..\src\compare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\abis-rest-server\compare.h">
+    <ClInclude Include="..\src\ebsclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\abis-rest-server\biocard.h">
+    <ClInclude Include="..\src\extract.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\abis-rest-server\verify.h">
+    <ClInclude Include="..\src\fplibclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\abis-rest-server\search.h">
+    <ClInclude Include="..\src\imgutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\abis-rest-server\restutils.h">
+    <ClInclude Include="..\src\restutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\abis-rest-server\ebsclient.h">
+    <ClInclude Include="..\src\search.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\verify.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\finger\fp_internal.h">
+      <Filter>Header Files\finger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\finger\libfprint.h">
+      <Filter>Header Files\finger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
+    <ClCompile Include="..\src\biocard.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\compare.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ebsclient.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\extract.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\fplibclient.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\imgutils.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\main.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\restutils.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\search.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\stdafx.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\verify.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\src\CMakeLists.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="..\CMakeLists.txt" />
+    <Text Include="..\readme.txt" />
   </ItemGroup>
 </Project>

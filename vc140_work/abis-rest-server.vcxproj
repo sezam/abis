@@ -18,6 +18,39 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\AbisRest.h" />
+    <ClInclude Include="..\src\biocard.h" />
+    <ClInclude Include="..\src\compare.h" />
+    <ClInclude Include="..\src\ebsclient.h" />
+    <ClInclude Include="..\src\extract.h" />
+    <ClInclude Include="..\src\finger\fp_internal.h" />
+    <ClInclude Include="..\src\finger\libfprint.h" />
+    <ClInclude Include="..\src\fplibclient.h" />
+    <ClInclude Include="..\src\imgutils.h" />
+    <ClInclude Include="..\src\restutils.h" />
+    <ClInclude Include="..\src\search.h" />
+    <ClInclude Include="..\src\stdafx.h" />
+    <ClInclude Include="..\src\verify.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\biocard.cpp" />
+    <ClCompile Include="..\src\compare.cpp" />
+    <ClCompile Include="..\src\ebsclient.cpp" />
+    <ClCompile Include="..\src\extract.cpp" />
+    <ClCompile Include="..\src\fplibclient.cpp" />
+    <ClCompile Include="..\src\imgutils.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\restutils.cpp" />
+    <ClCompile Include="..\src\search.cpp" />
+    <ClCompile Include="..\src\stdafx.cpp" />
+    <ClCompile Include="..\src\verify.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\CMakeLists.txt" />
+    <Text Include="..\readme.txt" />
+    <Text Include="..\src\CMakeLists.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{738C99E4-032D-45BF-9FBF-F50324D66AD4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -146,31 +179,6 @@
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\abis-rest-server\biocard.cpp" />
-    <ClCompile Include="..\abis-rest-server\compare.cpp" />
-    <ClCompile Include="..\abis-rest-server\ebsclient.cpp" />
-    <ClCompile Include="..\abis-rest-server\extract.cpp" />
-    <ClCompile Include="..\abis-rest-server\main.cpp" />
-    <ClCompile Include="..\abis-rest-server\restutils.cpp" />
-    <ClCompile Include="..\abis-rest-server\search.cpp" />
-    <ClCompile Include="..\abis-rest-server\stdafx.cpp" />
-    <ClCompile Include="..\abis-rest-server\verify.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\abis-rest-server\AbisRest.h" />
-    <ClInclude Include="..\abis-rest-server\biocard.h" />
-    <ClInclude Include="..\abis-rest-server\compare.h" />
-    <ClInclude Include="..\abis-rest-server\ebsclient.h" />
-    <ClInclude Include="..\abis-rest-server\extract.h" />
-    <ClInclude Include="..\abis-rest-server\restutils.h" />
-    <ClInclude Include="..\abis-rest-server\search.h" />
-    <ClInclude Include="..\abis-rest-server\stdafx.h" />
-    <ClInclude Include="..\abis-rest-server\verify.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
