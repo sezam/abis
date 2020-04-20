@@ -11,7 +11,7 @@ map<utility::string_t, utility::string_t> dictionary;
 
 void handle_get(http_request request)
 {
-	TRACE(L"\nhandle GET\n");
+	TRACE("handle GET\n");
 
 	auto answer = json::value::object();
 
@@ -20,15 +20,15 @@ void handle_get(http_request request)
 		answer[p.first] = json::value::string(p.second);
 	}
 
-	display_json(json::value::null(), U("R: "));
-	display_json(answer, U("S: "));
+	display_json(json::value::null(), "R: ");
+	display_json(answer, "S: ");
 
 	request.reply(status_codes::OK, answer);
 }
 
 void handle_post(http_request request)
 {
-	TRACE("\nhandle POST\n");
+	TRACE("handle POST\n");
 
 	handle_request(
 		request,
@@ -55,7 +55,7 @@ void handle_post(http_request request)
 
 void handle_put(http_request request)
 {
-	TRACE("\nhandle PUT\n");
+	TRACE("handle PUT\n");
 
 	handle_request(
 		request,
@@ -86,7 +86,7 @@ void handle_put(http_request request)
 
 void handle_del(http_request request)
 {
-	TRACE("\nhandle DEL\n");
+	TRACE("handle DEL\n");
 
 	handle_request(
 		request,

@@ -1,19 +1,33 @@
 #include "restutils.h"
 
-void display_json(
-	json::value const& jvalue,
-	utility::string_t const& prefix)
+std::wstring s2ws(const std::string& str)
+{
+	using convert_typeX = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.from_bytes(str);
+}
+
+std::string ws2s(const std::wstring& wstr)
+{
+	using convert_typeX = std::codecvt_utf8<wchar_t>;
+	std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.to_bytes(wstr);
+}
+
+void display_json(json::value const& jvalue, std::string const& prefix)
 {
 	//cout << prefix << jvalue.serialize() << endl;
 
-	cout << prefix.c_str() << endl;
+	cout << prefix << endl;
 
 	if (jvalue.is_object())
 	{
 		for (auto const& e : jvalue.as_object())
 		{
-			cout << "\t{ " << e.first.substr(0, 20).c_str();
-			cout << " : \t" << e.second.to_string().substr(0, 50).c_str() << "}" << endl;
+			cout << "\t{ " << ws2s(e.first.substr(0, 20));
+			cout << " : \t" << ws2s(e.second.to_string().substr(0, 50)) << "}" << endl;
 		}
 	}
 	if (jvalue.is_array())
@@ -21,7 +35,7 @@ void display_json(
 		cout << "  [";
 		for (auto const& e : jvalue.as_array())
 		{
-			display_json(e, U(""));
+			display_json(e, "");
 		}
 		cout << "  ]" << endl;
 	}
@@ -42,7 +56,7 @@ void handle_request(
 					try
 					{
 						auto const& jvalue = task.get();
-						display_json(jvalue, U("Recv: "));
+						display_json(jvalue, "Recv: ");
 
 						if (!jvalue.is_null())
 						{
@@ -63,6 +77,6 @@ void handle_request(
 #endif // DEBUG
 	}
 
-	display_json(answer, U("Send: "));
+	display_json(answer, "Send: ");
 	request.reply(status_codes::OK, answer);
-}
+	}

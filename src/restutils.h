@@ -11,7 +11,7 @@
 #define ELEMENT_RESULT	U("ok")
 #define ELEMENT_ERROR	U("error")
 
-void display_json(json::value const & jvalue, utility::string_t const & prefix);
+void display_json(json::value const & jvalue, std::string const & prefix);
 void handle_request(http_request request, function<void(json::value const &, json::value &)> action);
 
 #endif
