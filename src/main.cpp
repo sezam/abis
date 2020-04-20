@@ -119,18 +119,18 @@ void handle_del(http_request request)
 
 void rest_server()
 {
-	http_listener listener(U("http://localhost/restdemo"));
+	http_listener listener(U("http://*:10101/test"));
 
 	listener.support(methods::GET, handle_get);
 	listener.support(methods::POST, handle_post);
 	listener.support(methods::PUT, handle_put);
 	listener.support(methods::DEL, handle_del);
 
-	http_listener extract_listener = register_extract(U("http://localhost/extract"));
-	http_listener compare_listener = register_compare(U("http://localhost/compare"));
-	http_listener biocard_listener = register_biocard(U("http://localhost/biocard"));
-	http_listener verify_listener = register_verify(U("http://localhost/verify"));
-	http_listener search_listener = register_search(U("http://localhost/search"));
+	http_listener extract_listener = register_extract(U("http://*:10101/extract"));
+	http_listener compare_listener = register_compare(U("http://*:10101/compare"));
+	http_listener biocard_listener = register_biocard(U("http://*:10101/biocard"));
+	http_listener verify_listener = register_verify(U("http://*:10101/verify"));
+	http_listener search_listener = register_search(U("http://*:10101/search"));
 
 	try
 	{

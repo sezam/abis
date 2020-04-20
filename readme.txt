@@ -29,6 +29,9 @@ vcpkg install libpng
 	libjpeg
 
 
+curl -i -X GET localhost:10101/extract -H "Content-Type: application/json" --data-binary "@img/face.b64.json" -v
+
+
 #define MAX_BOZORTH_MINUTIAE		200
 
 typedef struct {
