@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef VERIFY_H
-#define VERIFY_H
+#ifndef REST_VERIFY_H
+#define REST_VERIFY_H
 
 #include "AbisRest.h"
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef SEARCH_H
-#define SEARCH_H
+#ifndef REST_SEARCH_H
+#define REST_SEARCH_H
 
 #include "AbisRest.h"
 

@@ -27,13 +27,6 @@ using namespace std;
 #include <chrono>
 using namespace std::chrono;
 
-#include <cpprest/http_listener.h>
-#include <cpprest/json.h>
-using namespace web;
-using namespace web::http;
-using namespace web::http::experimental::listener;
-using namespace utility;
-
 #include <boost/asio.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -63,6 +56,20 @@ using namespace boost::interprocess;
 #include <boost/gil/extension/io/jpeg.hpp>
 #include <boost/mp11.hpp>
 namespace gil = boost::gil;
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+using namespace boost::uuids;
+
+//после Boost иначе линкер сругается
+#include <cpprest/http_listener.h>
+#include <cpprest/json.h>
+using namespace web;
+using namespace web::http;
+using namespace web::http::experimental::listener;
+using namespace utility;
+
+#include <pqxx/pqxx>
 
 #ifdef _WIN32
 #define	STD_TO_UTF(mbstr) to_utf<char>(mbstr, "cp1251")

@@ -1,4 +1,4 @@
-#include "search.h"
+#include "rest_search.h"
 
 http_listener register_search(uri url)
 {

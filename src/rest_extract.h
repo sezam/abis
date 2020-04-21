@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef EXTRACT_H
-#define EXTRACT_H
+#ifndef REST_EXTRACT_H
+#define REST_EXTRACT_H
 
 #include "AbisRest.h"
 

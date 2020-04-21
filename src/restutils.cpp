@@ -1,5 +1,6 @@
 #include "restutils.h"
 
+
 std::wstring s2ws(const std::string& str)
 {
     return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
@@ -47,11 +48,13 @@ void handle_request(
 {
     auto answer = json::value::object();
 
+    http::status_code sc = status_codes::OK;
+
     try
     {
         request
             .extract_json()
-            .then([&answer, &action](pplx::task<json::value> task)
+            .then([&answer, &action, &sc](pplx::task<json::value> task)
                 {
                     try
                     {
@@ -65,22 +68,22 @@ void handle_request(
                     }
                     catch (http_exception const& ec)
                     {
+                        sc = status_codes::BadRequest;
+                        //answer[U("exception")] = json::value::string(conversions::to_string_t(ec.what()));
+
                         cout << ec.what() << endl;
-#ifdef _DEBUG
-                        answer[U("exception")] = json::value::string(conversions::to_string_t(ec.what()));
-#endif // DEBUG
                     }
                 })
             .wait();
     }
     catch (const std::exception& ec)
     {
+        sc = status_codes::BadRequest;
+        //answer[U("exception")] = json::value::string(conversions::to_string_t(ec.what()));
+
         cout << ec.what() << endl;
-#ifdef _DEBUG
-        answer[U("exception")] = json::value::string(conversions::to_string_t(ec.what()));
-#endif // DEBUG
     }
 
     display_json(answer, "Answer: ");
-    request.reply(status_codes::OK, answer);
+    request.reply(sc, answer);
 }

@@ -1,4 +1,4 @@
-#include "compare.h"
+#include "rest_compare.h"
 #include "AbisRest.h"
 #include "restutils.h"
 #include "ebsclient.h"
@@ -22,11 +22,13 @@ void compare_get(http_request request)
 {
     TRACE(L"GET compare\n");
 
+    http::status_code sc = status_codes::OK;
+
     handle_request(
         request,
-        [](json::value const& req_json, json::value& answer)
+        [&](json::value const& req_json, json::value& answer)
         {
-            void* tmps[2] = { NULL, NULL };
+            vector<void*> tmps;
             try
             {
                 json::array arr = req_json.as_array();
@@ -52,7 +54,7 @@ void compare_get(http_request request)
                         vector<unsigned char> buf = conversions::from_base64(element_image);
 
                         void* face_tmp = malloc(FACE_TEMPLATE_SIZE * sizeof(float));
-                        tmps[i] = face_tmp;
+                        tmps.push_back(face_tmp);
                         int count = 0;
                         try
                         {
@@ -80,7 +82,7 @@ void compare_get(http_request request)
                         vector<unsigned char> buf = conversions::from_base64(element_image);
 
                         unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
-                        tmps[i] = finger_tmp;
+                        tmps.push_back(finger_tmp);
                         try
                         {
                             get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
@@ -100,7 +102,8 @@ void compare_get(http_request request)
                         compare_type = ABIS_FACE_TEMPLATE;
 
                         float* face_tmp = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
-                        tmps[i] = face_tmp;
+                        tmps.push_back(face_tmp);
+
 
                         auto element_tmp = arr[i].at(ELEMENT_VALUE).as_array();
                         for (size_t i = 0; i < element_tmp.size(); i++)
@@ -117,7 +120,8 @@ void compare_get(http_request request)
                         compare_type = ABIS_FINGER_TEMPLATE;
 
                         unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
-                        tmps[i] = finger_tmp;
+                        tmps.push_back(finger_tmp);
+
 
                         auto element_tmp = arr[i].at(ELEMENT_VALUE).as_array();
                         //for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
@@ -138,27 +142,30 @@ void compare_get(http_request request)
 
                 for (size_t i = 0; i < 2; i++) free(tmps[i]);
 
-                answer[ELEMENT_VALUE] = json::value::number(score);
+                answer[ELEMENT_VALUE] = json::value::number((double)score);
                 answer[ELEMENT_RESULT] = json::value::boolean(true);
                 answer[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(compare_type)));
             }
             catch (const boost::system::error_code& ec)
             {
+                sc = status_codes::BadRequest;
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
-                std::string val = STD_TO_UTF(ec.message());
-                answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
+                //std::string val = STD_TO_UTF(ec.message());
+                // надо разобраться что-то с памятью в этом месте неладное в linux
+                //answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
 
                 cout << "Exception: " << ec.message() << endl;
             }
             catch (const std::exception& ec)
             {
+                sc = status_codes::BadRequest;
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
-                std::string val = STD_TO_UTF(ec.what());
-                answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
+                //std::string val = STD_TO_UTF(ec.what());
+                //answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
 
                 cout << "Exception: " << ec.what() << endl;
             }
         });
 
-    request.reply(status_codes::OK, "");
+    request.reply(sc, "");
 }

@@ -1,5 +1,5 @@
 #include "AbisRest.h"
-#include "extract.h"
+#include "rest_extract.h"
 #include "restutils.h"
 #include "ebsclient.h"
 #include "fplibclient.h"
@@ -21,9 +21,11 @@ void extract_get(http_request request)
 {
     TRACE(L"GET extract\n");
 
+    http::status_code sc = status_codes::OK;
+
     handle_request(
         request,
-        [](json::value const& req_json, json::value& answer)
+        [&](json::value const& req_json, json::value& answer)
         {
             try
             {
@@ -92,17 +94,24 @@ void extract_get(http_request request)
             }
             catch (const boost::system::error_code& ec)
             {
+                sc = status_codes::BadRequest;
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
-                std::string val = STD_TO_UTF(ec.message());
-                answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
+                //std::string val = STD_TO_UTF(ec.message());
+                // надо разобраться что-то с памятью в этом месте неладное в linux
+                //answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
+
+                cout << "Exception: " << ec.message() << endl;
             }
             catch (const std::exception& ec)
             {
+                sc = status_codes::BadRequest;
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
-                std::string val = STD_TO_UTF(ec.what());
-                answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
+                //std::string val = STD_TO_UTF(ec.what());
+                //answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
+
+                cout << "Exception: " << ec.what() << endl;
             }
         });
 
-    request.reply(status_codes::OK, "");
+    request.reply(sc, "");
 }

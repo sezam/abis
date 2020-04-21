@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef ECHOTEST_H
-#define ECHOTEST_H
+#ifndef REST_ECHO_H
+#define REST_ECHO_H
 
 #include "AbisRest.h"
 

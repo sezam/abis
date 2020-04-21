@@ -1,12 +1,14 @@
 #include "AbisRest.h"
-#include "biocard.h"
-#include "compare.h"
-#include "echotest.h"
-#include "extract.h"
-#include "verify.h"
-#include "search.h"
-#include "ebsclient.h"
+#include "rest_biocard.h"
+#include "rest_compare.h"
+#include "rest_echo.h"
+#include "rest_extract.h"
+#include "rest_verify.h"
+#include "rest_search.h"
+#include "dbclient.h"
 #include "restutils.h"
+
+std::string db_connection_url("postgresql://");
 
 void rest_server()
 {
@@ -18,7 +20,6 @@ void rest_server()
 #else
     endpointBuilder.set_host(U("0.0.0.0"));
 #endif // _WIN32
-
 
 	try
 	{
@@ -55,45 +56,18 @@ void rest_server()
 	}
 }
 
-void test_ebs_client()
+void dbinit()
 {
-	FILE* file;
-	unsigned char* buffer;
-	unsigned long fileLen;
+    db_connection_url.append("postgresql:postgresql");
+    db_connection_url.append("@localhost/");
+    db_connection_url.append(DB_DATABASE_NAME);
 
-	file = fopen("c:\\temp\\1\\1.png", "rb");
-	if (!file)
-	{
-		fprintf(stderr, "can't open file %s", "c:\\temp\\1\\1.png");
-		exit(1);
-	}
-
-	fseek(file, 0, SEEK_END);
-	fileLen = ftell(file);
-	fseek(file, 0, SEEK_SET);
-
-	buffer = (unsigned char*)malloc(fileLen + 1);
-
-	if (!buffer)
-	{
-		fprintf(stderr, "Memory error!");
-		fclose(file);
-		exit(1);
-	}
-
-	fread(buffer, fileLen, 1, file);
-	fclose(file);
-
-	float biotemplate[FACE_TEMPLATE_SIZE];
-	int res = get_face_template(buffer, fileLen + 1, biotemplate, sizeof(biotemplate));
-	printf("result is %d \n", res);
-
-	free(buffer);
+    cout << "DB url: " << db_connection_url << endl;
 }
 
 int main()
 {
-	//test_ebs_client();
+
 	rest_server();
 
 	return 0;

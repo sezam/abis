@@ -27,22 +27,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -129,7 +129,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <AdditionalDependencies>cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;libpqxxd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
     <ClCompile>
@@ -138,7 +138,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>cpprest_2_10.lib;boost_locale-vc140-mt.lib;boost_date_time-vc140-mt.lib;boost_regex-vc140-mt.lib;libpng16.lib;jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cpprest_2_10.lib;boost_locale-vc140-mt.lib;boost_date_time-vc140-mt.lib;boost_regex-vc140-mt.lib;libpng16.lib;jpeg.lib;libpq.lib;libpqxx.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
@@ -150,36 +150,40 @@
     <Text Include="..\CMakeLists.txt" />
     <Text Include="..\readme.txt" />
     <Text Include="..\src\CMakeLists.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\src\biocard.cpp" />
-    <ClCompile Include="..\src\compare.cpp" />
-    <ClCompile Include="..\src\ebsclient.cpp" />
-    <ClCompile Include="..\src\echotest.cpp" />
-    <ClCompile Include="..\src\extract.cpp" />
-    <ClCompile Include="..\src\fplibclient.cpp" />
-    <ClCompile Include="..\src\imgutils.cpp" />
-    <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="..\src\restutils.cpp" />
-    <ClCompile Include="..\src\search.cpp" />
-    <ClCompile Include="..\src\stdafx.cpp" />
-    <ClCompile Include="..\src\verify.cpp" />
+    <Text Include="..\src\db.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\AbisRest.h" />
     <ClInclude Include="..\src\biocard.h" />
-    <ClInclude Include="..\src\compare.h" />
+    <ClInclude Include="..\src\dbclient.h" />
     <ClInclude Include="..\src\ebsclient.h" />
-    <ClInclude Include="..\src\echotest.h" />
-    <ClInclude Include="..\src\extract.h" />
     <ClInclude Include="..\src\finger\fp_internal.h" />
     <ClInclude Include="..\src\finger\libfprint.h" />
     <ClInclude Include="..\src\fplibclient.h" />
     <ClInclude Include="..\src\imgutils.h" />
     <ClInclude Include="..\src\restutils.h" />
-    <ClInclude Include="..\src\search.h" />
+    <ClInclude Include="..\src\rest_biocard.h" />
+    <ClInclude Include="..\src\rest_compare.h" />
+    <ClInclude Include="..\src\rest_echo.h" />
+    <ClInclude Include="..\src\rest_extract.h" />
+    <ClInclude Include="..\src\rest_search.h" />
+    <ClInclude Include="..\src\rest_verify.h" />
     <ClInclude Include="..\src\stdafx.h" />
-    <ClInclude Include="..\src\verify.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\biocard.cpp" />
+    <ClCompile Include="..\src\ebsclient.cpp" />
+    <ClCompile Include="..\src\fplibclient.cpp" />
+    <ClCompile Include="..\src\imgutils.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\restutils.cpp" />
+    <ClCompile Include="..\src\rest_biocard.cpp" />
+    <ClCompile Include="..\src\rest_compare.cpp" />
+    <ClCompile Include="..\src\rest_echo.cpp" />
+    <ClCompile Include="..\src\rest_extract.cpp" />
+    <ClCompile Include="..\src\rest_search.cpp" />
+    <ClCompile Include="..\src\rest_verify.cpp" />
+    <ClCompile Include="..\src\stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,0 +1,70 @@
+-- SEQUENCE: public.biocard_uid_seq
+-- DROP SEQUENCE public.biocard_uid_seq;
+CREATE SEQUENCE public.biocard_uid_seq
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+ALTER SEQUENCE public.biocard_uid_seq
+    OWNER TO postgres;
+
+
+-- SEQUENCE: public.template_face_seq
+-- DROP SEQUENCE public.template_face_seq;
+CREATE SEQUENCE public.template_face_seq
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+ALTER SEQUENCE public.template_face_seq
+    OWNER TO postgres;
+
+
+-- SEQUENCE: public.template_finger_seq
+-- DROP SEQUENCE public.template_finger_seq;
+CREATE SEQUENCE public.template_finger_seq
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+ALTER SEQUENCE public.template_finger_seq
+    OWNER TO postgres;
+
+
+-- Table: public.t_biocard_template_link
+-- DROP TABLE public.t_biocard_template_link;
+CREATE TABLE public.t_biocard_template_link
+(
+    uid integer NOT NULL DEFAULT nextval('t_biocard_template_link_uid_seq'::regclass),
+    tmp_type integer NOT NULL,
+    tmp_id integer NOT NULL,
+    biocard_id integer NOT NULL,
+    CONSTRAINT t_biocard_template_link_pkey PRIMARY KEY (uid, tmp_type),
+    CONSTRAINT single_tmp UNIQUE (tmp_type, tmp_id),
+    CONSTRAINT biocard_fk FOREIGN KEY (biocard_id)
+        REFERENCES public.t_biocards (uid) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+TABLESPACE pg_default;
+ALTER TABLE public.t_biocard_template_link
+    OWNER to postgres;
+
+
+-- Table: public.t_biocards
+-- DROP TABLE public.t_biocards;
+CREATE TABLE public.t_biocards
+(
+    uid integer NOT NULL DEFAULT nextval('biocard_uid_seq'::regclass),
+    gid uuid NOT NULL,
+    info text COLLATE pg_catalog."default",
+    CONSTRAINT biocard_pkey PRIMARY KEY (uid),
+    CONSTRAINT gid_uniq UNIQUE (gid)
+)
+TABLESPACE pg_default;
+ALTER TABLE public.t_biocards
+    OWNER to postgres;
+

@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef COMPARE_H
-#define COMPARE_H
+#ifndef REST_COMPARE_H
+#define REST_COMPARE_H
 
 #include "AbisRest.h"
 

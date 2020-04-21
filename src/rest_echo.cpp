@@ -1,5 +1,5 @@
 #include "restutils.h"
-#include "echotest.h"
+#include "rest_echo.h"
 
 http_listener register_echo(uri url)
 {

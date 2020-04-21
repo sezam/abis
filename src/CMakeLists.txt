@@ -43,6 +43,15 @@ find_package(OpenSSL REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(PostgreSQL REQUIRED)
+find_library(libpqxx_LIBRARY REQUIRED NAMES libpqxx)
+
+if(libpqxx_LIBRARY)
+    MESSAGE(STATUS "Found libpqxx: ${libpqxx_LIBRARY}")
+else()
+    MESSAGE(FATAL_ERROR "Looking for libpqxx - not found")
+endif()
+
 
 #Финальный штрих и сборка.
 add_executable(${PACKAGE_TARNAME} ${SOURCE})
@@ -56,6 +65,8 @@ target_link_libraries(${PACKAGE_TARNAME}
     ${JPEG_LIBRARIES}
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}
+    ${PostgreSQL_LIBRARIES}
+    ${libpqxx_LIBRARY}
 )
 
 if(UNIX)
