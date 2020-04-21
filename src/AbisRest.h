@@ -69,8 +69,6 @@ using namespace web::http;
 using namespace web::http::experimental::listener;
 using namespace utility;
 
-#include <pqxx/pqxx>
-
 #ifdef _WIN32
 #define	STD_TO_UTF(mbstr) to_utf<char>(mbstr, "cp1251")
 #else

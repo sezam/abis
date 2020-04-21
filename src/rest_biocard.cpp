@@ -37,14 +37,6 @@ void biocard_get(http_request request)
                 //string_generator gen;
                 //uuid u = gen(ws2s(sp[0]));
 
-                pqxx::connection c(db_connection_url);
-                pqxx::work txn(c);
-
-                /*pqxx::row r = txn.exec1(
-                    "SELECT * " \
-                    "FROM " + txn.quote(DB_BIOCARD_TABLE_NAME) +
-                    "WHERE guid =" + txn.quote(sp[0]));
-                */
             }
             catch (const boost::system::error_code& ec)
             {
