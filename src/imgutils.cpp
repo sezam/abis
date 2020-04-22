@@ -2,18 +2,28 @@
 
 bool isPng(const unsigned char* img)
 {
-	if (img == NULL) return false;
-	return boost::regex_match(reinterpret_cast<const char*>(img), boost::regex(reinterpret_cast<const char*>(rexpPNG)));
+    for (size_t i = 0; i < std::size(rexpPNG); i++)
+    {
+        if (img[i] != rexpBMP[i]) return false;
+    }
+    return true;
 }
 
 bool isJpg(const unsigned char* img)
 {
-	if (img == NULL) return false;
-	return boost::regex_match(reinterpret_cast<const char*>(img), boost::regex(reinterpret_cast<const char*>(rexpJPG)));
+    for (size_t i = 0; i < std::size(rexpJPG); i++)
+    {
+        if (img[i] != rexpBMP[i]) return false;
+    }
+    return true;
 }
 
 bool isBmp(const unsigned char* img)
 {
-	if (img == NULL) return false;
-	return boost::regex_match(reinterpret_cast<const char*>(img), boost::regex(reinterpret_cast<const char*>(rexpBMP)));
+    for (size_t i = 0; i < std::size(rexpBMP); i++)
+    {
+        if (img[i] != rexpBMP[i]) return false;
+    }
+    return true;
 }
+

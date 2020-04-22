@@ -5,7 +5,8 @@
 
 #include "AbisRest.h"
 
-#define SQL_SELECT_BC_TMPS "SELECT * FROM t_biocards bc, t_biocard_template_link bt WHERE bc.gid=$1::uuid AND bc.uid = bt.biocard_id"
+#define SQL_SELECT_BC_TMPS  "SELECT * FROM t_biocards bc, t_biocard_template_link bt WHERE bc.gid=$1::uuid AND bc.uid = bt.biocard_id"
+#define SQL_SELECT_BIOCARDS "SELECT * FROM t_biocards bc where bc.gid=$1::uuid"
 
 #define DB_HOST     "localhost"
 #define DB_PORT     "5432"
