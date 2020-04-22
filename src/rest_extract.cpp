@@ -43,6 +43,7 @@ void extract_get(http_request request)
                 {
                     template_type = ABIS_FACE_TEMPLATE;
                     float* face_tmp = new float[FACE_TEMPLATE_SIZE];
+                    memset(face_tmp, 0, FACE_TEMPLATE_SIZE * sizeof(float));
                     int count = 0;
                     try
                     {
@@ -71,6 +72,7 @@ void extract_get(http_request request)
                 {
                     template_type = ABIS_FINGER_TEMPLATE;
                     unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                    memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
                     try
                     {
                         get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
@@ -96,19 +98,12 @@ void extract_get(http_request request)
             {
                 sc = status_codes::BadRequest;
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
-                //std::string val = STD_TO_UTF(ec.message());
-                // надо разобраться что-то с памятью в этом месте неладное в linux
-                //answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
-
                 cout << "Exception: " << ec.message() << endl;
             }
             catch (const std::exception& ec)
             {
                 sc = status_codes::BadRequest;
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
-                //std::string val = STD_TO_UTF(ec.what());
-                //answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(val));
-
                 cout << "Exception: " << ec.what() << endl;
             }
         });

@@ -48,8 +48,6 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
         unsigned char* fp_data = in_fpimg->data;
         for (auto it = img_view.begin(); it != img_view.end(); ++it) *fp_data++ = *it;
 
-        memset(template_buf, 0, FINGER_TEMPLATE_SIZE);
-
 #ifdef _WIN32
         for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
         {
