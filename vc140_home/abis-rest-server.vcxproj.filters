@@ -70,9 +70,6 @@
     <ClInclude Include="..\src\restutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\dbclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -114,7 +111,7 @@
     <ClCompile Include="..\src\restutils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\stdafx.cpp">
+    <ClCompile Include="..\src\dbclient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

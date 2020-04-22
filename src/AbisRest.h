@@ -6,12 +6,12 @@
 
 //system dependency
 #ifdef _WIN32
-	#ifndef _WIN32_WINNT
-		#define _WIN32_WINNT 0x0601
-	#endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0601
+#endif
 
-	#define _CRT_SECURE_NO_WARNINGS
-	#pragma warning( disable : 4996)
+#define _CRT_SECURE_NO_WARNINGS
+#pragma warning( disable : 4996)
 #endif
 
 #define BOOST_NO_ANSI_APIS
@@ -58,7 +58,9 @@ using namespace boost::interprocess;
 namespace gil = boost::gil;
 
 #include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/lexical_cast.hpp>
 using namespace boost::uuids;
 
 //после Boost иначе линкер сругается
@@ -68,6 +70,8 @@ using namespace web;
 using namespace web::http;
 using namespace web::http::experimental::listener;
 using namespace utility;
+
+#include <libpq-fe.h>
 
 #ifdef _WIN32
 #define	STD_TO_UTF(mbstr) to_utf<char>(mbstr, "cp1251")

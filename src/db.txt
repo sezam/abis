@@ -53,6 +53,8 @@ TABLESPACE pg_default;
 ALTER TABLE public.t_biocard_template_link
     OWNER to postgres;
 
+--insert into t_biocard_template_link (tmp_type, tmp_id, biocard_id) VALUES (17, 1, 1)
+--select * from t_biocards bc, t_biocard_template_link bt where bc.gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf' and bc.uid=bt.biocard_id
 
 -- Table: public.t_biocards
 -- DROP TABLE public.t_biocards;
@@ -68,3 +70,5 @@ TABLESPACE pg_default;
 ALTER TABLE public.t_biocards
     OWNER to postgres;
 
+-- insert into t_biocards (gid, info) VALUES ('2c6eab8b-d050-4cbd-82d7-214d9463bbcf', 'test ')
+-- select * from t_biocards where gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf'

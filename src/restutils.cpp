@@ -11,6 +11,15 @@ std::string ws2s(const std::wstring& wstr)
     return utf_to_utf<char>(wstr.c_str(), wstr.c_str() + wstr.size());
 }
 
+std::string st2s(const utility::string_t& strt)
+{
+#ifdef _WIN32
+    return ws2s(strt);
+#else
+    return strt;
+#endif
+}
+
 void display_json(json::value const& jvalue, std::string const& prefix)
 {
     //cout << prefix << jvalue.serialize() << endl;
@@ -61,10 +70,7 @@ void handle_request(
                         auto const& jvalue = task.get();
                         display_json(jvalue, "Request: ");
 
-                        if (!jvalue.is_null())
-                        {
-                            action(jvalue, answer);
-                        }
+                        action(jvalue, answer);
                     }
                     catch (http_exception const& ec)
                     {

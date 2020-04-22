@@ -8,8 +8,6 @@
 #include "dbclient.h"
 #include "restutils.h"
 
-std::string db_connection_url("postgresql://");
-
 void rest_server()
 {
 	uri_builder endpointBuilder;
@@ -56,18 +54,9 @@ void rest_server()
 	}
 }
 
-void dbinit()
-{
-    db_connection_url.append("postgresql:postgresql");
-    db_connection_url.append("@localhost/");
-    db_connection_url.append(DB_DATABASE_NAME);
-
-    cout << "DB url: " << db_connection_url << endl;
-}
-
 int main()
 {
-
+    DBprepare();
 	rest_server();
 
 	return 0;

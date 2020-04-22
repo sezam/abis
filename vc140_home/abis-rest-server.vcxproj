@@ -168,10 +168,10 @@
     <ClInclude Include="..\src\rest_extract.h" />
     <ClInclude Include="..\src\rest_search.h" />
     <ClInclude Include="..\src\rest_verify.h" />
-    <ClInclude Include="..\src\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\biocard.cpp" />
+    <ClCompile Include="..\src\dbclient.cpp" />
     <ClCompile Include="..\src\ebsclient.cpp" />
     <ClCompile Include="..\src\fplibclient.cpp" />
     <ClCompile Include="..\src\imgutils.cpp" />
@@ -183,7 +183,6 @@
     <ClCompile Include="..\src\rest_extract.cpp" />
     <ClCompile Include="..\src\rest_search.cpp" />
     <ClCompile Include="..\src\rest_verify.cpp" />
-    <ClCompile Include="..\src\stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
