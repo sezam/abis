@@ -2,7 +2,7 @@
 
 bool isPng(const unsigned char* img)
 {
-    for (size_t i = 0; i < std::size(rexpPNG); i++)
+    for (size_t i = 0; i < sizeof(rexpPNG); i++)
     {
         if (img[i] != rexpBMP[i]) return false;
     }
@@ -11,7 +11,7 @@ bool isPng(const unsigned char* img)
 
 bool isJpg(const unsigned char* img)
 {
-    for (size_t i = 0; i < std::size(rexpJPG); i++)
+    for (size_t i = 0; i < sizeof(rexpJPG); i++)
     {
         if (img[i] != rexpBMP[i]) return false;
     }
@@ -20,7 +20,7 @@ bool isJpg(const unsigned char* img)
 
 bool isBmp(const unsigned char* img)
 {
-    for (size_t i = 0; i < std::size(rexpBMP); i++)
+    for (size_t i = 0; i < sizeof(rexpBMP); i++)
     {
         if (img[i] != rexpBMP[i]) return false;
     }
