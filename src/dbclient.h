@@ -8,11 +8,19 @@
 #define SQL_SELECT_BC_TMPS  "SELECT * FROM t_biocards bc, t_biocard_template_link bt WHERE bc.gid=$1::uuid AND bc.uid = bt.biocard_id"
 #define SQL_SELECT_BIOCARDS "SELECT * FROM t_biocards bc where bc.gid=$1::uuid"
 
+#ifdef _WIN32
 #define DB_HOST     "localhost"
 #define DB_PORT     "5432"
 #define DB_DATABASE "dbABIS"
 #define DB_USER     "postgres"
 #define DB_PWD      "postgres"
+#else
+#define DB_HOST     "10.6.46.130"
+#define DB_PORT     "5432"
+#define DB_DATABASE "dbABIS"
+#define DB_USER     "postgres"
+#define DB_PWD      "g6nsgWG2Xk"
+#endif
 
 void DBprepare();
 
