@@ -139,6 +139,11 @@ int db_search_face_template(PGconn* db, const void* tmp_arr)
 }
 
 
+int db_search_finger_template(PGconn* db, const void* tmp_arr)
+{
+    return 0;
+}
+
 int db_find_biocard_by_template(PGconn* db, int tmp_type, int tmp_id, char* gid)
 {
     int result = 0;

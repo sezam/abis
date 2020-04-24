@@ -45,8 +45,14 @@ void db_close(PGconn* db);
 int db_search_face_template(PGconn* db, const void* tmp_arr);
 
 /*
+reserv
+*/
+int db_search_finger_template(PGconn* db, const void* tmp_arr);
+
+/*
 поиск gid биокарты по id шаблона
 */
 int db_find_biocard_by_template(PGconn* db, int tmp_type, int tmp_id, char* gid);
+
 
 #endif

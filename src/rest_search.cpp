@@ -3,6 +3,7 @@
 #include "restutils.h"
 #include "dbclient.h"
 #include "ebsclient.h"
+#include "fplibclient.h"
 
 http_listener register_search(uri url)
 {
@@ -58,12 +59,38 @@ void search_get(http_request request)
 
                         if (tmp_id <= 0) continue;
                     }
+                    if (element_type == ABIS_FINGER_IMAGE)
+                    {
+                        tmp_type = ABIS_FINGER_TEMPLATE;
+
+                        auto element_image = el_json.at(ELEMENT_VALUE).as_string();
+                        vector<unsigned char> buf = conversions::from_base64(element_image);
+
+                        unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                        int res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
+                        if (res > 0) tmp_id = db_search_finger_template(db, finger_tmp);
+                        free(finger_tmp);
+
+                        if (tmp_id <= 0) continue;
+                    }
+
+
                     if (element_type == ABIS_FACE_TEMPLATE)
                     {
                         tmp_type = ABIS_FACE_TEMPLATE;
                         void* tmp_arr = json2array(el_json);
 
                         tmp_id = db_search_face_template(db, tmp_arr);
+                        free(tmp_arr);
+
+                        if (tmp_id <= 0) continue;
+                    }
+                    if (element_type == ABIS_FINGER_TEMPLATE)
+                    {
+                        tmp_type = ABIS_FINGER_TEMPLATE;
+                        void* tmp_arr = json2array(el_json);
+
+                        tmp_id = db_search_finger_template(db, tmp_arr);
                         free(tmp_arr);
 
                         if (tmp_id <= 0) continue;
