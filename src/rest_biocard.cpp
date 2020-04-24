@@ -2,6 +2,7 @@
 #include "AbisRest.h"
 #include "restutils.h"
 #include "dbclient.h"
+#include "restutils.h"
 
 http_listener register_biocard(uri url)
 {
@@ -41,27 +42,32 @@ void biocard_get(http_request request)
 
                 db = db_open();
 
-                const char* paramValues[1] = { to_string(gid).c_str() };
-                //sql_res = DBexec2(db, SQL_LINKS_BY_BC_GID, paramValues);
+                string s1 = to_string(gid);
+                const char* paramValues[1] = { s1.c_str() };
 
-                int type_num = PQfnumber(sql_res, "tmp_type");
-                int id_num = PQfnumber(sql_res, "tmp_id");
-
-                auto json_out = json::value::array();
-                for (size_t i = 0; i < PQntuples(sql_res); i++)
+                sql_res = PQexecParams(db, SQL_LINKS_BY_BC_GID, 1, nullptr, paramValues, nullptr, nullptr, 1);
+                if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
                 {
-                    auto json_row = json::value::object();
+                    int type_num = PQfnumber(sql_res, "tmp_type");
+                    int id_num = PQfnumber(sql_res, "tmp_id");
 
-                    char* ptr = PQgetvalue(sql_res, i, type_num);
-                    int tmp = ntohl(*((uint32_t*)ptr));
-                    json_row[ELEMENT_TYPE] = json::value::number(tmp);
+                    auto json_out = json::value::array();
+                    for (size_t i = 0; i < PQntuples(sql_res); i++)
+                    {
+                        auto json_row = json::value::object();
 
-                    ptr = PQgetvalue(sql_res, i, id_num);
-                    tmp = ntohl(*((uint32_t*)ptr));
-                    json_row[ELEMENT_ID] = json::value::number(tmp);
-                    json_out[i] = json_row;
+                        char* ptr = PQgetvalue(sql_res, i, type_num);
+                        int tmp = ntohl(*((uint32_t*)ptr));
+                        json_row[ELEMENT_TYPE] = json::value::number(tmp);
+
+                        ptr = PQgetvalue(sql_res, i, id_num);
+                        tmp = ntohl(*((uint32_t*)ptr));
+                        json_row[ELEMENT_ID] = json::value::number(tmp);
+                        json_out[i] = json_row;
+                    }
+                    answer[ELEMENT_VALUE] = json_out;
+                    answer[ELEMENT_RESULT] = json::value::boolean(true);
                 }
-                answer[ELEMENT_VALUE] = json_out;
             }
             catch (const boost::system::error_code& ec)
             {

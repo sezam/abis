@@ -10,7 +10,7 @@
 #define SEARCH_FACE_INDEXS  "face_vectors_index"
 #define SEARCH_FACE_VECTORS "face_vectors"
 
-#define SQL_LINKS_BY_BC_GID "SELECT * FROM t_biocards bc, t_biocard_template_link bt WHERE bc.gid = $1::uuid AND \
+#define SQL_LINKS_BY_BC_GID "SELECT bt.* FROM t_biocards bc, t_biocard_template_link bt WHERE bc.gid = $1::uuid AND \
     bc.uid = bt.biocard_id"
 
 #define SQL_LINKS_BY_TMP_ID "SELECT * FROM t_biocards bc, t_biocard_template_link bt WHERE bt.tmp_type = $1::integer AND \
