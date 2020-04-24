@@ -5,7 +5,7 @@
 int get_fingerprint_template(const unsigned char* image_data, const size_t image_data_len,
     unsigned char* template_buf, const size_t template_buf_len)
 {
-    int res = -1;
+    int res = 0;
     fp_img* in_fpimg = NULL;
 
     if (template_buf_len < FINGER_TEMPLATE_SIZE) throw runtime_error("Buffer too small.");
@@ -57,18 +57,20 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
         // реализация есть только под linux
         getFingerPrint(in_fpimg, template_buf);
 #endif
-        res = 0;
+        res = *((int*)template_buf);
 
     }
     catch (const boost::system::error_code& ec)
     {
         if (in_fpimg != NULL) free(in_fpimg);
-        res = ec.value();
+        //res = ec.value();
+        res = -1;
     }
     catch (const std::exception& ec)
     {
         if (in_fpimg != NULL) free(in_fpimg);
-        res = std::error_code().value();
+        //res = std::error_code().value();
+        res = -1;
     }
 
     if (in_fpimg != NULL) free(in_fpimg);

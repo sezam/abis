@@ -1,4 +1,6 @@
 #include "restutils.h"
+#include "fplibclient.h"
+#include "ebsclient.h"
 
 
 std::wstring s2ws(const std::string& str)
@@ -92,4 +94,38 @@ void handle_request(
 
     display_json(answer, "Answer: ");
     request.reply(sc, answer);
+}
+
+void* json2array(const web::json::value & el)
+{
+    void* result = nullptr;
+
+    int element_type = el.at(ELEMENT_TYPE).as_integer();
+    if (element_type == ABIS_FACE_TEMPLATE) 
+    {
+        float* face_tmp = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
+        memset(face_tmp, 0, FACE_TEMPLATE_SIZE * sizeof(float));
+
+        auto element_tmp = el.at(ELEMENT_VALUE).as_array();
+        for (size_t i = 0; i < element_tmp.size(); i++)
+        {
+            face_tmp[i] = element_tmp[i].as_double();
+        }
+        result = face_tmp;
+    }
+
+    if (element_type == ABIS_FINGER_TEMPLATE) 
+    {
+        unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+        memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
+
+        auto element_tmp = el.at(ELEMENT_VALUE).as_array();
+        for (size_t i = 0; i < element_tmp.size(); i++)
+        {
+            finger_tmp[i] = element_tmp[i].as_integer();
+        }
+        result = finger_tmp;
+    }
+
+    return result;
 }

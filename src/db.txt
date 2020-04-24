@@ -42,8 +42,8 @@ CREATE TABLE public.t_biocard_template_link
     tmp_type integer NOT NULL,
     tmp_id integer NOT NULL,
     biocard_id integer NOT NULL,
-    CONSTRAINT t_biocard_template_link_pkey PRIMARY KEY (uid, tmp_type),
-    CONSTRAINT single_tmp UNIQUE (tmp_type, tmp_id),
+    CONSTRAINT t_biocard_template_link_pkey PRIMARY KEY (uid),
+    CONSTRAINT single_tmp UNIQUE (biocard_id, tmp_id, tmp_type),
     CONSTRAINT biocard_fk FOREIGN KEY (biocard_id)
         REFERENCES public.t_biocards (uid) MATCH SIMPLE
         ON UPDATE NO ACTION

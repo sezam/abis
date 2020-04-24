@@ -29,22 +29,20 @@ void biocard_get(http_request request)
         request,
         [&](json::value const& req_json, json::value& answer)
         {
-            PGconn* db = NULL;
+            PGconn* db = nullptr;
+            PGresult* sql_res = nullptr;
             try
             {
                 auto sp = uri::split_path(request.relative_uri().to_string());
+                if (sp.size() != 1) throw runtime_error("GET biocard/{uuid} expected.");
+
                 string_generator gen;
                 uuid gid = gen(st2s(sp[0]));
 
-                if (sp.size() != 1) throw runtime_error("GET biocard/{uuid} expected.");
+                db = db_open();
 
-                db = DBstart();
-                DBassert(db, CONNECTION_OK, "Error connection db.");
-
-                string uu = to_string(gid);
-
-                const char* paramValues[1] = { uu.c_str() };
-                PGresult* sql_res = DBexec2(db, SQL_SELECT_BC_TMPS, paramValues);
+                const char* paramValues[1] = { to_string(gid).c_str() };
+                //sql_res = DBexec2(db, SQL_LINKS_BY_BC_GID, paramValues);
 
                 int type_num = PQfnumber(sql_res, "tmp_type");
                 int id_num = PQfnumber(sql_res, "tmp_id");
@@ -64,7 +62,6 @@ void biocard_get(http_request request)
                     json_out[i] = json_row;
                 }
                 answer[ELEMENT_VALUE] = json_out;
-                PQclear(sql_res);
             }
             catch (const boost::system::error_code& ec)
             {
@@ -78,7 +75,8 @@ void biocard_get(http_request request)
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
                 cout << "Exception: " << ec.what() << endl;
             }
-            DBfinish(db);
+            PQclear(sql_res);
+            db_close(db);
         });
 
     request.reply(sc, "");
@@ -104,6 +102,16 @@ void biocard_put(http_request request)
             PGconn* db = NULL;
             try
             {
+                uuid gid;
+
+                auto sp = uri::split_path(request.relative_uri().to_string());
+                if (sp.size() == 1)
+                {
+                    string_generator gen;
+                    gid = gen(st2s(sp[0]));
+                }
+
+
             }
             catch (const boost::system::error_code& ec)
             {
@@ -118,7 +126,7 @@ void biocard_put(http_request request)
                 cout << "Exception: " << ec.what() << endl;
             }
 
-            DBfinish(db);
+            db_close(db);
         });
 
     request.reply(sc, "");

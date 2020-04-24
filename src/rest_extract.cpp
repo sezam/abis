@@ -29,43 +29,26 @@ void extract_get(http_request request)
         {
             try
             {
-                int element_type = ABIS_DATA;
-                int template_type = ABIS_DATA;
-
-                json::value el_type = req_json.at(ELEMENT_TYPE);
-                if (el_type.is_integer()) element_type = el_type.as_integer();
-                if (el_type.is_string()) element_type = stoi(el_type.as_string());
-
                 auto element_image = req_json.at(ELEMENT_VALUE).as_string();
-
                 vector<unsigned char> buf = conversions::from_base64(element_image);
+
+                int template_type = ABIS_DATA;
+                int element_type = req_json.at(ELEMENT_TYPE).as_integer();
                 if (element_type == ABIS_FACE_IMAGE)
                 {
                     template_type = ABIS_FACE_TEMPLATE;
-                    float* face_tmp = new float[FACE_TEMPLATE_SIZE];
+                    float* face_tmp = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
                     memset(face_tmp, 0, FACE_TEMPLATE_SIZE * sizeof(float));
-                    int count = 0;
-                    try
-                    {
-                        count = get_face_template(buf.data(), buf.size(), face_tmp, FACE_TEMPLATE_SIZE * sizeof(float));
-                    }
-                    catch (const std::exception&)
-                    {
-                        delete[] face_tmp;
-                        throw runtime_error("extract: get_face_template");
-                    }
 
-                    if (count != 1)
+                    int count = extract_face_template(buf.data(), buf.size(), face_tmp, FACE_TEMPLATE_SIZE * sizeof(float));
+                    if (count == 1) 
                     {
-                        delete[] face_tmp;
-                        throw runtime_error("extract: get_face_template, return faces <> 1");
+                        for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
+                        {
+                            answer[ELEMENT_VALUE][i] = json::value::number(face_tmp[i]);
+                        }
                     }
-
-                    for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
-                    {
-                        answer[ELEMENT_VALUE][i] = json::value::number(face_tmp[i]);
-                    }
-                    delete[] face_tmp;
+                    free(face_tmp);
                 }
 
                 if (element_type == ABIS_FINGER_IMAGE)
@@ -73,20 +56,14 @@ void extract_get(http_request request)
                     template_type = ABIS_FINGER_TEMPLATE;
                     unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
                     memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
-                    try
-                    {
-                        get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
 
-                    }
-                    catch (const std::exception&)
+                    int res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
+                    if (res > 0)
                     {
-                        free(finger_tmp);
-                        throw runtime_error("extract: get_fingerprint_template");
-                    }
-
-                    for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
-                    {
-                        answer[ELEMENT_VALUE][i] = json::value::number(finger_tmp[i]);
+                        for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
+                        {
+                            answer[ELEMENT_VALUE][i] = json::value::number(finger_tmp[i]);
+                        }
                     }
                     free(finger_tmp);
                 }

@@ -72,6 +72,7 @@ using namespace web::http::experimental::listener;
 using namespace utility;
 
 #include <libpq-fe.h>
+#include <server/catalog/pg_type_d.h>
 
 #ifdef _WIN32
 #define	STD_TO_UTF(mbstr) to_utf<char>(mbstr, "cp1251")

@@ -56,7 +56,7 @@ void rest_server()
 
 int main()
 {
-    DBprepare();
+    db_prepare();
 	rest_server();
 
 	return 0;

@@ -32,13 +32,13 @@ int find_free_port()
     return -1;
 }
 
-int get_face_template(const unsigned char* image_data, const size_t image_data_len,
+int extract_face_template(const unsigned char* image_data, const size_t image_data_len,
     void* template_buf, const size_t template_buf_size)
 {
     int port_index = find_free_port();
     if (port_index < 0) return -1;
 
-    int res = -1;
+    int res = 0;
     int current_port = port_index + 10080;
     try
     {
@@ -71,13 +71,13 @@ int get_face_template(const unsigned char* image_data, const size_t image_data_l
                 {
                     if (recv_header[0] == 'a' && recv_header[1] == 'n' && recv_header[2] == 's' && recv_header[3] == 'w')
                     {
-                        unsigned int p1 = (unsigned int)recv_header[4];
-                        unsigned int p2 = (unsigned int)recv_header[5];
-                        unsigned int p3 = (unsigned int)recv_header[6];
-                        unsigned int p4 = (unsigned int)recv_header[7];
+                        unsigned char p1 = recv_header[4];
+                        unsigned char p2 = recv_header[5];
+                        unsigned char p3 = recv_header[6];
+                        unsigned char p4 = recv_header[7];
                         size_t recv_data_len = p1 * 16777216 + p2 * 65536 + p3 * 256 + p4;
 
-                        char* recv_data = new char[recv_data_len];
+                        char* recv_data = (char*)malloc(recv_data_len);
                         io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
                         if (!err)
                         {
@@ -87,7 +87,7 @@ int get_face_template(const unsigned char* image_data, const size_t image_data_l
                                 memcpy(template_buf, &recv_data[1], recv_data_len);
                             }
                         }
-                        delete[] recv_data;
+                        free(recv_data);
                     }
                 }
             }
@@ -98,6 +98,7 @@ int get_face_template(const unsigned char* image_data, const size_t image_data_l
     {
         res = std::error_code().value();
         cout << "Exception: " << ec.what() << endl;
+        res = -1;
     }
 
     mx_ports[port_index].post();

@@ -20,4 +20,6 @@ std::string st2s(const utility::string_t& strt);
 void display_json(json::value const & jvalue, std::string const & prefix);
 void handle_request(http_request request, function<void(json::value const &, json::value &)> action);
 
+void* json2array(const web::json::value& el);
+
 #endif
