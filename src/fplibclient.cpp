@@ -77,7 +77,7 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
     return res;
 }
 
-float cmp_fingerprint_template(void* tmp1, void* tmp2) {
+float cmp_fingerprint_tmp(void* tmp1, void* tmp2) {
     float score = 0;
 #ifdef _WIN32
     score = rand() % 100 / 100.0f;

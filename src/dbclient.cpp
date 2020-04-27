@@ -95,7 +95,7 @@ void db_close(PGconn* db)
     PQfinish(db);
 }
 
-int db_search_face_template(PGconn* db, const void* tmp_arr)
+int db_search_face_tmp(PGconn* db, const void* tmp_arr)
 {
     int result = 0;
 
@@ -139,12 +139,12 @@ int db_search_face_template(PGconn* db, const void* tmp_arr)
 }
 
 
-int db_search_finger_template(PGconn* db, const void* tmp_arr)
+int db_search_finger_tmp(PGconn* db, const void* tmp_arr)
 {
     return 0;
 }
 
-int db_find_biocard_by_template(PGconn* db, int tmp_type, int tmp_id, char* gid)
+int db_find_biocard_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
 {
     int result = 0;
 
@@ -175,3 +175,44 @@ int db_find_biocard_by_template(PGconn* db, int tmp_type, int tmp_id, char* gid)
     PQclear(sql_res);
     return result;
 }
+
+int db_get_tmp_by_id(PGconn* db, int tmp_type, int tmp_id, void* tmp_arr)
+{
+    int result = 0;
+
+    string s1 = to_string(tmp_type);
+    string s2 = to_string(tmp_id);
+    const char* paramValues[2] = { s1.c_str(), s2.c_str() };
+
+    PGresult* sql_res = nullptr;
+    try
+    {
+        sql_res = PQexecParams(db, SQL_TMP_BY_ID, 2, nullptr, paramValues, nullptr, nullptr, 0);
+
+        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
+        {
+            char* res_ptr = PQgetvalue(sql_res, 0, 0);
+            result = PQgetlength(sql_res, 0, 0);
+
+            if (tmp_type == ABIS_FACE_TEMPLATE)
+            {
+                float* arr_ptr;
+                if (result > 0) db_get_array(arr_ptr, res_ptr);
+            }
+            if (tmp_type == ABIS_FINGER_TEMPLATE)
+            {
+                unsigned char* arr_ptr;
+                if (result > 0) db_get_array(arr_ptr, res_ptr);
+            }
+        }
+    }
+    catch (const std::exception& ec)
+    {
+        cout << "find_biocard_by_template: " << ec.what() << endl;
+        result = -1;
+    }
+
+    PQclear(sql_res);
+    return result;
+}
+

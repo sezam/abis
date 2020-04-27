@@ -41,20 +41,30 @@ void search_get(http_request request)
                     auto json_row = json::value::object();
                     int tmp_type = ABIS_DATA;
                     int tmp_id = 0;
+                    float score = 0;
 
                     int element_type = el_json.at(ELEMENT_TYPE).as_integer();
                     if (element_type == ABIS_FACE_IMAGE)
                     {
                         tmp_type = ABIS_FACE_TEMPLATE;
+                        int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
 
                         auto element_image = el_json.at(ELEMENT_VALUE).as_string();
                         vector<unsigned char> buf = conversions::from_base64(element_image);
 
-                        float* face_tmp = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
+                        float* face_tmp = (float*)malloc(tmp_size);
                         memset(face_tmp, 0, FACE_TEMPLATE_SIZE * sizeof(float));
 
-                        int count = extract_face_template(buf.data(), buf.size(), face_tmp, FACE_TEMPLATE_SIZE * sizeof(float));
-                        if (count == 1) tmp_id = db_search_face_template(db, face_tmp);
+                        int count = extract_face_template(buf.data(), buf.size(), face_tmp, tmp_size);
+                        if (count == 1) tmp_id = db_search_face_tmp(db, face_tmp);
+                        if (tmp_id > 0)
+                        {
+                            float* face_tmp2 = (float*)malloc(tmp_size);
+                            memset(face_tmp2, 0, tmp_size);
+                            int fl = db_get_tmp_by_id(db, tmp_type, tmp_id, face_tmp2);
+                            if (fl == tmp_size) score = cmp_face_tmp(face_tmp, face_tmp2);
+                            free(face_tmp2);
+                        }
                         free(face_tmp);
 
                         if (tmp_id <= 0) continue;
@@ -67,8 +77,18 @@ void search_get(http_request request)
                         vector<unsigned char> buf = conversions::from_base64(element_image);
 
                         unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                        memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
+
                         int res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
-                        if (res > 0) tmp_id = db_search_finger_template(db, finger_tmp);
+                        if (res > 0) tmp_id = db_search_finger_tmp(db, finger_tmp);
+                        if (tmp_id > 0)
+                        {
+                            unsigned char* finger_tmp2 = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                            memset(finger_tmp2, 0, FINGER_TEMPLATE_SIZE);
+                            int fl = db_get_tmp_by_id(db, tmp_type, tmp_id, finger_tmp2);
+                            if (fl == FINGER_TEMPLATE_SIZE) score = cmp_fingerprint_tmp(finger_tmp, finger_tmp2);
+                            free(finger_tmp2);
+                        }
                         free(finger_tmp);
 
                         if (tmp_id <= 0) continue;
@@ -79,8 +99,17 @@ void search_get(http_request request)
                     {
                         tmp_type = ABIS_FACE_TEMPLATE;
                         void* tmp_arr = json2array(el_json);
+                        int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
 
-                        tmp_id = db_search_face_template(db, tmp_arr);
+                        tmp_id = db_search_face_tmp(db, tmp_arr);
+                        if (tmp_id > 0)
+                        {
+                            float* face_tmp2 = (float*)malloc(tmp_size);
+                            memset(face_tmp2, 0, tmp_size);
+                            int fl = db_get_tmp_by_id(db, tmp_type, tmp_id, face_tmp2);
+                            if (fl == tmp_size) score = cmp_face_tmp(tmp_arr, face_tmp2);
+                            free(face_tmp2);
+                        }
                         free(tmp_arr);
 
                         if (tmp_id <= 0) continue;
@@ -90,19 +119,28 @@ void search_get(http_request request)
                         tmp_type = ABIS_FINGER_TEMPLATE;
                         void* tmp_arr = json2array(el_json);
 
-                        tmp_id = db_search_finger_template(db, tmp_arr);
+                        tmp_id = db_search_finger_tmp(db, tmp_arr);
+                        if (tmp_id > 0)
+                        {
+                            unsigned char* finger_tmp2 = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                            memset(finger_tmp2, 0, FINGER_TEMPLATE_SIZE);
+                            int fl = db_get_tmp_by_id(db, tmp_type, tmp_id, finger_tmp2);
+                            if (fl == FINGER_TEMPLATE_SIZE) score = cmp_fingerprint_tmp(tmp_arr, finger_tmp2);
+                            free(finger_tmp2);
+                        }
                         free(tmp_arr);
 
                         if (tmp_id <= 0) continue;
                     }
 
                     char bc_gid[50];
-                    int res = db_find_biocard_by_template(db, element_type, tmp_id, bc_gid);
+                    int res = db_find_biocard_by_tmp_id(db, element_type, tmp_id, bc_gid);
                     if (res <= 0) continue;
 
                     json_row[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(tmp_type)));
                     json_row[ELEMENT_UUID] = json::value::string(utility::conversions::to_string_t(bc_gid));
                     json_row[ELEMENT_ID] = json::value::number(tmp_id);
+                    json_row[ELEMENT_VALUE] = json::value::number(score);
                     json_out[rows++] = json_row;
                 }
                 answer[ELEMENT_VALUE] = json_out;

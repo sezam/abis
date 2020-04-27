@@ -37,7 +37,7 @@ void compare_get(http_request request)
                 int compare_type = ABIS_DATA;
                 for (size_t i = 0; i < 2; i++)
                 {
-                    int element_type = req_json.at(ELEMENT_TYPE).as_integer();
+                    int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
                     if (element_type == ABIS_FACE_IMAGE) {
                         if (compare_type != ABIS_DATA && compare_type != ABIS_FACE_TEMPLATE)
                             throw runtime_error("compare: mixed types");
@@ -90,10 +90,10 @@ void compare_get(http_request request)
 
                 float score;
                 if (compare_type == ABIS_FACE_TEMPLATE) {
-                    score = fvec_eq_dis((const float*)tmps[0], (const float*)tmps[1], FACE_TEMPLATE_SIZE);
+                    score = cmp_face_tmp(tmps[0], tmps[1]);
                 }
                 if (compare_type == ABIS_FINGER_TEMPLATE) {
-                    score = cmp_fingerprint_template(tmps[0], tmps[1]);
+                    score = cmp_fingerprint_tmp(tmps[0], tmps[1]);
                 }
 
                 answer[ELEMENT_VALUE] = json::value::number(score);
@@ -113,7 +113,10 @@ void compare_get(http_request request)
                 cout << "Exception: " << ec.what() << endl;
             }
 
-            for (size_t i = 0; i < 2; i++) free(tmps[i]);
+            for (size_t i = 0; i < 2; i++)
+            {
+                if (tmps[i] != nullptr) free(tmps[i]);
+            }
         });
 
     request.reply(sc, "");

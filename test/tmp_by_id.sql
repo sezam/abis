@@ -1,0 +1,1 @@
+SELECT * FROM face_vectors fv WHERE fv.id=1
