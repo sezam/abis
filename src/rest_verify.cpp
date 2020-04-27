@@ -29,6 +29,7 @@ void verify_get(http_request request)
         [&](json::value const& req_json, json::value& answer)
         {
             PGconn* db = nullptr;
+            PGresult* sql_res = nullptr;
             try
             {
                 db = db_open();
@@ -40,80 +41,105 @@ void verify_get(http_request request)
                 string_generator gen;
                 uuid gid = gen(gids);
 
-                json::array arr = req_json.as_array();
-                auto json_out = json::value::array();
-                int rows = 0;
-                for each (auto el_json in arr)
+                string s1 = to_string(gid);
+                const char* paramValues[1] = { s1.c_str() };
+
+                sql_res = PQexecParams(db, SQL_FACE_TMPS_BY_BC_GID, 1, nullptr, paramValues, nullptr, nullptr, 1);
+                if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
                 {
-                    auto json_row = json::value::object();
-                    int tmp_type = ABIS_DATA;
-                    int tmp_id = 0;
+                    int vec_num = PQfnumber(sql_res, "vector");
+                    int id_num = PQfnumber(sql_res, "tmp_id");
+                    int type_num = PQfnumber(sql_res, "tmp_type");
 
-                    int element_type = el_json.at(ELEMENT_TYPE).as_integer();
-                    if (element_type == ABIS_FACE_IMAGE)
+                    json::array arr = req_json.as_array();
+                    auto json_out = json::value::array();
+                    for (size_t i = 0; i < arr.size(); i++)
                     {
-                        tmp_type = ABIS_FACE_TEMPLATE;
+                        auto json_row = json::value::object();
+                        int tmp_type = ABIS_DATA;
+                        int tmp_id = 0;
+                        float score = numeric_limits<float>::max();
+                        void* tmp_ptr = nullptr;
 
-                        auto element_image = el_json.at(ELEMENT_VALUE).as_string();
-                        vector<unsigned char> buf = conversions::from_base64(element_image);
+                        int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
+                        if (element_type == ABIS_FACE_IMAGE)
+                        {
+                            tmp_type = ABIS_FACE_TEMPLATE;
+                            int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
 
-                        float* face_tmp = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
-                        memset(face_tmp, 0, FACE_TEMPLATE_SIZE * sizeof(float));
+                            auto element_image = arr[i].at(ELEMENT_VALUE).as_string();
+                            vector<unsigned char> buf = conversions::from_base64(element_image);
 
-                        int count = extract_face_template(buf.data(), buf.size(), face_tmp, FACE_TEMPLATE_SIZE * sizeof(float));
-                        if (count == 1) tmp_id = db_search_face_tmp(db, face_tmp);
-                        free(face_tmp);
+                            float* face_tmp = (float*)malloc(tmp_size);
+                            memset(face_tmp, 0, tmp_size);
 
-                        if (tmp_id <= 0) continue;
+                            int count = extract_face_template(buf.data(), buf.size(), face_tmp, tmp_size);
+                            if (count != 1) tmp_ptr = face_tmp;
+                        }
+                        if (element_type == ABIS_FINGER_IMAGE)
+                        {
+                            tmp_type = ABIS_FINGER_TEMPLATE;
+
+                            auto element_image = arr[i].at(ELEMENT_VALUE).as_string();
+                            vector<unsigned char> buf = conversions::from_base64(element_image);
+
+                            unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                            int res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
+                            if (res <= 0) tmp_ptr = finger_tmp;
+                        }
+
+                        if (element_type == ABIS_FACE_TEMPLATE)
+                        {
+                            tmp_type = ABIS_FACE_TEMPLATE;
+                            tmp_ptr = json2array(arr[i]);
+                        }
+                        if (element_type == ABIS_FINGER_TEMPLATE)
+                        {
+                            tmp_type = ABIS_FINGER_TEMPLATE;
+                            tmp_ptr = json2array(arr[i]);
+                        }
+
+                        if (tmp_ptr != nullptr)
+                        {
+                            for (size_t r = 0; r < PQntuples(sql_res); r++)
+                            {
+                                char* vec_tmp = PQgetvalue(sql_res, r, vec_num);
+                                int id_tmp = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
+                                int type_tmp = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
+
+                                float cmp = numeric_limits<float>::max();
+                                if (type_tmp == ABIS_FACE_TEMPLATE && tmp_type == ABIS_FACE_TEMPLATE)
+                                {
+                                    float* arr_ptr = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
+                                    db_get_array(arr_ptr, vec_tmp);
+                                    cmp = cmp_face_tmp(tmp_ptr, arr_ptr);
+                                    free(arr_ptr);
+                                }
+                                if (type_tmp == ABIS_FINGER_TEMPLATE && tmp_type == ABIS_FINGER_TEMPLATE)
+                                {
+                                    unsigned char* arr_ptr = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                                    db_get_array(arr_ptr, vec_tmp);
+                                    cmp = cmp_fingerprint_tmp(tmp_ptr, arr_ptr);
+                                    free(arr_ptr);
+                                }
+                                if (cmp < score)
+                                {
+                                    score = cmp;
+                                    tmp_id = id_tmp;
+                                }
+                            }
+                            free(tmp_ptr);
+                        }
+                        json_row[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(tmp_type)));
+                        if (tmp_id > 0)json_row[ELEMENT_ID] = json::value::number(tmp_id);
+                        json_row[ELEMENT_VALUE] = json::value::number(score);
+                        json_out[i] = json_row;
                     }
-                    if (element_type == ABIS_FINGER_IMAGE)
-                    {
-                        tmp_type = ABIS_FINGER_TEMPLATE;
-
-                        auto element_image = el_json.at(ELEMENT_VALUE).as_string();
-                        vector<unsigned char> buf = conversions::from_base64(element_image);
-
-                        unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
-                        int res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
-                        if (res > 0) tmp_id = db_search_finger_tmp(db, finger_tmp);
-                        free(finger_tmp);
-
-                        if (tmp_id <= 0) continue;
-                    }
-
-
-                    if (element_type == ABIS_FACE_TEMPLATE)
-                    {
-                        tmp_type = ABIS_FACE_TEMPLATE;
-                        void* tmp_arr = json2array(el_json);
-
-                        tmp_id = db_search_face_tmp(db, tmp_arr);
-                        free(tmp_arr);
-
-                        if (tmp_id <= 0) continue;
-                    }
-                    if (element_type == ABIS_FINGER_TEMPLATE)
-                    {
-                        tmp_type = ABIS_FINGER_TEMPLATE;
-                        void* tmp_arr = json2array(el_json);
-
-                        tmp_id = db_search_finger_tmp(db, tmp_arr);
-                        free(tmp_arr);
-
-                        if (tmp_id <= 0) continue;
-                    }
-
-                    char bc_gid[50];
-                    int res = db_find_biocard_by_tmp_id(db, element_type, tmp_id, bc_gid);
-                    if (res <= 0) continue;
-
-                    json_row[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(tmp_type)));
-                    json_row[ELEMENT_UUID] = json::value::string(utility::conversions::to_string_t(bc_gid));
-                    json_row[ELEMENT_ID] = json::value::number(tmp_id);
-                    json_out[rows++] = json_row;
+                    answer[ELEMENT_VALUE] = json_out;
                 }
-                answer[ELEMENT_VALUE] = json_out;
+                answer[ELEMENT_RESULT] = json::value::boolean(true);
             }
+
             catch (const boost::system::error_code& ec)
             {
                 sc = status_codes::BadRequest;

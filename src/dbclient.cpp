@@ -9,10 +9,6 @@ int getNoEle(char* m)
     return ntohl(*(int*)(m + 3 * sizeof(int)));
 }
 
-//functions for byte swaping
-#define ByteSwap(x)  byteswap((unsigned char*) &x, sizeof(x))
-#define byteSwap(x,n)  byteswap((unsigned char*) &x,  n)
-
 void byteswap(unsigned char* b, int n)
 {
     register int i = 0;
@@ -39,6 +35,7 @@ void db_get_array(T*& ar, char* mem)
         start += size + intSize;
     }
 }
+
 void db_get_array(char*& ar, char* mem)
 {
     int nEle = getNoEle(mem);
@@ -52,6 +49,7 @@ void db_get_array(char*& ar, char* mem)
         start += size + intSize;
     }
 }
+
 void db_get_array(char**& ar, char* mem)
 {
     int nEle = getNoEle(mem);

@@ -53,7 +53,7 @@ void search_get(http_request request)
                         vector<unsigned char> buf = conversions::from_base64(element_image);
 
                         float* face_tmp = (float*)malloc(tmp_size);
-                        memset(face_tmp, 0, FACE_TEMPLATE_SIZE * sizeof(float));
+                        memset(face_tmp, 0, tmp_size);
 
                         int count = extract_face_template(buf.data(), buf.size(), face_tmp, tmp_size);
                         if (count == 1) tmp_id = db_search_face_tmp(db, face_tmp);
