@@ -88,7 +88,7 @@ void compare_get(http_request request)
                     }
                 }
 
-                float score;
+                float score = 0;
                 if (compare_type == ABIS_FACE_TEMPLATE) {
                     score = cmp_face_tmp(tmps[0], tmps[1]);
                 }

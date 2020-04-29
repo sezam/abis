@@ -2,7 +2,6 @@
 #define __FPRINT_INTERNAL_H__
 
 #define array_n_elements(array) (sizeof(array) / sizeof(array[0]))
-#define INT_MAX 2147483647
 
 #define FP_IMGDRV_SUPPORTS_UNCONDITIONAL_CAPTURE (1 << 0)
 #define gboolean unsigned int

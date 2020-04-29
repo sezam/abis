@@ -36,7 +36,7 @@ void search_get(http_request request)
                 json::array arr = req_json.as_array();
                 auto json_out = json::value::array();
                 int rows = 0;
-                for each (auto el_json in arr)
+                for (auto el_json : arr)
                 {
                     auto json_row = json::value::object();
                     int tmp_type = ABIS_DATA;

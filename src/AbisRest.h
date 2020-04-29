@@ -73,8 +73,10 @@ using namespace web::http::experimental::listener;
 using namespace utility;
 
 #include <libpq-fe.h>
+#ifndef _WIN32
+#include <server/postgres_fe.h>
+#endif
 #include <server/port/pg_bswap.h>
-//#include <internal/postgres_fe.h>
 
 #ifdef _WIN32
 #define	STD_TO_UTF(mbstr) to_utf<char>(mbstr, "cp1251")

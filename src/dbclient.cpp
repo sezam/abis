@@ -1,4 +1,4 @@
-#include "AbisRest.h"
+﻿#include "AbisRest.h"
 #include "dbclient.h"
 #include "ebsclient.h"
 #include "fplibclient.h"
@@ -23,45 +23,48 @@ void byteswap(unsigned char* b, int n)
 template<class T>
 void db_get_array(T*& ar, char* mem)
 {
-    int nEle = getNoEle(mem);
-    //ar = new T[nEle];
-    char* start = mem + 5 * sizeof(int);
-    int  intSize = sizeof(int);
-    for (int i = 0; i < nEle; i++)
+    size_t nEle = getNoEle(mem);
+    size_t intSize = sizeof(int);
+
+    char* start = mem + 5 * intSize;
+    for (size_t i = 0; i < nEle; i++)
     {
-        int size = pg_ntoh32(*(int*)(start));
+        size_t size = pg_ntoh32(*(int*)(start));
         ar[i] = (*(T*)(start + intSize));
         byteSwap(ar[i], size);
-        start += size + intSize;
+        start += (size_t) (size + intSize);
     }
 }
 
 void db_get_array(char*& ar, char* mem)
 {
-    int nEle = getNoEle(mem);
-    //ar = new char[nEle];
-    char* start = mem + 5 * sizeof(int);
-    int  intSize = sizeof(int);
-    for (int i = 0; i < nEle; i++)
+    size_t nEle = getNoEle(mem);
+    size_t intSize = sizeof(int);
+
+    char* start = mem + 5 * intSize;
+    for (size_t i = 0; i < nEle; i++)
     {
         int size = pg_ntoh32(*(int*)(start));
         ar[i] = *(char*)(start + intSize);
-        start += size + intSize;
+        start += (size_t) (size + intSize);
     }
 }
 
+/* 
+!!! выделение памяти
+*/
 void db_get_array(char**& ar, char* mem)
 {
-    int nEle = getNoEle(mem);
-    //ar = new char* [nEle];
-    char* start = mem + 5 * sizeof(int);
-    int  intSize = sizeof(int);
-    for (int i = 0; i < nEle; i++)
+    size_t nEle = getNoEle(mem);
+    size_t intSize = sizeof(int);
+
+    char* start = mem + 5 * intSize;
+    for (size_t i = 0; i < nEle; i++)
     {
-        int size = pg_ntoh32(*(int*)(start));
+        size_t size = pg_ntoh32(*(int*)(start));
         ar[i] = new char[size];
         strncpy(ar[i], (char*)(start + intSize), size + 1);
-        start += size + intSize;
+        start += (size_t) (size + intSize);
     }
 }
 
@@ -276,6 +279,7 @@ int db_card_id_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
         {
             int gid_num = PQfnumber(sql_res, "gid");
             char* uuid_ptr = PQgetvalue(sql_res, 0, gid_num);
+            strcpy(gid, uuid_ptr);
 
             int uid_num = PQfnumber(sql_res, "uid");
             result = pg_ntoh32(*(int*)(PQgetvalue(sql_res, 0, uid_num)));

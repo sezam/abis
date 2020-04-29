@@ -100,7 +100,7 @@ void verify_get(http_request request)
 
                         if (tmp_ptr != nullptr)
                         {
-                            for (size_t r = 0; r < PQntuples(sql_res); r++)
+                            for (int r = 0; r < PQntuples(sql_res); r++)
                             {
                                 int id_tmp = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
                                 int type_tmp = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
