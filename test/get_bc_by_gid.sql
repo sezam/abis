@@ -1,0 +1,1 @@
+SELECT * FROM t_biocards bc  WHERE bc.gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf'

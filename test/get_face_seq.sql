@@ -1,0 +1,1 @@
+SELECT nextval('template_face_seq'::regclass) uid

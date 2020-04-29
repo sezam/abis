@@ -44,10 +44,9 @@ void verify_get(http_request request)
                 string s1 = to_string(gid);
                 const char* paramValues[1] = { s1.c_str() };
 
-                sql_res = PQexecParams(db, SQL_FACE_TMPS_BY_BC_GID, 1, nullptr, paramValues, nullptr, nullptr, 1);
+                sql_res = PQexecParams(db, SQL_TMP_IDS_BY_BC_GID, 1, nullptr, paramValues, nullptr, nullptr, 1);
                 if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
                 {
-                    int vec_num = PQfnumber(sql_res, "vector");
                     int id_num = PQfnumber(sql_res, "tmp_id");
                     int type_num = PQfnumber(sql_res, "tmp_type");
 
@@ -103,23 +102,22 @@ void verify_get(http_request request)
                         {
                             for (size_t r = 0; r < PQntuples(sql_res); r++)
                             {
-                                char* vec_tmp = PQgetvalue(sql_res, r, vec_num);
                                 int id_tmp = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
                                 int type_tmp = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
 
                                 float cmp = numeric_limits<float>::max();
                                 if (type_tmp == ABIS_FACE_TEMPLATE && tmp_type == ABIS_FACE_TEMPLATE)
                                 {
-                                    float* arr_ptr = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
-                                    db_get_array(arr_ptr, vec_tmp);
-                                    cmp = cmp_face_tmp(tmp_ptr, arr_ptr);
+                                    void* arr_ptr = malloc(FACE_TEMPLATE_SIZE * sizeof(float));
+                                    int t = db_face_tmp_by_id(db, id_tmp, arr_ptr);
+                                    if (t > 0) cmp = cmp_face_tmp(tmp_ptr, arr_ptr);
                                     free(arr_ptr);
                                 }
                                 if (type_tmp == ABIS_FINGER_TEMPLATE && tmp_type == ABIS_FINGER_TEMPLATE)
                                 {
-                                    unsigned char* arr_ptr = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
-                                    db_get_array(arr_ptr, vec_tmp);
-                                    cmp = cmp_fingerprint_tmp(tmp_ptr, arr_ptr);
+                                    void* arr_ptr = malloc(FINGER_TEMPLATE_SIZE);
+                                    int t = db_face_tmp_by_id(db, id_tmp, arr_ptr);//db_finger...
+                                    if (t > 0) cmp = cmp_fingerprint_tmp(tmp_ptr, arr_ptr);
                                     free(arr_ptr);
                                 }
                                 if (cmp < score)
@@ -152,7 +150,7 @@ void verify_get(http_request request)
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
                 cout << "Exception: " << ec.what() << endl;
             }
-
+            PQclear(sql_res);
             db_close(db);
         });
 

@@ -59,9 +59,9 @@ void search_get(http_request request)
                         if (count == 1) tmp_id = db_search_face_tmp(db, face_tmp);
                         if (tmp_id > 0)
                         {
-                            float* face_tmp2 = (float*)malloc(tmp_size);
+                            void* face_tmp2 = malloc(tmp_size);
                             memset(face_tmp2, 0, tmp_size);
-                            int fl = db_get_tmp_by_id(db, tmp_type, tmp_id, face_tmp2);
+                            int fl = db_face_tmp_by_id(db, tmp_id, face_tmp2);
                             if (fl == tmp_size) score = cmp_face_tmp(face_tmp, face_tmp2);
                             free(face_tmp2);
                         }
@@ -76,16 +76,16 @@ void search_get(http_request request)
                         auto element_image = el_json.at(ELEMENT_VALUE).as_string();
                         vector<unsigned char> buf = conversions::from_base64(element_image);
 
-                        unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                        void* finger_tmp = malloc(FINGER_TEMPLATE_SIZE);
                         memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
 
-                        int res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
+                        int res = get_fingerprint_template(buf.data(), buf.size(), (unsigned char*)finger_tmp, FINGER_TEMPLATE_SIZE);
                         if (res > 0) tmp_id = db_search_finger_tmp(db, finger_tmp);
                         if (tmp_id > 0)
                         {
-                            unsigned char* finger_tmp2 = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                            void* finger_tmp2 = malloc(FINGER_TEMPLATE_SIZE);
                             memset(finger_tmp2, 0, FINGER_TEMPLATE_SIZE);
-                            int fl = db_get_tmp_by_id(db, tmp_type, tmp_id, finger_tmp2);
+                            int fl = db_face_tmp_by_id(db, tmp_id, finger_tmp2); // fb_finger...
                             if (fl == FINGER_TEMPLATE_SIZE) score = cmp_fingerprint_tmp(finger_tmp, finger_tmp2);
                             free(finger_tmp2);
                         }
@@ -104,9 +104,9 @@ void search_get(http_request request)
                         tmp_id = db_search_face_tmp(db, tmp_arr);
                         if (tmp_id > 0)
                         {
-                            float* face_tmp2 = (float*)malloc(tmp_size);
+                            void* face_tmp2 = malloc(tmp_size);
                             memset(face_tmp2, 0, tmp_size);
-                            int fl = db_get_tmp_by_id(db, tmp_type, tmp_id, face_tmp2);
+                            int fl = db_face_tmp_by_id(db, tmp_id, face_tmp2);
                             if (fl == tmp_size) score = cmp_face_tmp(tmp_arr, face_tmp2);
                             free(face_tmp2);
                         }
@@ -122,9 +122,9 @@ void search_get(http_request request)
                         tmp_id = db_search_finger_tmp(db, tmp_arr);
                         if (tmp_id > 0)
                         {
-                            unsigned char* finger_tmp2 = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
+                            void* finger_tmp2 = malloc(FINGER_TEMPLATE_SIZE);
                             memset(finger_tmp2, 0, FINGER_TEMPLATE_SIZE);
-                            int fl = db_get_tmp_by_id(db, tmp_type, tmp_id, finger_tmp2);
+                            int fl = db_face_tmp_by_id(db, tmp_id, finger_tmp2); // db_finger...
                             if (fl == FINGER_TEMPLATE_SIZE) score = cmp_fingerprint_tmp(tmp_arr, finger_tmp2);
                             free(finger_tmp2);
                         }
@@ -134,7 +134,7 @@ void search_get(http_request request)
                     }
 
                     char bc_gid[50];
-                    int res = db_find_biocard_by_tmp_id(db, element_type, tmp_id, bc_gid);
+                    int res = db_card_id_by_tmp_id(db, element_type, tmp_id, bc_gid);
                     if (res <= 0) continue;
 
                     json_row[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(tmp_type)));

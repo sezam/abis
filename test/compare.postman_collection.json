@@ -1,0 +1,184 @@
+{
+	"info": {
+		"_postman_id": "1b0ca4fd-a9a8-4cc9-b965-2aafe1c29473",
+		"name": "compare",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "face img to img",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"type\": \"1\",\n        \"value\": \"\"\n    },\n    {\n        \"type\": \"1\",\n        \"value\": \"\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/compare",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"compare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "face img to tmp",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"type\": \"1\",\n        \"value\": \"\"\n    },\n    {\n        \"type\": \"17\",\n        \"value\": []\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/compare",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"compare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "face tmp to tmp",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"type\": 17,\n        \"value\": [1, 2, 3, 4, 5, 6]\n    },\n    {\n        \"type\": 17,\n        \"value\": [7, 8, 9, 10, 11, 12]\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/compare",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"compare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "finger img to img",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"type\": \"2\",\n        \"value\": \"\"\n    },\n    {\n        \"type\": \"2\",\n        \"value\": \"\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/compare",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"compare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "finger tmp to tmp",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"type\": \"2\",\n        \"value\": \"\"\n    },\n    {\n        \"type\": \"2\",\n        \"value\": \"\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/compare",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"compare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "finger img to tmp",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"type\": \"2\",\n        \"value\": \"\"\n    },\n    {\n        \"type\": \"2\",\n        \"value\": \"\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/compare",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"compare"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

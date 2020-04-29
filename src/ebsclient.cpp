@@ -105,19 +105,18 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
     return res;
 }
 
-float fvec_eq_dis(const float* x, const float* y, size_t d)
+float fvec_eq_dis(const float* x, const float* y, size_t size)
 {
-    size_t i;
-    float res;
+    float res = 0;
 
-    res = (x[0] - y[0]);
-    for (i = 1; i < d; i++) {
+    for (size_t i = 0; i < size; i++) {
         const float tmp = x[i] - y[i];
-        res += tmp * tmp;
+        const float r = tmp * tmp;
+        res += r;
     }
     return sqrt(res);
 }
 
 float cmp_face_tmp(void* tmp1, void* tmp2) {
-    return fvec_eq_dis((const float*)tmp1, (const float*)tmp2, FACE_TEMPLATE_SIZE);
+    return 1.0f - fvec_eq_dis((const float*)tmp1, (const float*)tmp2, FACE_TEMPLATE_SIZE);
 }

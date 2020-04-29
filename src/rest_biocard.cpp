@@ -1,16 +1,15 @@
-#include "rest_biocard.h"
+﻿#include "rest_biocard.h"
 #include "AbisRest.h"
 #include "restutils.h"
 #include "dbclient.h"
-#include "restutils.h"
+#include "ebsclient.h"
+#include "fplibclient.h"
 
 http_listener register_biocard(uri url)
 {
     http_listener listener(url);
     listener.support(methods::GET, biocard_get);
-    listener.support(methods::POST, biocard_post);
     listener.support(methods::PUT, biocard_put);
-    listener.support(methods::PATCH, biocard_patch);
 
     listener
         .open()
@@ -88,13 +87,6 @@ void biocard_get(http_request request)
     request.reply(sc, "");
 }
 
-void biocard_post(http_request request)
-{
-    TRACE(L"POST biocard\n");
-
-    request.reply(status_codes::OK, "");
-}
-
 void biocard_put(http_request request)
 {
     TRACE(L"PUT biocard\n");
@@ -105,19 +97,104 @@ void biocard_put(http_request request)
         request,
         [&](json::value const& req_json, json::value& answer)
         {
-            PGconn* db = NULL;
+            PGconn* db = nullptr;
             try
             {
+                db = db_open();
+                db_tx_begin(db);
+
                 uuid gid;
+                int bc_id = 0;
 
                 auto sp = uri::split_path(request.relative_uri().to_string());
-                if (sp.size() == 1)
+                if (sp.size() == 0)
+                {
+                    basic_random_generator<boost::mt19937> gen;
+                    gid = gen();
+
+                    bc_id = db_add_bc(db, to_string(gid).c_str(), "");
+                    if (bc_id <= 0) throw runtime_error("biocard_put: biocard not added.");
+                } 
+                if (sp.size() > 0)
                 {
                     string_generator gen;
                     gid = gen(st2s(sp[0]));
+
+                    bc_id = db_card_id_by_gid(db, to_string(gid).c_str());
+                    if (bc_id <= 0) throw runtime_error("biocard_put: biocard not found.");
                 }
 
+                int inserted = 0;
+                auto json_out = json::value::array();
+                auto arr = req_json.at(ELEMENT_VALUE).as_array();
+                for (size_t i = 0; i < arr.size(); i++)
+                {
+                    int tmp_type = ABIS_DATA;
+                    int tmp_id = 0;
+                    void* tmp_arr = nullptr;
+                    auto json_row = json::value::object();
+                    int step = 0;
 
+                    if (tmp_from_json(arr[i], tmp_type, tmp_arr) <= 0)
+                    {
+                        cout << "biocard_put: error extract template" << endl;
+                        free(tmp_arr);
+                        continue;
+                    }
+                    json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
+
+                    if (tmp_type == ABIS_FACE_TEMPLATE)
+                    {
+                        db_sp_begin(db, "face_template");
+                        step = tmp_id = db_search_face_tmp(db, tmp_arr);
+                        if (step > 0)
+                        {
+                            float score = 0;
+
+                            int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
+                            void* face_tmp = malloc(tmp_size);
+                            memset(face_tmp, 0, tmp_size);
+
+                            step = db_face_tmp_by_id(db, tmp_id, face_tmp);
+                            if (step > 0) score = cmp_face_tmp(tmp_arr, face_tmp);
+                            free(face_tmp);
+
+                            if (score >= ABIS_FACE_THRESHOLD)
+                            {
+                                char bc_gid[50];
+                                step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid);
+                                if (step > 0) step = -2;
+                            }
+                            else
+                            {
+                                step = tmp_id = db_get_face_seq(db);
+                                if (step > 0) step = db_insert_face_tmp(db, tmp_arr, tmp_id);
+                            }
+                        }
+
+                        if (step > 0) step = db_add_link(db, ABIS_FACE_TEMPLATE, tmp_id, bc_id);
+                        if (step > 0)
+                        {
+                            inserted++;
+                            db_tx_commit(db);
+                            json_row[ELEMENT_ID] = json::value::number(tmp_id);
+                        }
+                        else
+                        {
+                            db_sp_rollback(db, "face_template");
+                            cout << "biocard_put: check face teplate error" << endl;
+                        }
+                        json_out[i] = json_row;
+                    }
+                    free(tmp_arr);
+                }
+                if (inserted > 0)
+                {
+                    answer[ELEMENT_UUID] = json::value::string(s2ws(to_string(gid).c_str()));
+                    answer[ELEMENT_ID] = json::value::number(bc_id);
+                }
+                else db_tx_rollback(db);
+                answer[ELEMENT_VALUE] = json_out;
             }
             catch (const boost::system::error_code& ec)
             {
@@ -131,16 +208,9 @@ void biocard_put(http_request request)
                 answer[ELEMENT_RESULT] = json::value::boolean(false);
                 cout << "Exception: " << ec.what() << endl;
             }
-
             db_close(db);
         });
 
     request.reply(sc, "");
 }
 
-void biocard_patch(http_request request)
-{
-    TRACE(L"PATCH biocard\n");
-
-    request.reply(status_codes::OK, "");
-}

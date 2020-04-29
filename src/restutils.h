@@ -9,6 +9,7 @@
 #define ELEMENT_VALUE	U("value")
 #define ELEMENT_ID	    U("id")
 #define ELEMENT_UUID    U("uuid")
+#define ELEMENT_INFO    U("info")
 
 #define ELEMENT_RESULT	U("ok")
 #define ELEMENT_ERROR	U("error")
@@ -21,5 +22,6 @@ void display_json(json::value const & jvalue, std::string const & prefix);
 void handle_request(http_request request, function<void(json::value const &, json::value &)> action);
 
 void* json2array(const web::json::value& el);
+int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr);
 
 #endif

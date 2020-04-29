@@ -49,6 +49,7 @@ using boost::lambda::_1;
 using namespace boost::interprocess;
 
 #include <boost/regex.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <boost/gil.hpp>
 #include <boost/gil/extension/dynamic_image/any_image.hpp>
@@ -58,10 +59,8 @@ using namespace boost::interprocess;
 #include <boost/mp11.hpp>
 namespace gil = boost::gil;
 
-#include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/lexical_cast.hpp>
 using namespace boost::uuids;
 
 //после Boost иначе линкер сругается
@@ -74,6 +73,7 @@ using namespace utility;
 
 #include <libpq-fe.h>
 #include <server/catalog/pg_type_d.h>
+#include <server/port/pg_bswap.h>
 
 #ifdef _WIN32
 #define	STD_TO_UTF(mbstr) to_utf<char>(mbstr, "cp1251")
@@ -92,6 +92,8 @@ using namespace utility;
 #define ABIS_FACE_TEMPLATE		0x11
 #define ABIS_FINGER_TEMPLATE	0x12
 #define ABIS_IRIS_TEMPLATE		0x13
+
+#define ABIS_FACE_THRESHOLD     0.999f
 
 #endif
 

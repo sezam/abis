@@ -47,14 +47,26 @@ CREATE TABLE public.t_biocard_template_link
     CONSTRAINT biocard_fk FOREIGN KEY (biocard_id)
         REFERENCES public.t_biocards (uid) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID
 )
 TABLESPACE pg_default;
 ALTER TABLE public.t_biocard_template_link
     OWNER to postgres;
 
+-- Index: idx1
+-- DROP INDEX public.idx1;
+CREATE UNIQUE INDEX idx1
+    ON public.t_biocard_template_link USING btree
+    (uid ASC NULLS LAST)
+    INCLUDE(tmp_type, tmp_id, biocard_id)
+    TABLESPACE pg_default;
+
+
 --insert into t_biocard_template_link (tmp_type, tmp_id, biocard_id) VALUES (17, 1, 1)
 --select * from t_biocards bc, t_biocard_template_link bt where bc.gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf' and bc.uid=bt.biocard_id
+
+
 
 -- Table: public.t_biocards
 -- DROP TABLE public.t_biocards;
@@ -70,5 +82,34 @@ TABLESPACE pg_default;
 ALTER TABLE public.t_biocards
     OWNER to postgres;
 
+-- DROP INDEX public.idx_gid;
+CREATE UNIQUE INDEX idx_gid
+    ON public.t_biocards USING btree
+    (gid ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+
 -- insert into t_biocards (gid, info) VALUES ('2c6eab8b-d050-4cbd-82d7-214d9463bbcf', 'test ')
 -- select * from t_biocards where gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf'
+
+
+
+-- Table: public.face_vectors
+-- DROP TABLE public.face_vectors;
+CREATE TABLE public.face_vectors
+(
+    id integer NOT NULL DEFAULT nextval('template_face_seq'::regclass),
+    vector real[] NOT NULL,
+    deleted boolean DEFAULT false,
+    CONSTRAINT face_vectors_id_key UNIQUE (id)
+)
+TABLESPACE pg_default;
+ALTER TABLE public.face_vectors
+    OWNER to postgres;
+
+-- Index: id_idx
+-- DROP INDEX public.id_idx;
+CREATE UNIQUE INDEX id_idx
+    ON public.face_vectors USING btree
+    (id ASC NULLS LAST)
+    TABLESPACE pg_default;
