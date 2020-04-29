@@ -65,9 +65,9 @@ void db_tx_begin(PGconn* db);
 void db_tx_commit(PGconn* db);
 void db_tx_rollback(PGconn* db);
 
-void db_sp_begin(PGconn* db, char* name);
-void db_sp_rollback(PGconn* db, char* name);
-void db_sp_release(PGconn* db, char* name);
+void db_sp_begin(PGconn* db, const char* name);
+void db_sp_rollback(PGconn* db, const char* name);
+void db_sp_release(PGconn* db, const char* name);
 
 /*
 поиск id шаблона по графу

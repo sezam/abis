@@ -78,7 +78,6 @@ void handle_request(
                     {
                         sc = status_codes::BadRequest;
                         //answer[U("exception")] = json::value::string(conversions::to_string_t(ec.what()));
-
                         cout << ec.what() << endl;
                     }
                 })

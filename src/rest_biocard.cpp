@@ -51,7 +51,7 @@ void biocard_get(http_request request)
                     int id_num = PQfnumber(sql_res, "tmp_id");
 
                     auto json_out = json::value::array();
-                    for (size_t i = 0; i < PQntuples(sql_res); i++)
+                    for (int i = 0; i < PQntuples(sql_res); i++)
                     {
                         auto json_row = json::value::object();
 
@@ -190,7 +190,7 @@ void biocard_put(http_request request)
                 }
                 if (inserted > 0)
                 {
-                    answer[ELEMENT_UUID] = json::value::string(s2ws(to_string(gid).c_str()));
+                    answer[ELEMENT_UUID] = json::value::string(conversions::to_string_t(to_string(gid)));
                     answer[ELEMENT_ID] = json::value::number(bc_id);
                 }
                 else db_tx_rollback(db);

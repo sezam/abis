@@ -137,8 +137,8 @@ void search_get(http_request request)
                     int res = db_card_id_by_tmp_id(db, element_type, tmp_id, bc_gid);
                     if (res <= 0) continue;
 
-                    json_row[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(tmp_type)));
-                    json_row[ELEMENT_UUID] = json::value::string(utility::conversions::to_string_t(bc_gid));
+                    json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
+                    json_row[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));
                     json_row[ELEMENT_ID] = json::value::number(tmp_id);
                     json_row[ELEMENT_VALUE] = json::value::number(score);
                     json_out[rows++] = json_row;

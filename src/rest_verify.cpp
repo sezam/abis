@@ -128,7 +128,7 @@ void verify_get(http_request request)
                             }
                             free(tmp_ptr);
                         }
-                        json_row[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(tmp_type)));
+                        json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
                         if (tmp_id > 0)json_row[ELEMENT_ID] = json::value::number(tmp_id);
                         json_row[ELEMENT_VALUE] = json::value::number(score);
                         json_out[i] = json_row;

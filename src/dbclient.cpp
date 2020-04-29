@@ -115,7 +115,7 @@ void db_tx_rollback(PGconn* db)
     PQclear(res);
 }
 
-void db_sp_begin(PGconn* db, char* name)
+void db_sp_begin(PGconn* db, const char* name)
 {
     string q("SAVEPOINT ");
     q.append(name);
@@ -125,7 +125,7 @@ void db_sp_begin(PGconn* db, char* name)
     PQclear(res);
 }
 
-void db_sp_rollback(PGconn* db, char* name)
+void db_sp_rollback(PGconn* db, const char* name)
 {
     string q("ROLLBACK TO SAVEPOINT ");
     q.append(name);
@@ -135,7 +135,7 @@ void db_sp_rollback(PGconn* db, char* name)
     PQclear(res);
 }
 
-void db_sp_release(PGconn* db, char* name)
+void db_sp_release(PGconn* db, const char* name)
 {
     string q("RELEASE SAVEPOINT ");
     q.append(name);

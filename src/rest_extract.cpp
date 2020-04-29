@@ -69,7 +69,7 @@ void extract_get(http_request request)
                 }
 
                 answer[ELEMENT_RESULT] = json::value::boolean(true);
-                answer[ELEMENT_TYPE] = json::value::string(conversions::to_string_t(to_string(template_type)));
+                answer[ELEMENT_TYPE] = json::value::number(template_type);
             }
             catch (const boost::system::error_code& ec)
             {

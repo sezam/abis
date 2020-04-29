@@ -72,11 +72,9 @@ using namespace web::http;
 using namespace web::http::experimental::listener;
 using namespace utility;
 
-#define uint16  uint16_t
-#define uint32  uint32_t
-#define uint64  uint64_t
 #include <libpq-fe.h>
 #include <server/port/pg_bswap.h>
+//#include <internal/postgres_fe.h>
 
 #ifdef _WIN32
 #define	STD_TO_UTF(mbstr) to_utf<char>(mbstr, "cp1251")
