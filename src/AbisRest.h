@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include <limits>
+#include <cstdint>
 using namespace std;
 
 #include <chrono>
@@ -71,8 +72,10 @@ using namespace web::http;
 using namespace web::http::experimental::listener;
 using namespace utility;
 
+#define uint16  uint16_t
+#define uint32  uint32_t
+#define uint64  uint64_t
 #include <libpq-fe.h>
-#include <server/catalog/pg_type_d.h>
 #include <server/port/pg_bswap.h>
 
 #ifdef _WIN32

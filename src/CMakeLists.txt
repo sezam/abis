@@ -14,10 +14,11 @@ if (MSVC)
         d:/lib/vcpkg/installed/x64-windows/lib/
     )
 elseif(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wall -Wno-long-long -Wno-deprecated-declarations -Wno-unknown-pragmas")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x -Wall -Wno-long-long -Wno-deprecated-declarations -Wno-unknown-pragmas")
 
     include_directories(
         /opt/vcpkg/installed/x64-linux/include
+        /opt/vcpkg/installed/x64-linux/include/postgresql
     )
 
     link_directories(

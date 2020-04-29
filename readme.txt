@@ -18,6 +18,7 @@ cmake .. -T v140 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_TOOLCHAIN_FILE=D:\lib\vcpkg\
 cmake --build . --config Release -j 4
 
 сборка под linux
+scl enable devtoolset-8 bash
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake
 cmake --build . --config Release -j 4
