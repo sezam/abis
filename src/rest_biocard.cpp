@@ -146,7 +146,6 @@ void biocard_put(http_request request)
                         free(tmp_arr);
                         continue;
                     }
-                    json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
 
                     if (tmp_type == ABIS_FACE_TEMPLATE)
                     {
@@ -178,25 +177,24 @@ void biocard_put(http_request request)
                         }
 
                         if (step > 0) step = db_add_link(db, ABIS_FACE_TEMPLATE, tmp_id, bc_id);
-                        if (step > 0)
-                        {
-                            inserted++;
-                            db_tx_commit(db);
-                            json_row[ELEMENT_ID] = json::value::number(tmp_id);
-                        }
+                        if (step > 0) inserted++;
                         if (step < 0) db_sp_rollback(db, "face_template");
-
-                        json_out[i] = json_row;
                     }
                     free(tmp_arr);
+
+                    if (step > 0) json_row[ELEMENT_ID] = json::value::number(tmp_id);
+                    json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
+                    json_row[ELEMENT_RESULT] = json::value::boolean(step > 0);
+
+                    json_out[i] = json_row;
                 }
                 if (inserted > 0)
                 {
+                    db_tx_commit(db);
                     answer[ELEMENT_UUID] = json::value::string(conversions::to_string_t(to_string(gid)));
-                    answer[ELEMENT_ID] = json::value::number(bc_id);
+                    answer[ELEMENT_VALUE] = json_out;
                 }
                 else db_tx_rollback(db);
-                answer[ELEMENT_VALUE] = json_out;
             }
             catch (const boost::system::error_code& ec)
             {
