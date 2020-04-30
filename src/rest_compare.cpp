@@ -113,10 +113,7 @@ void compare_get(http_request request)
                 cout << "Exception: " << ec.what() << endl;
             }
 
-            for (size_t i = 0; i < 2; i++)
-            {
-                if (tmps[i] != nullptr) free(tmps[i]);
-            }
+            for (size_t i = 0; i < tmps.size(); i++) free(tmps[i]);
         });
 
     request.reply(sc, "");

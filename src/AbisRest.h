@@ -24,6 +24,7 @@
 #include <string>
 #include <limits>
 #include <cstdint>
+#include <cmath>
 using namespace std;
 
 #include <chrono>
