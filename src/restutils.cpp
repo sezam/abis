@@ -144,11 +144,12 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
         float* face_tmp = (float*)malloc(tmp_size);
         memset(face_tmp, 0, tmp_size);
 
-        int count = extract_face_template(buf.data(), buf.size(), face_tmp, tmp_size);
-        if (count != 1) res = -count;
-
         tmp_type = ABIS_FACE_TEMPLATE;
         tmp_ptr = face_tmp;
+        res = element_type;
+
+        int count = extract_face_template(buf.data(), buf.size(), face_tmp, tmp_size);
+        if (count != 1) res = -1;
     }
     if (element_type == ABIS_FACE_TEMPLATE)
     {
@@ -165,10 +166,9 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
         unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
         memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
 
-        res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
-
         tmp_type = ABIS_FINGER_TEMPLATE;
         tmp_ptr = finger_tmp;
+        res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
     }
     if (element_type == ABIS_FINGER_TEMPLATE)
     {

@@ -75,7 +75,7 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
                         unsigned char p2 = recv_header[5];
                         unsigned char p3 = recv_header[6];
                         unsigned char p4 = recv_header[7];
-                        size_t recv_data_len = (size_t) (p1 * 16777216 + p2 * 65536 + p3 * 256 + p4);
+                        size_t recv_data_len = (size_t)(p1 * 16777216 + p2 * 65536 + p3 * 256 + p4);
 
                         char* recv_data = (char*)malloc(recv_data_len);
                         io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
@@ -93,6 +93,7 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
             }
             client_socket.close();
         }
+        else cout << "extract_face_template: extract service not response. " << err.message() << endl;
     }
     catch (const std::exception& ec)
     {

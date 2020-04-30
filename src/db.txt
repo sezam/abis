@@ -1,42 +1,74 @@
--- SEQUENCE: public.biocard_uid_seq
--- DROP SEQUENCE public.biocard_uid_seq;
-CREATE SEQUENCE public.biocard_uid_seq
+-- SEQUENCE: biocard_uid_seq
+-- DROP SEQUENCE biocard_uid_seq;
+CREATE SEQUENCE biocard_uid_seq
     INCREMENT 1
     START 1
     MINVALUE 1
     MAXVALUE 2147483647
     CACHE 1;
-ALTER SEQUENCE public.biocard_uid_seq
+ALTER SEQUENCE biocard_uid_seq
     OWNER TO postgres;
 
 
--- SEQUENCE: public.template_face_seq
--- DROP SEQUENCE public.template_face_seq;
-CREATE SEQUENCE public.template_face_seq
+-- SEQUENCE: template_face_seq
+-- DROP SEQUENCE template_face_seq;
+CREATE SEQUENCE template_face_seq
     INCREMENT 1
     START 1
     MINVALUE 1
     MAXVALUE 9223372036854775807
     CACHE 1;
-ALTER SEQUENCE public.template_face_seq
+ALTER SEQUENCE template_face_seq
     OWNER TO postgres;
 
 
--- SEQUENCE: public.template_finger_seq
--- DROP SEQUENCE public.template_finger_seq;
-CREATE SEQUENCE public.template_finger_seq
+-- SEQUENCE: template_finger_seq
+-- DROP SEQUENCE template_finger_seq;
+CREATE SEQUENCE template_finger_seq
     INCREMENT 1
     START 1
     MINVALUE 1
     MAXVALUE 9223372036854775807
     CACHE 1;
-ALTER SEQUENCE public.template_finger_seq
+ALTER SEQUENCE template_finger_seq
+    OWNER TO postgres;
+
+-- SEQUENCE: t_biocard_template_link_uid_seq
+-- DROP SEQUENCE t_biocard_template_link_uid_seq;
+CREATE SEQUENCE t_biocard_template_link_uid_seq
+    INCREMENT 1
+    START 10
+    MINVALUE 1
+    MAXVALUE 2147483647
+    CACHE 1;
+ALTER SEQUENCE t_biocard_template_link_uid_seq
     OWNER TO postgres;
 
 
--- Table: public.t_biocard_template_link
--- DROP TABLE public.t_biocard_template_link;
-CREATE TABLE public.t_biocard_template_link
+-- Table: t_biocards
+-- DROP TABLE t_biocards;
+CREATE TABLE t_biocards
+(
+    uid integer NOT NULL DEFAULT nextval('biocard_uid_seq'::regclass),
+    gid uuid NOT NULL,
+    info text COLLATE pg_catalog."default",
+    CONSTRAINT biocard_pkey PRIMARY KEY (uid),
+    CONSTRAINT gid_uniq UNIQUE (gid)
+)
+TABLESPACE pg_default;
+ALTER TABLE t_biocards
+    OWNER to postgres;
+
+-- DROP INDEX idx_gid;
+CREATE UNIQUE INDEX idx_gid
+    ON t_biocards USING btree
+    (gid ASC NULLS LAST)
+    TABLESPACE pg_default;
+
+
+-- Table: t_biocard_template_link
+-- DROP TABLE t_biocard_template_link;
+CREATE TABLE t_biocard_template_link
 (
     uid integer NOT NULL DEFAULT nextval('t_biocard_template_link_uid_seq'::regclass),
     tmp_type integer NOT NULL,
@@ -45,19 +77,19 @@ CREATE TABLE public.t_biocard_template_link
     CONSTRAINT t_biocard_template_link_pkey PRIMARY KEY (uid),
     CONSTRAINT single_tmp UNIQUE (biocard_id, tmp_id, tmp_type),
     CONSTRAINT biocard_fk FOREIGN KEY (biocard_id)
-        REFERENCES public.t_biocards (uid) MATCH SIMPLE
+        REFERENCES t_biocards (uid) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID
 )
 TABLESPACE pg_default;
-ALTER TABLE public.t_biocard_template_link
+ALTER TABLE t_biocard_template_link
     OWNER to postgres;
 
 -- Index: idx1
--- DROP INDEX public.idx1;
+-- DROP INDEX idx1;
 CREATE UNIQUE INDEX idx1
-    ON public.t_biocard_template_link USING btree
+    ON t_biocard_template_link USING btree
     (uid ASC NULLS LAST)
     INCLUDE(tmp_type, tmp_id, biocard_id)
     TABLESPACE pg_default;
@@ -67,36 +99,14 @@ CREATE UNIQUE INDEX idx1
 --select * from t_biocards bc, t_biocard_template_link bt where bc.gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf' and bc.uid=bt.biocard_id
 
 
-
--- Table: public.t_biocards
--- DROP TABLE public.t_biocards;
-CREATE TABLE public.t_biocards
-(
-    uid integer NOT NULL DEFAULT nextval('biocard_uid_seq'::regclass),
-    gid uuid NOT NULL,
-    info text COLLATE pg_catalog."default",
-    CONSTRAINT biocard_pkey PRIMARY KEY (uid),
-    CONSTRAINT gid_uniq UNIQUE (gid)
-)
-TABLESPACE pg_default;
-ALTER TABLE public.t_biocards
-    OWNER to postgres;
-
--- DROP INDEX public.idx_gid;
-CREATE UNIQUE INDEX idx_gid
-    ON public.t_biocards USING btree
-    (gid ASC NULLS LAST)
-    TABLESPACE pg_default;
-
-
 -- insert into t_biocards (gid, info) VALUES ('2c6eab8b-d050-4cbd-82d7-214d9463bbcf', 'test ')
 -- select * from t_biocards where gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf'
 
 
 
 -- Table: public.face_vectors
--- DROP TABLE public.face_vectors;
-CREATE TABLE public.face_vectors
+-- DROP TABLE face_vectors;
+CREATE TABLE face_vectors
 (
     id integer NOT NULL DEFAULT nextval('template_face_seq'::regclass),
     vector real[] NOT NULL,
@@ -104,12 +114,12 @@ CREATE TABLE public.face_vectors
     CONSTRAINT face_vectors_id_key UNIQUE (id)
 )
 TABLESPACE pg_default;
-ALTER TABLE public.face_vectors
+ALTER TABLE face_vectors
     OWNER to postgres;
 
 -- Index: id_idx
--- DROP INDEX public.id_idx;
+-- DROP INDEX id_idx;
 CREATE UNIQUE INDEX id_idx
-    ON public.face_vectors USING btree
+    ON face_vectors USING btree
     (id ASC NULLS LAST)
     TABLESPACE pg_default;
