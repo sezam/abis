@@ -20,7 +20,7 @@ http_listener register_verify(uri url)
 
 void verify_get(http_request request)
 {
-    TRACE(L"GET verify\n");
+    cout << "GET verify " << st2s(request.relative_uri().to_string()) << endl;
 
     http::status_code sc = status_codes::OK;
 
@@ -45,7 +45,7 @@ void verify_get(http_request request)
                 const char* paramValues[1] = { s1.c_str() };
 
                 sql_res = PQexecParams(db, SQL_TMP_IDS_BY_BC_GID, 1, nullptr, paramValues, nullptr, nullptr, 1);
-                if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
+                if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
                 {
                     int id_num = PQfnumber(sql_res, "tmp_id");
                     int type_num = PQfnumber(sql_res, "tmp_type");
@@ -67,46 +67,49 @@ void verify_get(http_request request)
                             continue;
                         }
 
-                        if (json_tmp_ptr != nullptr)
+                        for (int r = 0; r < PQntuples(sql_res); r++)
                         {
-                            for (int r = 0; r < PQntuples(sql_res); r++)
-                            {
-                                int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
-                                int db_tmp_type = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
+                            int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
+                            int db_tmp_type = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
 
-                                float cmp = numeric_limits<float>::max();
-                                if (db_tmp_type == ABIS_FACE_TEMPLATE && json_tmp_type == ABIS_FACE_TEMPLATE)
-                                {
-                                    void* arr_ptr = malloc(FACE_TEMPLATE_SIZE * sizeof(float));
-                                    int t = db_face_tmp_by_id(db, db_tmp_id, arr_ptr);
-                                    if (t > 0) cmp = cmp_face_tmp(json_tmp_ptr, arr_ptr);
-                                    free(arr_ptr);
-                                }
-                                if (db_tmp_type == ABIS_FINGER_TEMPLATE && json_tmp_type == ABIS_FINGER_TEMPLATE)
-                                {
-                                    /*
-                                    void* arr_ptr = malloc(FINGER_TEMPLATE_SIZE);
-                                    int t = db_finger_tmp_by_id(db, db_tmp_id, arr_ptr);
-                                    if (t > 0) cmp = cmp_fingerprint_tmp(json_tmp_ptr, arr_ptr);
-                                    free(arr_ptr);
-                                    */
-                                }
-                                if (cmp < score)
-                                {
-                                    score = cmp;
-                                    tmp_id = db_tmp_id;
-                                }
+                            float cmp = numeric_limits<float>::max();
+                            if (db_tmp_type == ABIS_FACE_TEMPLATE && json_tmp_type == ABIS_FACE_TEMPLATE)
+                            {
+                                void* arr_ptr = malloc(FACE_TEMPLATE_SIZE * sizeof(float));
+                                int t = db_face_tmp_by_id(db, db_tmp_id, arr_ptr);
+                                if (t > 0) cmp = cmp_face_tmp(json_tmp_ptr, arr_ptr);
+                                free(arr_ptr);
                             }
-                            free(json_tmp_ptr);
+                            if (db_tmp_type == ABIS_FINGER_TEMPLATE && json_tmp_type == ABIS_FINGER_TEMPLATE)
+                            {
+                                /*
+                                void* arr_ptr = malloc(FINGER_TEMPLATE_SIZE);
+                                int t = db_finger_tmp_by_id(db, db_tmp_id, arr_ptr);
+                                if (t > 0) cmp = cmp_fingerprint_tmp(json_tmp_ptr, arr_ptr);
+                                free(arr_ptr);
+                                */
+                            }
+                            if (cmp < score)
+                            {
+                                score = cmp;
+                                tmp_id = db_tmp_id;
+                            }
                         }
+                        if (tmp_id > 0)
+                        {
+                            json_row[ELEMENT_ID] = json::value::number(tmp_id);
+                            json_row[ELEMENT_VALUE] = json::value::number(score);
+                        }
+                        free(json_tmp_ptr);
+
                         json_row[ELEMENT_TYPE] = json::value::number(json_tmp_type);
-                        if (tmp_id > 0)json_row[ELEMENT_ID] = json::value::number(tmp_id);
-                        json_row[ELEMENT_VALUE] = json::value::number(score);
                         json_out[i] = json_row;
                     }
                     answer[ELEMENT_VALUE] = json_out;
+                    answer[ELEMENT_RESULT] = json::value::boolean(true);
                 }
-                answer[ELEMENT_RESULT] = json::value::boolean(true);
+                else answer[ELEMENT_RESULT] = json::value::boolean(false);
+
             }
 
             catch (const boost::system::error_code& ec)

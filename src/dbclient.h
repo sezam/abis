@@ -32,6 +32,8 @@
 #define SQL_ADD_BC      "INSERT INTO  t_biocards (gid, info) VALUES ($1::uuid, $2) RETURNING uid"
 #define SQL_ADD_LINK    "INSERT INTO  t_biocard_template_link (tmp_type, tmp_id, biocard_id) \
                             VALUES ($1::integer, $2::integer, $3::integer)"
+#define SQL_DEL_LINK    "DELETE FROM t_biocard_template_link bt \
+                             WHERE bt.tmp_type = $1::integer AND bt.tmp_id = $2::integer RETURNING *"
 
 #ifdef _HOME
 #define DB_HOST "localhost"
@@ -109,6 +111,10 @@ int db_add_bc(PGconn* db, const char* gid, const char* info);
 */
 int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id);
 
+/*
+удаляем связь шаблон-биокарта
+*/
+int db_del_link(PGconn* db, int tmp_type, int tmp_id);
 
 int db_get_face_seq(PGconn* db);
 
