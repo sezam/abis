@@ -119,5 +119,5 @@ float fvec_eq_dis(const float* x, const float* y, size_t size)
 }
 
 float cmp_face_tmp(void* tmp1, void* tmp2) {
-    return 1.0f - fmod(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, FACE_TEMPLATE_SIZE), 2) / 2;
+    return 1.0f - min(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, FACE_TEMPLATE_SIZE), 2.0f) / 2;
 }
