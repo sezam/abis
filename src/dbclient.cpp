@@ -170,7 +170,7 @@ int db_search_face_tmp(PGconn* db, const void* tmp_arr)
     {
         sql_res = PQexecParams(db, SQL_SEARCH_FACE_TMPS, 7, nullptr, paramValues, nullptr, nullptr, 1);
 
-        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
+        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int value[5];
             int* arr_ptr = value;
@@ -242,7 +242,7 @@ int db_face_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
     {
         sql_res = PQexecParams(db, SQL_FACETMP_BY_ID, 1, nullptr, paramValues, nullptr, nullptr, 1);
 
-        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
+        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int arr_num = PQfnumber(sql_res, "vector");
             char* res_ptr = PQgetvalue(sql_res, 0, arr_num);
@@ -275,7 +275,7 @@ int db_card_id_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
     {
         sql_res = PQexecParams(db, SQL_LINKS_BY_TMP_ID, 2, nullptr, paramValues, nullptr, nullptr, 1);
 
-        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
+        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int gid_num = PQfnumber(sql_res, "gid");
             char* uuid_ptr = PQgetvalue(sql_res, 0, gid_num);
@@ -304,7 +304,7 @@ int db_card_id_by_gid(PGconn* db, const char* gid)
     {
         sql_res = PQexecParams(db, SQL_BCS_BY_GID, 1, nullptr, paramValues, nullptr, nullptr, 1);
 
-        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
+        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int uid_num = PQfnumber(sql_res, "uid");
             result = pg_ntoh32(*(int*)(PQgetvalue(sql_res, 0, uid_num)));
@@ -328,7 +328,7 @@ int db_add_bc(PGconn* db, const char* gid, const char* info)
     try
     {
         sql_res = PQexecParams(db, SQL_ADD_BC, 2, nullptr, paramValues, nullptr, nullptr, 1);
-        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
+        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int uid_num = PQfnumber(sql_res, "uid");
             result = pg_ntoh32(*(int*)(PQgetvalue(sql_res, 0, uid_num)));
@@ -375,7 +375,7 @@ int db_get_face_seq(PGconn* db)
     try
     {
         sql_res = PQexecParams(db, SQL_FACE_TMP_SEQ, 0, nullptr, nullptr, nullptr, nullptr, 1);
-        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
+        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int uid_num = PQfnumber(sql_res, "uid");
             result = pg_ntoh64(*(uint64_t*)(PQgetvalue(sql_res, 0, uid_num)));

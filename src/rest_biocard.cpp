@@ -119,7 +119,7 @@ void biocard_put(http_request request)
 
                     bc_id = db_add_bc(db, to_string(gid).c_str(), "");
                     if (bc_id <= 0) throw runtime_error("biocard_put: biocard not added.");
-                } 
+                }
                 if (sp.size() > 0)
                 {
                     string_generator gen;
@@ -184,11 +184,8 @@ void biocard_put(http_request request)
                             db_tx_commit(db);
                             json_row[ELEMENT_ID] = json::value::number(tmp_id);
                         }
-                        else
-                        {
-                            db_sp_rollback(db, "face_template");
-                            cout << "biocard_put: check face teplate error" << endl;
-                        }
+                        if (step < 0) db_sp_rollback(db, "face_template");
+
                         json_out[i] = json_row;
                     }
                     free(tmp_arr);
