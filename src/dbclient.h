@@ -33,7 +33,7 @@
 #define SQL_ADD_LINK    "INSERT INTO  t_biocard_template_link (tmp_type, tmp_id, biocard_id) \
                             VALUES ($1::integer, $2::integer, $3::integer)"
 
-#ifdef _WIN32
+#ifdef _HOME
 #define DB_HOST "localhost"
 #define DB_PORT "5432"
 #define DB_DATABASE "dbABIS"
