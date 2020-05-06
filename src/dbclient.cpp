@@ -279,7 +279,9 @@ int db_card_id_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
         {
             int gid_num = PQfnumber(sql_res, "gid");
             char* uuid_ptr = PQgetvalue(sql_res, 0, gid_num);
-            strcpy(gid, uuid_ptr);
+            uuid uid;
+            memcpy(&uid, uuid_ptr, 16);
+            strcpy(gid, to_string(uid).c_str());
 
             int uid_num = PQfnumber(sql_res, "uid");
             result = pg_ntoh32(*(int*)(PQgetvalue(sql_res, 0, uid_num)));

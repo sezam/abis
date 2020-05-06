@@ -95,7 +95,7 @@ void biocard_get(http_request request)
 
 void biocard_put(http_request request)
 {
-    cout << "PUT biocard" << st2s(request.relative_uri().to_string()) << endl;
+    cout << "PUT biocard " << st2s(request.relative_uri().to_string()) << endl;
 
     http::status_code sc = status_codes::OK;
 
@@ -232,14 +232,9 @@ void biocard_del(http_request request)
                 auto sp = uri::split_path(request.relative_uri().to_string());
                 if (sp.size() != 1) throw runtime_error("DELETE biocard/{uuid} expected.");
 
-                string_generator gen;
-                uuid gid = gen(st2s(sp[0]));
-
                 db = db_open();
 
-                string s1 = to_string(gid);
-                const char* paramValues[1] = { s1.c_str() };
-
+                //добавить проверку на привязку к биокарте
                 auto json_out = json::value::array();
                 auto arr = req_json.as_array();
                 for (size_t i = 0; i < arr.size(); i++)

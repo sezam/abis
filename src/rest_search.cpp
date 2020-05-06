@@ -20,7 +20,7 @@ http_listener register_search(uri url)
 
 void search_get(http_request request)
 {
-    TRACE(L"GET search\n");
+    cout << "GET search " << st2s(request.relative_uri().to_string()) << endl;
 
     http::status_code sc = status_codes::OK;
 
@@ -36,112 +36,61 @@ void search_get(http_request request)
                 json::array arr = req_json.as_array();
                 auto json_out = json::value::array();
                 int rows = 0;
-                for (auto el_json : arr)
+                for (size_t i = 0; i < arr.size(); i++)
                 {
                     auto json_row = json::value::object();
-                    int tmp_type = ABIS_DATA;
+                    int json_tmp_type = ABIS_DATA;
+                    void* json_tmp_ptr = nullptr;
                     int tmp_id = 0;
                     float score = 0;
+                    int step = 0;
 
-                    int element_type = el_json.at(ELEMENT_TYPE).as_integer();
-                    if (element_type == ABIS_FACE_IMAGE)
+                    if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
                     {
-                        tmp_type = ABIS_FACE_TEMPLATE;
-                        int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
-
-                        auto element_image = el_json.at(ELEMENT_VALUE).as_string();
-                        vector<unsigned char> buf = conversions::from_base64(element_image);
-
-                        float* face_tmp = (float*)malloc(tmp_size);
-                        memset(face_tmp, 0, tmp_size);
-
-                        int count = extract_face_template(buf.data(), buf.size(), face_tmp, tmp_size);
-                        if (count == 1) tmp_id = db_search_face_tmp(db, face_tmp);
-                        if (tmp_id > 0)
-                        {
-                            void* face_tmp2 = malloc(tmp_size);
-                            memset(face_tmp2, 0, tmp_size);
-                            int fl = db_face_tmp_by_id(db, tmp_id, face_tmp2);
-                            if (fl == tmp_size) score = cmp_face_tmp(face_tmp, face_tmp2);
-                            free(face_tmp2);
-                        }
-                        free(face_tmp);
-
-                        if (tmp_id <= 0) continue;
-                    }
-                    if (element_type == ABIS_FINGER_IMAGE)
-                    {
-                        tmp_type = ABIS_FINGER_TEMPLATE;
-
-                        auto element_image = el_json.at(ELEMENT_VALUE).as_string();
-                        vector<unsigned char> buf = conversions::from_base64(element_image);
-
-                        void* finger_tmp = malloc(FINGER_TEMPLATE_SIZE);
-                        memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
-
-                        int res = get_fingerprint_template(buf.data(), buf.size(), (unsigned char*)finger_tmp, FINGER_TEMPLATE_SIZE);
-                        if (res > 0) tmp_id = db_search_finger_tmp(db, finger_tmp);
-                        if (tmp_id > 0)
-                        {
-                            void* finger_tmp2 = malloc(FINGER_TEMPLATE_SIZE);
-                            memset(finger_tmp2, 0, FINGER_TEMPLATE_SIZE);
-                            int fl = db_face_tmp_by_id(db, tmp_id, finger_tmp2); // fb_finger...
-                            if (fl == FINGER_TEMPLATE_SIZE) score = cmp_fingerprint_tmp(finger_tmp, finger_tmp2);
-                            free(finger_tmp2);
-                        }
-                        free(finger_tmp);
-
-                        if (tmp_id <= 0) continue;
+                        cout << "verify_get: error extract template" << endl;
+                        free(json_tmp_ptr);
+                        continue;
                     }
 
-
-                    if (element_type == ABIS_FACE_TEMPLATE)
+                    if (json_tmp_type == ABIS_FACE_TEMPLATE)
                     {
-                        tmp_type = ABIS_FACE_TEMPLATE;
-                        void* tmp_arr = json2array(el_json);
-                        int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
-
-                        tmp_id = db_search_face_tmp(db, tmp_arr);
-                        if (tmp_id > 0)
+                        step = tmp_id = db_search_face_tmp(db, json_tmp_ptr);
+                        if (step > 0)
                         {
-                            void* face_tmp2 = malloc(tmp_size);
-                            memset(face_tmp2, 0, tmp_size);
-                            int fl = db_face_tmp_by_id(db, tmp_id, face_tmp2);
-                            if (fl == tmp_size) score = cmp_face_tmp(tmp_arr, face_tmp2);
-                            free(face_tmp2);
-                        }
-                        free(tmp_arr);
+                            int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
 
-                        if (tmp_id <= 0) continue;
+                            void* face_tmp = malloc(tmp_size);
+                            memset(face_tmp, 0, tmp_size);
+
+                            step = db_face_tmp_by_id(db, tmp_id, face_tmp);
+                            if (step > 0) score = cmp_face_tmp(json_tmp_ptr, face_tmp);
+                            free(face_tmp);
+                        }
                     }
-                    if (element_type == ABIS_FINGER_TEMPLATE)
+                    if (json_tmp_type == ABIS_FINGER_TEMPLATE)
                     {
-                        tmp_type = ABIS_FINGER_TEMPLATE;
-                        void* tmp_arr = json2array(el_json);
-
-                        tmp_id = db_search_finger_tmp(db, tmp_arr);
+                        step = tmp_id = db_search_finger_tmp(db, json_tmp_ptr);
                         if (tmp_id > 0)
                         {
-                            void* finger_tmp2 = malloc(FINGER_TEMPLATE_SIZE);
-                            memset(finger_tmp2, 0, FINGER_TEMPLATE_SIZE);
-                            int fl = db_face_tmp_by_id(db, tmp_id, finger_tmp2); // db_finger...
-                            if (fl == FINGER_TEMPLATE_SIZE) score = cmp_fingerprint_tmp(tmp_arr, finger_tmp2);
-                            free(finger_tmp2);
+                            void* finger_tmp = malloc(FINGER_TEMPLATE_SIZE);
+                            memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
+                            // db_finger_search...
+                            if (step > 0) score = cmp_fingerprint_tmp(json_tmp_ptr, finger_tmp);
+                            free(finger_tmp);
                         }
-                        free(tmp_arr);
-
-                        if (tmp_id <= 0) continue;
                     }
 
                     char bc_gid[50];
-                    int res = db_card_id_by_tmp_id(db, element_type, tmp_id, bc_gid);
-                    if (res <= 0) continue;
-
-                    json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
-                    json_row[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));
-                    json_row[ELEMENT_ID] = json::value::number(tmp_id);
-                    json_row[ELEMENT_VALUE] = json::value::number(score);
+                    if (step > 0) json_row[ELEMENT_ID] = json::value::number(tmp_id);
+                    if (step > 0) step = db_card_id_by_tmp_id(db, json_tmp_type, tmp_id, bc_gid);
+                    if (step > 0)
+                    {
+                        json_row[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));                        
+                        json_row[ELEMENT_VALUE] = json::value::number(score);
+                    }
+                    json_row[ELEMENT_TYPE] = json::value::number(json_tmp_type);
                     json_out[rows++] = json_row;
+                    free(json_tmp_ptr);
                 }
                 answer[ELEMENT_VALUE] = json_out;
             }
