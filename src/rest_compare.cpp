@@ -32,60 +32,24 @@ void compare_get(http_request request)
             try
             {
                 json::array arr = req_json.as_array();
-                if (arr.size() != 2) throw runtime_error("compare: expect [2]");
+                if (arr.size() != 2) throw runtime_error("compare: expected array[2]");
 
                 int compare_type = ABIS_DATA;
                 for (size_t i = 0; i < 2; i++)
                 {
-                    int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
-                    if (element_type == ABIS_FACE_IMAGE) {
-                        if (compare_type != ABIS_DATA && compare_type != ABIS_FACE_TEMPLATE)
-                            throw runtime_error("compare: mixed types");
+                    int json_tmp_type = ABIS_DATA;
+                    void* json_tmp_ptr = nullptr;
 
-                        compare_type = ABIS_FACE_TEMPLATE;
-
-                        auto element_image = arr[i].at(ELEMENT_VALUE).as_string();
-                        vector<unsigned char> buf = conversions::from_base64(element_image);
-
-                        void* face_tmp = malloc(FACE_TEMPLATE_SIZE * sizeof(float));
-                        tmps.push_back(face_tmp);
-                        int count = extract_face_template(buf.data(), buf.size(), face_tmp, FACE_TEMPLATE_SIZE * sizeof(float));
-
-                        if (count != 1) throw runtime_error("compare: get_face_template, return faces <> 1");
-                    }
-
-                    if (element_type == ABIS_FINGER_IMAGE)
+                    if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
                     {
-                        if (compare_type != ABIS_DATA && compare_type != ABIS_FINGER_TEMPLATE)
-                            throw runtime_error("compare: mixed types");
-
-                        compare_type = ABIS_FINGER_TEMPLATE;
-
-                        auto element_image = arr[i].at(ELEMENT_VALUE).as_string();
-                        vector<unsigned char> buf = conversions::from_base64(element_image);
-
-                        unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
-                        tmps.push_back(finger_tmp);
-                        get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
+                        cout << "compare_get: error extract template" << endl;
+                        free(json_tmp_ptr);
+                        throw runtime_error("compare: error extract template");
                     }
+                    tmps.push_back(json_tmp_ptr);
 
-                    if (element_type == ABIS_FACE_TEMPLATE)
-                    {
-                        if (compare_type != ABIS_DATA && compare_type != ABIS_FACE_TEMPLATE)
-                            throw runtime_error("compare: mixed types");
-
-                        compare_type = ABIS_FACE_TEMPLATE;
-                        tmps.push_back(json2array(arr[i]));
-                    }
-
-                    if (element_type == ABIS_FINGER_TEMPLATE)
-                    {
-                        if (compare_type != ABIS_DATA && compare_type != ABIS_FINGER_TEMPLATE)
-                            throw runtime_error("compare: mixed types");
-
-                        compare_type = ABIS_FINGER_TEMPLATE;
-                        tmps.push_back(json2array(arr[i]));
-                    }
+                    if (compare_type == ABIS_DATA) compare_type = json_tmp_type;
+                    if (compare_type != json_tmp_type) throw runtime_error("compare: mixed types");
                 }
 
                 float score = 0;
