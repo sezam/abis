@@ -232,18 +232,21 @@ void biocard_del(http_request request)
                 auto sp = uri::split_path(request.relative_uri().to_string());
                 if (sp.size() != 1) throw runtime_error("DELETE biocard/{uuid} expected.");
 
+                string_generator gen;
+                uuid gid = gen(st2s(sp[0]));
+
                 db = db_open();
 
-                //добавить проверку на привязку к биокарте
                 auto json_out = json::value::array();
                 auto arr = req_json.as_array();
                 for (size_t i = 0; i < arr.size(); i++)
                 {
                     int tmp_type = arr[i].at(ELEMENT_TYPE).as_integer();
                     int tmp_id = arr[i].at(ELEMENT_ID).as_integer();
+                    int del_res = db_del_link(db, tmp_type, tmp_id, to_string(gid).c_str());
 
                     auto json_row = arr[i];
-                    json_row[ELEMENT_RESULT] = json::value::boolean(db_del_link(db, tmp_type, tmp_id) > 0);
+                    json_row[ELEMENT_RESULT] = json::value::boolean(del_res > 0);
                     json_out[i] = json_row;
                 }
 

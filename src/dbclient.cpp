@@ -370,16 +370,16 @@ int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id)
     return result;
 }
 
-int db_del_link(PGconn* db, int tmp_type, int tmp_id)
+int db_del_link(PGconn* db, int tmp_type, int tmp_id, const char* gid)
 {
     int result = 0;
     string tmp_type_s = to_string(tmp_type);
     string tmp_id_s = to_string(tmp_id);
-    const char* paramValues[2] = { tmp_type_s.c_str(), tmp_id_s.c_str()};
+    const char* paramValues[3] = { tmp_type_s.c_str(), tmp_id_s.c_str(), gid};
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_DEL_LINK, 2, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = PQexecParams(db, SQL_DEL_LINK, 3, nullptr, paramValues, nullptr, nullptr, 1);
         cout << PQcmdStatus(sql_res) << endl;
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK) result = PQntuples(sql_res);
     }
