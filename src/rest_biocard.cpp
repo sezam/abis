@@ -167,8 +167,7 @@ void biocard_put(http_request request)
                             if (score >= ABIS_FACE_THRESHOLD)
                             {
                                 char bc_gid[50];
-                                step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid);
-                                if (step > 0) step = -2;
+                                step = (int) db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) == 0;
                             }
                             else
                             {

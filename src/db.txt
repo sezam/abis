@@ -66,9 +66,9 @@ CREATE UNIQUE INDEX idx_gid
     TABLESPACE pg_default;
 
 
--- Table: t_biocard_template_link
--- DROP TABLE t_biocard_template_link;
-CREATE TABLE t_biocard_template_link
+-- Table: public.t_biocard_template_link
+-- DROP TABLE public.t_biocard_template_link;
+CREATE TABLE public.t_biocard_template_link
 (
     uid integer NOT NULL DEFAULT nextval('t_biocard_template_link_uid_seq'::regclass),
     tmp_type integer NOT NULL,
@@ -77,31 +77,22 @@ CREATE TABLE t_biocard_template_link
     CONSTRAINT t_biocard_template_link_pkey PRIMARY KEY (uid),
     CONSTRAINT single_tmp UNIQUE (tmp_id, tmp_type),
     CONSTRAINT biocard_fk FOREIGN KEY (biocard_id)
-        REFERENCES t_biocards (uid) MATCH SIMPLE
+        REFERENCES public.t_biocards (uid) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
         NOT VALID
 )
 TABLESPACE pg_default;
-ALTER TABLE t_biocard_template_link
+ALTER TABLE public.t_biocard_template_link
     OWNER to postgres;
 
 -- Index: idx1
--- DROP INDEX idx1;
+-- DROP INDEX public.idx1;
 CREATE UNIQUE INDEX idx1
-    ON t_biocard_template_link USING btree
+    ON public.t_biocard_template_link USING btree
     (uid ASC NULLS LAST)
     INCLUDE(tmp_type, tmp_id, biocard_id)
     TABLESPACE pg_default;
-
-
---insert into t_biocard_template_link (tmp_type, tmp_id, biocard_id) VALUES (17, 1, 1)
---select * from t_biocards bc, t_biocard_template_link bt where bc.gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf' and bc.uid=bt.biocard_id
-
-
--- insert into t_biocards (gid, info) VALUES ('2c6eab8b-d050-4cbd-82d7-214d9463bbcf', 'test ')
--- select * from t_biocards where gid='2c6eab8b-d050-4cbd-82d7-214d9463bbcf'
-
 
 
 -- Table: public.face_vectors
