@@ -16,6 +16,9 @@
     <Filter Include="Header Files\finger">
       <UniqueIdentifier>{ba43084b-e1c2-4431-a715-49d9ca044999}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\wsq">
+      <UniqueIdentifier>{f7a84f3b-be80-41d0-b4a3-a7860537084a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\readme.txt" />
@@ -72,6 +75,9 @@
     </ClInclude>
     <ClInclude Include="..\src\dbclient.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\wsq.h">
+      <Filter>Header Files\wsq</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

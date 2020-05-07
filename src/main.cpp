@@ -8,6 +8,8 @@
 #include "dbclient.h"
 #include "restutils.h"
 
+int debug;
+
 void rest_server()
 {
 	uri_builder endpointBuilder;

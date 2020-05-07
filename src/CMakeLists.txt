@@ -4,10 +4,11 @@
 cmake_minimum_required (VERSION 3.0)
 
 if (MSVC)
-    add_definitions(-D_WIN32_WINNT=0x600 -D_SCL_SECURE_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS)
+    add_definitions(-D_WIN32_WINNT=0x600 -D_SCL_SECURE_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS -DBOOST_UUID_FORCE_AUTO_LINK)
 
     include_directories(
         d:/lib/vcpkg/installed/x64-windows/include/
+        d:/lib/vcpkg/installed/x64-windows/include/nbis/
     )
 
     link_directories(
@@ -21,6 +22,7 @@ elseif(UNIX)
         /opt/vcpkg/installed/x64-linux/include/postgresql/
         /opt/vcpkg/installed/x64-linux/include/postgresql/server/
         /opt/vcpkg/installed/x64-linux/include/postgresql/internal/
+        /opt/vcpkg/installed/x64-linux/include/nbis/
     )
 
     link_directories(
@@ -60,6 +62,7 @@ target_link_libraries(${PACKAGE_TARNAME}
     ${PNG_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${PostgreSQL_LIBRARIES}
+	abiswsq
 )
 
 if(UNIX)

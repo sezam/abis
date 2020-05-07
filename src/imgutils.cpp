@@ -1,6 +1,6 @@
 #include "imgutils.h"
 
-bool isPng(const unsigned char* img)
+bool isPNG(const unsigned char* img)
 {
     for (size_t i = 0; i < sizeof(rexpPNG); i++)
     {
@@ -9,7 +9,7 @@ bool isPng(const unsigned char* img)
     return true;
 }
 
-bool isJpg(const unsigned char* img)
+bool isJPG(const unsigned char* img)
 {
     for (size_t i = 0; i < sizeof(rexpJPG); i++)
     {
@@ -18,7 +18,7 @@ bool isJpg(const unsigned char* img)
     return true;
 }
 
-bool isBmp(const unsigned char* img)
+bool isBMP(const unsigned char* img)
 {
     for (size_t i = 0; i < sizeof(rexpBMP); i++)
     {
@@ -27,3 +27,11 @@ bool isBmp(const unsigned char* img)
     return true;
 }
 
+bool isWSQ(const unsigned char* img)
+{
+    for (size_t i = 0; i < sizeof(rexpWSQ); i++)
+    {
+        if (img[i] != rexpWSQ[i]) return false;
+    }
+    return true;
+}
