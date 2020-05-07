@@ -16,8 +16,8 @@
     <Filter Include="Header Files\finger">
       <UniqueIdentifier>{ba43084b-e1c2-4431-a715-49d9ca044999}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\wsq">
-      <UniqueIdentifier>{f7a84f3b-be80-41d0-b4a3-a7860537084a}</UniqueIdentifier>
+    <Filter Include="Header Files\nbis">
+      <UniqueIdentifier>{7c68b3f2-64a8-451d-8f4c-24592a760fce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -76,8 +76,44 @@
     <ClInclude Include="..\src\dbclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\nbis\include\computil.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\dataio.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\defs.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\fet.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\ihead.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\ioutil.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\jpegl.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\jpeglsd4.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\nistcom.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\swap.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\usebsd.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\nbis\include\util.h">
+      <Filter>Header Files\nbis</Filter>
+    </ClInclude>
     <ClInclude Include="..\nbis\include\wsq.h">
-      <Filter>Header Files\wsq</Filter>
+      <Filter>Header Files\nbis</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +154,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\dbclient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

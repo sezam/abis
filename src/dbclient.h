@@ -5,11 +5,6 @@
 
 #include "AbisRest.h"
 
-#define SEARCH_FACE_PARTS 8
-#define SEARCH_FACE_PARAMS "face_vectors_params"
-#define SEARCH_FACE_INDEXS "face_vectors_index"
-#define SEARCH_FACE_VECTORS "face_vectors"
-
 #define SQL_TMP_IDS_BY_BC_GID "SELECT * FROM t_biocard_template_link bt \
                                 JOIN t_biocards bc ON bc.uid = bt.biocard_id AND bc.gid = $1::uuid"
 
@@ -37,20 +32,6 @@
                                 JOIN t_biocards bc ON bc.uid = bt.biocard_id \
                             WHERE bt.tmp_type = $1::integer AND bt.tmp_id = $2::integer AND bc.gid = $3::uuid \
                          ) RETURNING * "
-
-#ifdef _HOME
-#define DB_HOST "localhost"
-#define DB_PORT "5432"
-#define DB_DATABASE "dbABIS"
-#define DB_USER "postgres"
-#define DB_PWD "postgres"
-#else
-#define DB_HOST "10.6.46.130"
-#define DB_PORT "5432"
-#define DB_DATABASE "dbABIS"
-#define DB_USER "postgres"
-#define DB_PWD "g6nsgWG2Xk"
-#endif
 
 //functions for byte swaping
 #define ByteSwap(x)  byteswap((unsigned char*) &x, sizeof(x))

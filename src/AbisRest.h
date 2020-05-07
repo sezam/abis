@@ -65,7 +65,9 @@ namespace gil = boost::gil;
 #include <boost/uuid/uuid_generators.hpp>
 using namespace boost::uuids;
 
-//после Boost иначе линкер сругается
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
+
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
 using namespace web;
@@ -98,6 +100,28 @@ using namespace utility;
 #define ABIS_IRIS_TEMPLATE		0x13
 
 #define ABIS_FACE_THRESHOLD     0.999f
+
+void load_settings();
+
+extern string extract_host;
+extern int extract_port_start;
+extern int extract_port_count;
+
+extern string postgres_host;
+extern string postgres_port;
+extern string postgres_db;
+extern string postgres_user;
+extern string postgres_pwd;
+
+extern int face_parts;
+extern string face_vector;
+extern string face_index;
+extern string face_param;
+
+extern int finger_parts;
+extern string finger_vector;
+extern string finger_index;
+extern string finger_param;
 
 #endif
 

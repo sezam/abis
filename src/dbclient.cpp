@@ -86,7 +86,8 @@ void db_prepare()
 
 PGconn* db_open()
 {
-    PGconn* db = PQsetdbLogin(DB_HOST, DB_PORT, "", "", DB_DATABASE, DB_USER, DB_PWD);
+    PGconn* db = PQsetdbLogin(postgres_host.c_str(), postgres_port.c_str(), "", "", 
+        postgres_db.c_str(), postgres_user.c_str(), postgres_pwd.c_str());
     if (PQstatus(db) != CONNECTION_OK) cout << "db_open: " << PQerrorMessage(db) << endl;
 
     return db;
@@ -160,10 +161,10 @@ int db_search_face_tmp(PGconn* db, const void* tmp_arr)
     }
     arr.append("}");
 
-    string part_size_s = to_string(FACE_TEMPLATE_SIZE / SEARCH_FACE_PARTS);
+    string part_size_s = to_string(FACE_TEMPLATE_SIZE / face_parts);
 
     const char* paramValues[7] = { arr.c_str(),  part_size_s.c_str(), "1",
-        DB_DATABASE, SEARCH_FACE_PARAMS, SEARCH_FACE_INDEXS, SEARCH_FACE_VECTORS };
+        postgres_db.c_str(), face_param.c_str(), face_index.c_str(), face_vector.c_str()};
 
     PGresult* sql_res = nullptr;
     try
@@ -210,9 +211,9 @@ int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
     arr.append("}");
 
     string tmp_id_s = to_string(tmp_id);
-    string part_size_s = to_string(FACE_TEMPLATE_SIZE / SEARCH_FACE_PARTS);
+    string part_size_s = to_string(FACE_TEMPLATE_SIZE / face_parts);
     const char* paramValues[7] = { arr.c_str(),  tmp_id_s.c_str(), part_size_s.c_str(),
-        DB_DATABASE, SEARCH_FACE_PARAMS, SEARCH_FACE_INDEXS, SEARCH_FACE_VECTORS };
+        postgres_db.c_str(), face_param.c_str(), face_index.c_str(), face_vector.c_str() };
 
     PGresult* sql_res = nullptr;
     try

@@ -4,7 +4,7 @@
 cmake_minimum_required (VERSION 3.0)
 
 set(PACKAGE_NAME      "abis-rest-server")
-set(PACKAGE_VERSION   "0.2")
+set(PACKAGE_VERSION   "0.3")
 set(PACKAGE_STRING    "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 

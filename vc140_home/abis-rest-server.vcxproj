@@ -155,6 +155,18 @@
     <Text Include="..\src\db.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\nbis\include\computil.h" />
+    <ClInclude Include="..\nbis\include\dataio.h" />
+    <ClInclude Include="..\nbis\include\defs.h" />
+    <ClInclude Include="..\nbis\include\fet.h" />
+    <ClInclude Include="..\nbis\include\ihead.h" />
+    <ClInclude Include="..\nbis\include\ioutil.h" />
+    <ClInclude Include="..\nbis\include\jpegl.h" />
+    <ClInclude Include="..\nbis\include\jpeglsd4.h" />
+    <ClInclude Include="..\nbis\include\nistcom.h" />
+    <ClInclude Include="..\nbis\include\swap.h" />
+    <ClInclude Include="..\nbis\include\usebsd.h" />
+    <ClInclude Include="..\nbis\include\util.h" />
     <ClInclude Include="..\nbis\include\wsq.h" />
     <ClInclude Include="..\src\AbisRest.h" />
     <ClInclude Include="..\src\biocard.h" />
@@ -174,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\biocard.cpp" />
+    <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\dbclient.cpp" />
     <ClCompile Include="..\src\ebsclient.cpp" />
     <ClCompile Include="..\src\fplibclient.cpp" />

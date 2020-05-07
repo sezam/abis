@@ -8,7 +8,7 @@ if (MSVC)
 
     include_directories(
         d:/lib/vcpkg/installed/x64-windows/include/
-        d:/lib/vcpkg/installed/x64-windows/include/nbis/
+        ../nbis/include
     )
 
     link_directories(
@@ -22,7 +22,7 @@ elseif(UNIX)
         /opt/vcpkg/installed/x64-linux/include/postgresql/
         /opt/vcpkg/installed/x64-linux/include/postgresql/server/
         /opt/vcpkg/installed/x64-linux/include/postgresql/internal/
-        /opt/vcpkg/installed/x64-linux/include/nbis/
+        ../nbis/include
     )
 
     link_directories(

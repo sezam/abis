@@ -12,17 +12,17 @@ int debug;
 
 void rest_server()
 {
-	uri_builder endpointBuilder;
-	endpointBuilder.set_scheme(U("http"));
-	endpointBuilder.set_port(10101);
+    uri_builder endpointBuilder;
+    endpointBuilder.set_scheme(U("http"));
+    endpointBuilder.set_port(10101);
 #ifdef _WIN32
     endpointBuilder.set_host(U("*"));
 #else
     endpointBuilder.set_host(U("0.0.0.0"));
 #endif // _WIN32
 
-	try
-	{
+    try
+    {
         endpointBuilder.set_path(U("echo"));
         http_listener echo_listener = register_echo(endpointBuilder.to_uri());
 
@@ -41,25 +41,26 @@ void rest_server()
         endpointBuilder.set_path(U("search"));
         http_listener search_listener = register_search(endpointBuilder.to_uri());
 
-		while (true);
+        while (true);
 
-		echo_listener.close().wait();
-		extract_listener.close().wait();
-		compare_listener.close().wait();
-		biocard_listener.close().wait();
-		verify_listener.close().wait();
-		search_listener.close().wait();
-	}
-	catch (exception const& e)
-	{
-		cout << e.what() << endl;
-	}
+        echo_listener.close().wait();
+        extract_listener.close().wait();
+        compare_listener.close().wait();
+        biocard_listener.close().wait();
+        verify_listener.close().wait();
+        search_listener.close().wait();
+    }
+    catch (exception const& e)
+    {
+        cout << e.what() << endl;
+    }
 }
 
 int main()
 {
+    load_settings();
     db_prepare();
-	rest_server();
+    rest_server();
 
-	return 0;
+    return 0;
 }
