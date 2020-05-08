@@ -40,7 +40,7 @@ endif()
 file (GLOB COMMON_SRC *.cpp *.h finger/*.h)
 set (SOURCE  ${COMMON_SRC})
 
-find_package(Boost 1.72.0 REQUIRED COMPONENTS locale regex date_time)
+find_package(Boost 1.72.0 REQUIRED COMPONENTS locale regex date_time program_options)
 find_package(cpprestsdk REQUIRED NAMES cpprestsdk cpprest)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -57,6 +57,7 @@ target_link_libraries(${PACKAGE_TARNAME}
     Boost::regex
     Boost::locale
     Boost::date_time
+    Boost::program_options 
     ${OpenSSL_LIBRARIES}
     ${JPEG_LIBRARIES}
     ${PNG_LIBRARIES}

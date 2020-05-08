@@ -98,6 +98,11 @@ void db_close(PGconn* db)
     PQfinish(db);
 }
 
+PGresult* db_exec_param(PGconn* db, string sql, int nParams, const char* const* params, int resFormat)
+{
+    return PQexecParams(db, sql.c_str(), nParams, nullptr, params, nullptr, nullptr, resFormat);
+}
+
 void db_tx_begin(PGconn* db)
 {
     PGresult* res = PQexec(db, "BEGIN");
@@ -169,7 +174,7 @@ int db_search_face_tmp(PGconn* db, const void* tmp_arr)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_SEARCH_FACE_TMPS, 7, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, SQL_SEARCH_FACE_TMPS, 7, paramValues, 1);
 
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
@@ -218,7 +223,7 @@ int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_INSERT_FACE_TMP, 7, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, SQL_INSERT_FACE_TMP, 7, paramValues, 1);
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK) result = 1;
     }
     catch (const std::exception& ec)
@@ -241,7 +246,7 @@ int db_face_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_FACETMP_BY_ID, 1, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, (format(SQL_FACETMP_BY_ID) % face_vector).str(), 1, paramValues, 1);
 
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
@@ -274,7 +279,7 @@ int db_card_id_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_LINKS_BY_TMP_ID, 2, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, SQL_LINKS_BY_TMP_ID, 2, paramValues, 1);
 
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
@@ -305,7 +310,7 @@ int db_card_id_by_gid(PGconn* db, const char* gid)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_BCS_BY_GID, 1, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, SQL_BCS_BY_GID, 1, paramValues, 1);
 
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
@@ -330,7 +335,7 @@ int db_add_bc(PGconn* db, const char* gid, const char* info)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_ADD_BC, 2, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, SQL_ADD_BC, 2, paramValues, 1);
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int uid_num = PQfnumber(sql_res, "uid");
@@ -358,7 +363,7 @@ int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_ADD_LINK, 3, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, SQL_ADD_LINK, 3, paramValues, 1);
         if (PQresultStatus(sql_res) == PGRES_COMMAND_OK) result = 1;
     }
     catch (const std::exception& ec)
@@ -380,7 +385,7 @@ int db_del_link(PGconn* db, int tmp_type, int tmp_id, const char* gid)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_DEL_LINK, 3, nullptr, paramValues, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, SQL_DEL_LINK, 3, paramValues, 1);
         cout << PQcmdStatus(sql_res) << endl;
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK) result = PQntuples(sql_res);
     }
@@ -400,7 +405,7 @@ int db_get_face_seq(PGconn* db)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = PQexecParams(db, SQL_FACE_TMP_SEQ, 0, nullptr, nullptr, nullptr, nullptr, 1);
+        sql_res = db_exec_param(db, SQL_FACE_TMP_SEQ, 0, nullptr, 1);
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int uid_num = PQfnumber(sql_res, "uid");

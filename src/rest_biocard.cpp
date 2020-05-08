@@ -45,7 +45,7 @@ void biocard_get(http_request request)
                 string s1 = to_string(gid);
                 const char* paramValues[1] = { s1.c_str() };
 
-                sql_res = PQexecParams(db, SQL_TMP_IDS_BY_BC_GID, 1, nullptr, paramValues, nullptr, nullptr, 1);
+                sql_res = db_exec_param(db, SQL_TMP_IDS_BY_BC_GID, 1, paramValues, 1);
                 if (PQresultStatus(sql_res) == PGRES_TUPLES_OK)
                 {
                     int type_num = PQfnumber(sql_res, "tmp_type");

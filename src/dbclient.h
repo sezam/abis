@@ -5,33 +5,29 @@
 
 #include "AbisRest.h"
 
-#define SQL_TMP_IDS_BY_BC_GID "SELECT * FROM t_biocard_template_link bt \
-                                JOIN t_biocards bc ON bc.uid = bt.biocard_id AND bc.gid = $1::uuid"
+static const string SQL_TMP_IDS_BY_BC_GID("SELECT * FROM t_biocard_template_link bt \
+                                JOIN t_biocards bc ON bc.uid = bt.biocard_id AND bc.gid = $1::uuid");
 
-#define SQL_FACE_TMPS_BY_BC_GID   "SELECT * FROM face_vectors fv \
-                                    JOIN t_biocard_template_link bt ON bt.tmp_id = fv.id  AND bt.tmp_type = 17 \
-                                    JOIN t_biocards bc ON bc.uid = bt.biocard_id AND bc.gid = $1::uuid"
+static const string SQL_FACE_TMP_SEQ("SELECT nextval('template_face_seq'::regclass) uid");
 
-#define SQL_FACE_TMP_SEQ    "SELECT nextval('template_face_seq'::regclass) uid"
-
-#define SQL_LINKS_BY_TMP_ID "SELECT bc.* FROM t_biocard_template_link bt \
+static const string SQL_LINKS_BY_TMP_ID("SELECT bc.* FROM t_biocard_template_link bt \
                               JOIN t_biocards bc ON bc.uid = bt.biocard_id \
-                             WHERE bt.tmp_type = $1::integer AND bt.tmp_id = $2::integer"
+                             WHERE bt.tmp_type = $1::integer AND bt.tmp_id = $2::integer");
 
-#define SQL_BCS_BY_GID      "SELECT * FROM t_biocards bc WHERE bc.gid=$1::uuid"
-#define SQL_FACETMP_BY_ID   "SELECT * FROM face_vectors fv WHERE fv.id=$1::integer"
+static const string SQL_BCS_BY_GID("SELECT * FROM t_biocards bc WHERE bc.gid=$1::uuid");
+static const string SQL_FACETMP_BY_ID("SELECT * FROM %s fv WHERE fv.id=$1::integer");
 
-#define SQL_SEARCH_FACE_TMPS "SELECT search_data($1::real[], $2::integer, $3::integer, $4, $5, $6, $7)"
-#define SQL_INSERT_FACE_TMP  "SELECT insert_data($1::real[], $2::integer, $3::integer, $4, $5, $6, $7)"
+static const string SQL_SEARCH_FACE_TMPS("SELECT search_data($1::real[], $2::integer, $3::integer, $4, $5, $6, $7)");
+static const string SQL_INSERT_FACE_TMP("SELECT insert_data($1::real[], $2::integer, $3::integer, $4, $5, $6, $7)");
 
-#define SQL_ADD_BC      "INSERT INTO  t_biocards (gid, info) VALUES ($1::uuid, $2) RETURNING uid"
-#define SQL_ADD_LINK    "INSERT INTO  t_biocard_template_link (tmp_type, tmp_id, biocard_id) \
-                            VALUES ($1::integer, $2::integer, $3::integer)"
-#define SQL_DEL_LINK    "DELETE FROM t_biocard_template_link bt WHERE bt.uid = ( \
+static const string SQL_ADD_BC("INSERT INTO  t_biocards (gid, info) VALUES ($1::uuid, $2) RETURNING uid");
+static const string SQL_ADD_LINK("INSERT INTO  t_biocard_template_link (tmp_type, tmp_id, biocard_id) \
+                            VALUES ($1::integer, $2::integer, $3::integer)");
+static const string SQL_DEL_LINK("DELETE FROM t_biocard_template_link bt WHERE bt.uid = ( \
                             SELECT bt.uid FROM t_biocard_template_link bt \
                                 JOIN t_biocards bc ON bc.uid = bt.biocard_id \
                             WHERE bt.tmp_type = $1::integer AND bt.tmp_id = $2::integer AND bc.gid = $3::uuid \
-                         ) RETURNING * "
+                         ) RETURNING * ");
 
 //functions for byte swaping
 #define ByteSwap(x)  byteswap((unsigned char*) &x, sizeof(x))
@@ -46,6 +42,7 @@ void db_prepare();
 
 PGconn* db_open();
 void db_close(PGconn* db);
+PGresult* db_exec_param(PGconn* db, string sql, int nParams, const char* const* params, int resFormat);
 
 void db_tx_begin(PGconn* db);
 void db_tx_commit(PGconn* db);
@@ -101,7 +98,5 @@ int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id);
 int db_del_link(PGconn* db, int tmp_type, int tmp_id, const char* gid);
 
 int db_get_face_seq(PGconn* db);
-
-
 
 #endif
