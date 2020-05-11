@@ -15,8 +15,8 @@ int find_free_port()
     if (mx_ports.size() == 0)
         for (size_t i = 0; i < extract_port_count; i++)
         {
-            interprocess_semaphore sem(1);
-            mx_ports.push_back(&sem);
+            interprocess_semaphore* sem = new interprocess_semaphore(1);
+            mx_ports.push_back(sem);
         }
     mx_finder.wait();
 
@@ -65,7 +65,7 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
             int send_data_len = image_data_len + 1;
             char cmd = 0;
 
-            char send_header[8];
+            unsigned char send_header[8];
             send_header[0] = 'r';
             send_header[1] = 'e';
             send_header[2] = 'q';
@@ -80,7 +80,7 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
             write(client_socket, buffer(&cmd, 1), err);
             if (!err)
             {
-                char recv_header[8];
+                unsigned char recv_header[8];
                 size_t io_len = client_socket.read_some(buffer(recv_header, 8), err);
                 if (!err)
                 {
@@ -90,19 +90,18 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
                         unsigned char p2 = recv_header[5];
                         unsigned char p3 = recv_header[6];
                         unsigned char p4 = recv_header[7];
-                        // size_t recv_data_len = (size_t)(p1 * 16777216 + p2 * 65536 + p3 * 256 + p4);
-                        size_t recv_data_len = (size_t)(p1 << 24 & p2 << 16 & p3 << 8 & p4);
+                        size_t recv_data_len = (size_t)(p1 * 16777216 + p2 * 65536 + p3 * 256 + p4);
 
                         if (recv_data_len > 0)
                         {
-                            char* recv_data = (char*)malloc(recv_data_len);
+                            unsigned char* recv_data = (unsigned char*)malloc(recv_data_len);
                             io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
                             if (!err)
                             {
-                                if (io_len == recv_data_len && template_buf_size == recv_data_len - 1)
+                                if (io_len == recv_data_len && template_buf_size <= recv_data_len - 1)
                                 {
-                                    memcpy(template_buf, &recv_data[1], recv_data_len);
-                                    res = recv_data[0];
+                                    memcpy(template_buf, &recv_data[1], template_buf_size);
+                                    if (recv_data[0] == 0xFE) res = 1;
                                 }
                             }
                             free(recv_data);
@@ -154,7 +153,7 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
             int send_data_len = image_data_len + 1;
             char cmd = 1;
 
-            char send_header[8];
+            unsigned char send_header[8];
             send_header[0] = 'r';
             send_header[1] = 'e';
             send_header[2] = 'q';
@@ -169,7 +168,7 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
             write(client_socket, buffer(&cmd, 1), err);
             if (!err)
             {
-                char recv_header[8];
+                unsigned char recv_header[8];
                 size_t io_len = client_socket.read_some(buffer(recv_header, 8), err);
                 if (!err)
                 {
@@ -179,19 +178,18 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
                         unsigned char p2 = recv_header[5];
                         unsigned char p3 = recv_header[6];
                         unsigned char p4 = recv_header[7];
-                        // size_t recv_data_len = (size_t)(p1 * 16777216 + p2 * 65536 + p3 * 256 + p4);
-                        size_t recv_data_len = (size_t)(p1 << 24 & p2 << 16 & p3 << 8 & p4);
+                        size_t recv_data_len = (size_t)(p1 * 16777216 + p2 * 65536 + p3 * 256 + p4);
 
                         if (recv_data_len > 0)
                         {
-                            char* recv_data = (char*)malloc(recv_data_len);
+                            unsigned char* recv_data = (unsigned char*)malloc(recv_data_len);
                             io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
                             if (!err)
                             {
-                                if (io_len == recv_data_len && template_buf_size == recv_data_len - 1)
+                                if (io_len == recv_data_len && template_buf_size <= recv_data_len - 1)
                                 {
-                                    res = recv_data[0];
-                                    memcpy(template_buf, &recv_data[1], recv_data_len);
+                                    memcpy(template_buf, &recv_data[1], template_buf_size);
+                                    if (recv_data[0] == 0xFE) res = 1;
                                 }
                             }
                             free(recv_data);
