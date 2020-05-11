@@ -83,8 +83,8 @@ void deletefet(char *feature, FET *fet)
       fet->names[item-1] = fet->names[item];
       fet->values[item-1] = fet->values[item];
   }
-  fet->names[fet->num-1] = '\0';
-  fet->values[fet->num-1] = '\0';
+  fet->names[fet->num-1] = nullptr;
+  fet->values[fet->num-1] = nullptr;
   (fet->num)--;
 }
 
@@ -108,8 +108,8 @@ int deletefet_ret(char *feature, FET *fet)
       fet->names[item-1] = fet->names[item];
       fet->values[item-1] = fet->values[item];
   }
-  fet->names[fet->num-1] = '\0';
-  fet->values[fet->num-1] = '\0';
+  fet->names[fet->num-1] = nullptr;
+  fet->values[fet->num-1] = nullptr;
   (fet->num)--;
 
   return(0);
