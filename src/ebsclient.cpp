@@ -62,18 +62,22 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
             cout << "extract_face_template: extract service not response. " << err.message() << endl;
         else
         {
+            int send_data_len = image_data_len + 1;
+            char cmd = 0;
+
             char send_header[8];
             send_header[0] = 'r';
             send_header[1] = 'e';
             send_header[2] = 'q';
             send_header[3] = 'f';
-            send_header[4] = (unsigned char)((image_data_len >> 24) & 0xFF);
-            send_header[5] = (unsigned char)((image_data_len >> 16) & 0xFF);
-            send_header[6] = (unsigned char)((image_data_len >> 8) & 0xFF);
-            send_header[7] = (unsigned char)(image_data_len & 0xFF);
+            send_header[4] = (unsigned char)((send_data_len >> 24) & 0xFF);
+            send_header[5] = (unsigned char)((send_data_len >> 16) & 0xFF);
+            send_header[6] = (unsigned char)((send_data_len >> 8) & 0xFF);
+            send_header[7] = (unsigned char)(send_data_len & 0xFF);
 
             write(client_socket, buffer(send_header, 8), err);
             write(client_socket, buffer(image_data, image_data_len), err);
+            write(client_socket, buffer(&cmd, 1), err);
             if (!err)
             {
                 char recv_header[8];
@@ -95,8 +99,8 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
                         {
                             if (io_len == recv_data_len && template_buf_size == recv_data_len - 1)
                             {
-                                res = recv_data[0];
                                 memcpy(template_buf, &recv_data[1], recv_data_len);
+                                res = recv_data[0];
                             }
                         }
                         free(recv_data);

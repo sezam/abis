@@ -57,7 +57,7 @@ void extract_get(http_request request)
                     memset(finger_tmp, 0, ABIS_TEMPLATE_SIZE);
 
                     int res = extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE);
-                    if (res > 0)
+                    if (res == 254)
                     {
                         for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
                         {
