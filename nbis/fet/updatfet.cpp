@@ -91,7 +91,7 @@ void updatefet(char *feature, char *value, FET *fet)
         fet->values[item] = (char *)NULL;
      }
      if(value != (char *)NULL){
-        fet->values[item] = _strdup(value);
+        fet->values[item] = strdup(value);
         if(fet->values[item] == (char *)NULL)
            syserr("updatefet","strdup","fet->values[]");
      }
@@ -102,11 +102,11 @@ void updatefet(char *feature, char *value, FET *fet)
         increased = fet->alloc + max(10, incr);	/* ever is larger	*/
         reallocfet(fet, increased);
      }
-     fet->names[fet->num] = (char *)_strdup(feature);
+     fet->names[fet->num] = (char *)strdup(feature);
      if(fet->names[fet->num] == (char *)NULL)
         syserr("updatefet","strdup","fet->names[]");
      if(value != (char *)NULL){
-        fet->values[fet->num] = (char *)_strdup(value);
+        fet->values[fet->num] = (char *)strdup(value);
         if(fet->values[fet->num] == (char *)NULL)
            syserr("updatefet","strdup","fet->values[]");
      }
@@ -129,7 +129,7 @@ int updatefet_ret(char *feature, char *value, FET *fet)
         fet->values[item] = (char *)NULL;
      }
      if(value != (char *)NULL){
-        fet->values[item] = (char *)_strdup(value);
+        fet->values[item] = (char *)strdup(value);
         if(fet->values[item] == (char *)NULL){
            fprintf(stderr, "ERROR : updatefet_ret : strdup : fet->values[]\n");
            return(-2);
@@ -143,13 +143,13 @@ int updatefet_ret(char *feature, char *value, FET *fet)
         if((ret = reallocfet_ret(&fet, increased)))
            return(ret);
      }
-     fet->names[fet->num] = (char *)_strdup(feature);
+     fet->names[fet->num] = (char *)strdup(feature);
      if(fet->names[fet->num] == (char *)NULL){
         fprintf(stderr, "ERROR : updatefet_ret : strdup : fet->names[]\n");
         return(-3);
      }
      if(value != (char *)NULL){
-        fet->values[fet->num] = (char *)_strdup(value);
+        fet->values[fet->num] = (char *)strdup(value);
         if(fet->values[fet->num] == (char *)NULL){
            fprintf(stderr, "ERROR : updatefet_ret : strdup : fet->values[]\n");
            return(-4);

@@ -86,7 +86,7 @@ char *extractfet(char *feature, FET *fet)
   if (item>=fet->num)
      fatalerr("extractfet",feature,"not found");
   if(fet->values[item] != (char *)NULL){
-      value = _strdup(fet->values[item]);
+      value = strdup(fet->values[item]);
       if (value == (char *)NULL)
          syserr("extractfet","strdup","value");
   }
@@ -110,7 +110,7 @@ int extractfet_ret(char **ovalue, char *feature, FET *fet)
      return(-2);
   }
   if(fet->values[item] != (char *)NULL){
-      value = (char *)_strdup(fet->values[item]);
+      value = (char *)strdup(fet->values[item]);
       if (value == (char *)NULL){
          fprintf(stderr, "ERROR : extractfet_ret : strdup : value\n");
          return(-3);

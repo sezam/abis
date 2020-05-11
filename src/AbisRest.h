@@ -14,6 +14,8 @@
 #pragma warning( disable : 4996)
 #endif
 
+#define _CRT_NONSTDC_NO_DEPRECATE
+
 #define BOOST_NO_ANSI_APIS
 #define __STDC_WANT_LIB_EXT1__ 1
 

@@ -83,7 +83,7 @@ int lookupfet(char **ovalue, char *feature, FET *fet)
      return(FALSE);
   }
   if(fet->values[item] != (char *)NULL){
-      value = _strdup(fet->values[item]);
+      value = strdup(fet->values[item]);
       if (value == (char *)NULL){
          fprintf(stderr, "ERROR : lookupfet : strdup : value\n");
          return(-2);

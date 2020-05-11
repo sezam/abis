@@ -90,12 +90,12 @@ FET *readfetfile(char *file)
       ungetc(c, fp);
       if (fet->num >= fet->alloc)
          reallocfet(fet, fet->alloc + MAXFETS);
-      fet->names[fet->num] = _strdup(buf);
+      fet->names[fet->num] = strdup(buf);
       if(fet->names[fet->num] == (char *)NULL)
          syserr("readfetfile","strdup","fet->names[]");
       fgets(buf,MAXFETLENGTH-1,fp);
       buf[strlen(buf)-1] = '\0';
-      fet->values[fet->num] = (char *)_strdup(buf);
+      fet->values[fet->num] = (char *)strdup(buf);
       if(fet->values[fet->num] == (char *)NULL)
          syserr("readfetfile","strdup","fet->values[]");
       (fet->num)++;
@@ -132,7 +132,7 @@ int readfetfile_ret(FET **ofet, char *file)
             return(ret);
          }
       }
-      fet->names[fet->num] = (char *)_strdup(buf);
+      fet->names[fet->num] = (char *)strdup(buf);
       if(fet->names[fet->num] == (char *)NULL){
          fprintf(stderr, "ERROR : readfetfile_ret : strdup : fet->names[]\n");
          fclose(fp);
@@ -141,7 +141,7 @@ int readfetfile_ret(FET **ofet, char *file)
       }
       fgets(buf,MAXFETLENGTH-1,fp);
       buf[strlen(buf)-1] = '\0';
-      fet->values[fet->num] = (char *)_strdup(buf);
+      fet->values[fet->num] = (char *)strdup(buf);
       if(fet->values[fet->num] == (char *)NULL){
          fprintf(stderr, "ERROR : readfetfile_ret : strdup : fet->values[]\n");
          fclose(fp);
