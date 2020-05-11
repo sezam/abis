@@ -82,14 +82,14 @@
     <ExecutablePath>d:\lib\vcpkg\installed\x64-windows\debug\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>d:\lib\vcpkg\installed\x64-windows\debug\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>d:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>d:\lib\vcpkg\installed\x64-windows\include;D:\lib\vcpkg\installed\x64-windows\include\nbis;$(IncludePath)</IncludePath>
+    <IncludePath>d:\lib\vcpkg\installed\x64-windows\include;D:\work\goznak\abis\abis-rest\nbis\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>d:\lib\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>d:\lib\vcpkg\installed\x64-windows\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>d:\lib\vcpkg\installed\x64-windows\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>d:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>d:\lib\vcpkg\installed\x64-windows\include;D:\lib\vcpkg\installed\x64-windows\include\nbis;$(IncludePath)</IncludePath>
+    <IncludePath>d:\lib\vcpkg\installed\x64-windows\include;D:\work\goznak\abis\abis-rest\nbis\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

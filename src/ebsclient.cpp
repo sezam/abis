@@ -14,8 +14,10 @@ int find_free_port()
 {
     if (mx_ports.size() == 0)
         for (size_t i = 0; i < extract_port_count; i++)
-            mx_ports.push_back(&(interprocess_semaphore(1)));
-
+        {
+            interprocess_semaphore sem(1);
+            mx_ports.push_back(&sem);
+        }
     mx_finder.wait();
 
     while (true)
