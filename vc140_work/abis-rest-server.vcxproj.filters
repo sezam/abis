@@ -13,17 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="Header Files\finger">
-      <UniqueIdentifier>{bb7bc86d-f791-42b0-b689-452669b76ff6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\finger\fp_internal.h">
-      <Filter>Header Files\finger</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\finger\libfprint.h">
-      <Filter>Header Files\finger</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\AbisRest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -34,9 +25,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ebsclient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\fplibclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\imgutils.h">
@@ -84,9 +72,6 @@
     <ClCompile Include="..\src\ebsclient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\fplibclient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\imgutils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,6 +97,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\restutils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -23,9 +23,6 @@
     <ClInclude Include="..\src\biocard.h" />
     <ClInclude Include="..\src\dbclient.h" />
     <ClInclude Include="..\src\ebsclient.h" />
-    <ClInclude Include="..\src\finger\fp_internal.h" />
-    <ClInclude Include="..\src\finger\libfprint.h" />
-    <ClInclude Include="..\src\fplibclient.h" />
     <ClInclude Include="..\src\imgutils.h" />
     <ClInclude Include="..\src\restutils.h" />
     <ClInclude Include="..\src\rest_biocard.h" />
@@ -43,9 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\biocard.cpp" />
+    <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\dbclient.cpp" />
     <ClCompile Include="..\src\ebsclient.cpp" />
-    <ClCompile Include="..\src\fplibclient.cpp" />
     <ClCompile Include="..\src\imgutils.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\restutils.cpp" />
@@ -75,12 +72,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -105,7 +102,7 @@
     <ExecutablePath>c:\lib\vcpkg\installed\x86-windows\debug\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>c:\lib\vcpkg\installed\x86-windows\debug\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>c:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>c:\lib\vcpkg\installed\x86-windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\zamorin\abis\abis-rest\abis\nbis\include;c:\lib\vcpkg\installed\x86-windows\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -113,21 +110,21 @@
     <ExecutablePath>c:\lib\vcpkg\installed\x86-windows\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>c:\lib\vcpkg\installed\x86-windows\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>c:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>c:\lib\vcpkg\installed\x86-windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\zamorin\abis\abis-rest\abis\nbis\include;c:\lib\vcpkg\installed\x86-windows\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>c:\lib\vcpkg\installed\x64-windows\debug\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>c:\lib\vcpkg\installed\x64-windows\debug\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>c:\lib\vcpkg\installed\x64-windows\debug\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>c:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>c:\lib\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\zamorin\abis\abis-rest\abis\nbis\include;c:\lib\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>c:\lib\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>c:\lib\vcpkg\installed\x64-windows\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>c:\lib\vcpkg\installed\x64-windows\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>c:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>c:\lib\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\zamorin\abis\abis-rest\abis\nbis\include;c:\lib\vcpkg\installed\x64-windows\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -141,7 +138,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>bcrypt.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bcrypt.lib;abiswsq.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
@@ -159,7 +156,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>bcrypt.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bcrypt.lib;abiswsq.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
@@ -167,7 +164,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <AdditionalDependencies>bcrypt.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bcrypt.lib;abiswsq.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;boost_program_options-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
     <ClCompile>
@@ -176,7 +173,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>bcrypt.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;boost_regex-vc140-mt.lib;libpng16.lib;jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bcrypt.lib;abiswsq.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;boost_program_options-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;boost_regex-vc140-mt.lib;libpng16.lib;jpeg.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
