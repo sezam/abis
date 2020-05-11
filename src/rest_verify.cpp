@@ -3,7 +3,6 @@
 #include "restutils.h"
 #include "dbclient.h"
 #include "ebsclient.h"
-#include "fplibclient.h"
 
 http_listener register_verify(uri url)
 {
@@ -75,7 +74,9 @@ void verify_get(http_request request)
                             float cmp = numeric_limits<float>::max();
                             if (db_tmp_type == ABIS_FACE_TEMPLATE && json_tmp_type == ABIS_FACE_TEMPLATE)
                             {
-                                void* arr_ptr = malloc(FACE_TEMPLATE_SIZE * sizeof(float));
+                                void* arr_ptr = malloc(ABIS_TEMPLATE_SIZE);
+                                memset(arr_ptr, 0, ABIS_TEMPLATE_SIZE);
+
                                 int t = db_face_tmp_by_id(db, db_tmp_id, arr_ptr);
                                 if (t > 0) cmp = cmp_face_tmp(json_tmp_ptr, arr_ptr);
                                 free(arr_ptr);

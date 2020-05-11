@@ -2,7 +2,6 @@
 #include "rest_extract.h"
 #include "restutils.h"
 #include "ebsclient.h"
-#include "fplibclient.h"
 
 http_listener register_extract(web::uri url)
 {
@@ -37,13 +36,13 @@ void extract_get(http_request request)
                 if (element_type == ABIS_FACE_IMAGE)
                 {
                     template_type = ABIS_FACE_TEMPLATE;
-                    float* face_tmp = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
-                    memset(face_tmp, 0, FACE_TEMPLATE_SIZE * sizeof(float));
+                    float* face_tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
+                    memset(face_tmp, 0, ABIS_TEMPLATE_SIZE);
 
-                    int count = extract_face_template(buf.data(), buf.size(), face_tmp, FACE_TEMPLATE_SIZE * sizeof(float));
+                    int count = extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE);
                     if (count == 1) 
                     {
-                        for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
+                        for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
                         {
                             answer[ELEMENT_VALUE][i] = json::value::number(face_tmp[i]);
                         }
@@ -54,13 +53,13 @@ void extract_get(http_request request)
                 if (element_type == ABIS_FINGER_IMAGE)
                 {
                     template_type = ABIS_FINGER_TEMPLATE;
-                    unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
-                    memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
+                    unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_TEMPLATE_SIZE);
+                    memset(finger_tmp, 0, ABIS_TEMPLATE_SIZE);
 
-                    int res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
+                    int res = extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE);
                     if (res > 0)
                     {
-                        for (size_t i = 0; i < FINGER_TEMPLATE_SIZE; i++)
+                        for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
                         {
                             answer[ELEMENT_VALUE][i] = json::value::number(finger_tmp[i]);
                         }

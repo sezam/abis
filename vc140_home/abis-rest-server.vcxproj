@@ -174,7 +174,6 @@
     <ClInclude Include="..\src\ebsclient.h" />
     <ClInclude Include="..\src\finger\fp_internal.h" />
     <ClInclude Include="..\src\finger\libfprint.h" />
-    <ClInclude Include="..\src\fplibclient.h" />
     <ClInclude Include="..\src\imgutils.h" />
     <ClInclude Include="..\src\restutils.h" />
     <ClInclude Include="..\src\rest_biocard.h" />
@@ -189,7 +188,6 @@
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\dbclient.cpp" />
     <ClCompile Include="..\src\ebsclient.cpp" />
-    <ClCompile Include="..\src\fplibclient.cpp" />
     <ClCompile Include="..\src\imgutils.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\restutils.cpp" />

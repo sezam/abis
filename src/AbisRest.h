@@ -100,6 +100,8 @@ using namespace utility;
 #define ABIS_IRIS_TEMPLATE		0x13
 
 #define ABIS_FACE_THRESHOLD     0.999f
+#define ABIS_TEMPLATE_LEN	    512 
+#define ABIS_TEMPLATE_SIZE	    ABIS_TEMPLATE_LEN * sizeof(float)
 
 void load_settings();
 

@@ -3,7 +3,6 @@
 #include "restutils.h"
 #include "dbclient.h"
 #include "ebsclient.h"
-#include "fplibclient.h"
 
 http_listener register_search(uri url)
 {
@@ -57,10 +56,8 @@ void search_get(http_request request)
                         step = tmp_id = db_search_face_tmp(db, json_tmp_ptr);
                         if (step > 0)
                         {
-                            int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
-
-                            void* face_tmp = malloc(tmp_size);
-                            memset(face_tmp, 0, tmp_size);
+                            void* face_tmp = malloc(ABIS_TEMPLATE_SIZE);
+                            memset(face_tmp, 0, ABIS_TEMPLATE_SIZE);
 
                             step = db_face_tmp_by_id(db, tmp_id, face_tmp);
                             if (step > 0) score = cmp_face_tmp(json_tmp_ptr, face_tmp);
@@ -72,10 +69,10 @@ void search_get(http_request request)
                         step = tmp_id = db_search_finger_tmp(db, json_tmp_ptr);
                         if (tmp_id > 0)
                         {
-                            void* finger_tmp = malloc(FINGER_TEMPLATE_SIZE);
-                            memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
+                            void* finger_tmp = malloc(ABIS_TEMPLATE_SIZE);
+                            memset(finger_tmp, 0, ABIS_TEMPLATE_SIZE);
                             // db_finger_search...
-                            if (step > 0) score = cmp_fingerprint_tmp(json_tmp_ptr, finger_tmp);
+                            if (step > 0) score = cmp_finger_tmp(json_tmp_ptr, finger_tmp);
                             free(finger_tmp);
                         }
                     }

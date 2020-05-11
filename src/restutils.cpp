@@ -1,5 +1,4 @@
 #include "restutils.h"
-#include "fplibclient.h"
 #include "ebsclient.h"
 
 
@@ -95,36 +94,19 @@ void handle_request(
     request.reply(sc, answer);
 }
 
-void* json2array(const web::json::value & el)
+void* json2array(const web::json::value& el)
 {
     void* result = nullptr;
 
-    int element_type = el.at(ELEMENT_TYPE).as_integer();
-    if (element_type == ABIS_FACE_TEMPLATE) 
+    float* tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
+    memset(tmp, 0, ABIS_TEMPLATE_SIZE);
+
+    auto element_tmp = el.at(ELEMENT_VALUE).as_array();
+    for (size_t i = 0; i < element_tmp.size(); i++)
     {
-        float* face_tmp = (float*)malloc(FACE_TEMPLATE_SIZE * sizeof(float));
-        memset(face_tmp, 0, FACE_TEMPLATE_SIZE * sizeof(float));
-
-        auto element_tmp = el.at(ELEMENT_VALUE).as_array();
-        for (size_t i = 0; i < element_tmp.size(); i++)
-        {
-            face_tmp[i] = element_tmp[i].as_double();
-        }
-        result = face_tmp;
+        tmp[i] = element_tmp[i].as_double();
     }
-
-    if (element_type == ABIS_FINGER_TEMPLATE) 
-    {
-        unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
-        memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
-
-        auto element_tmp = el.at(ELEMENT_VALUE).as_array();
-        for (size_t i = 0; i < element_tmp.size(); i++)
-        {
-            finger_tmp[i] = element_tmp[i].as_integer();
-        }
-        result = finger_tmp;
-    }
+    result = tmp;
 
     return result;
 }
@@ -136,19 +118,17 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
     if (element_type == ABIS_FACE_IMAGE)
     {
-        int tmp_size = FACE_TEMPLATE_SIZE * sizeof(float);
-
         auto element_image = el.at(ELEMENT_VALUE).as_string();
         vector<unsigned char> buf = conversions::from_base64(element_image);
 
-        float* face_tmp = (float*)malloc(tmp_size);
-        memset(face_tmp, 0, tmp_size);
+        float* face_tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
+        memset(face_tmp, 0, ABIS_TEMPLATE_SIZE);
 
         tmp_type = ABIS_FACE_TEMPLATE;
         tmp_ptr = face_tmp;
         res = element_type;
 
-        int count = extract_face_template(buf.data(), buf.size(), face_tmp, tmp_size);
+        int count = extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE);
         if (count != 1) res = -1;
     }
     if (element_type == ABIS_FACE_TEMPLATE)
@@ -163,12 +143,13 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
         auto element_image = el.at(ELEMENT_VALUE).as_string();
         vector<unsigned char> buf = conversions::from_base64(element_image);
 
-        unsigned char* finger_tmp = (unsigned char*)malloc(FINGER_TEMPLATE_SIZE);
-        memset(finger_tmp, 0, FINGER_TEMPLATE_SIZE);
+        unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_TEMPLATE_SIZE);
+        memset(finger_tmp, 0, ABIS_TEMPLATE_SIZE);
 
         tmp_type = ABIS_FINGER_TEMPLATE;
         tmp_ptr = finger_tmp;
-        res = get_fingerprint_template(buf.data(), buf.size(), finger_tmp, FINGER_TEMPLATE_SIZE);
+        int count = extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE);
+        if (count != 1) res = -1;
     }
     if (element_type == ABIS_FINGER_TEMPLATE)
     {

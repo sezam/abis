@@ -1,7 +1,6 @@
 ﻿#include "AbisRest.h"
 #include "dbclient.h"
 #include "ebsclient.h"
-#include "fplibclient.h"
 
 // a helper function to get the number of elements in an array
 int getNoEle(char* m)
@@ -159,14 +158,14 @@ int db_search_face_tmp(PGconn* db, const void* tmp_arr)
     int result = 0;
 
     string arr("{");
-    for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
+    for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
     {
         arr.append(to_string(((float*)tmp_arr)[i]));
-        if (i != FACE_TEMPLATE_SIZE - 1) arr.append(",");
+        if (i != ABIS_TEMPLATE_LEN - 1) arr.append(",");
     }
     arr.append("}");
 
-    string part_size_s = to_string(FACE_TEMPLATE_SIZE / face_parts);
+    string part_size_s = to_string(ABIS_TEMPLATE_LEN / face_parts);
 
     const char* paramValues[7] = { arr.c_str(),  part_size_s.c_str(), "1",
         postgres_db.c_str(), face_param.c_str(), face_index.c_str(), face_vector.c_str()};
@@ -208,15 +207,15 @@ int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
     int result = 0;
 
     string arr("{");
-    for (size_t i = 0; i < FACE_TEMPLATE_SIZE; i++)
+    for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
     {
         arr.append(to_string(((float*)tmp_arr)[i]));
-        if (i != FACE_TEMPLATE_SIZE - 1) arr.append(",");
+        if (i != ABIS_TEMPLATE_LEN - 1) arr.append(",");
     }
     arr.append("}");
 
     string tmp_id_s = to_string(tmp_id);
-    string part_size_s = to_string(FACE_TEMPLATE_SIZE / face_parts);
+    string part_size_s = to_string(ABIS_TEMPLATE_LEN / face_parts);
     const char* paramValues[7] = { arr.c_str(),  tmp_id_s.c_str(), part_size_s.c_str(),
         postgres_db.c_str(), face_param.c_str(), face_index.c_str(), face_vector.c_str() };
 

@@ -2,7 +2,6 @@
 #include "AbisRest.h"
 #include "restutils.h"
 #include "ebsclient.h"
-#include "fplibclient.h"
 #include "imgutils.h"
 
 http_listener register_compare(uri url)
@@ -57,7 +56,7 @@ void compare_get(http_request request)
                     score = cmp_face_tmp(tmps[0], tmps[1]);
                 }
                 if (compare_type == ABIS_FINGER_TEMPLATE) {
-                    score = cmp_fingerprint_tmp(tmps[0], tmps[1]);
+                    score = cmp_finger_tmp(tmps[0], tmps[1]);
                 }
 
                 answer[ELEMENT_VALUE] = json::value::number(score);
