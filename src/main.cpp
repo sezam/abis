@@ -56,9 +56,9 @@ void rest_server()
     }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    load_settings();
+    load_settings(argv[1]);
     db_prepare();
     rest_server();
 

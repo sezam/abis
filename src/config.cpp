@@ -20,7 +20,7 @@ string finger_vector("finger_vector");
 string finger_index("finger_index");
 string finger_param("finger_param");
 
-void load_settings()
+void load_settings(char* path)
 {
     po::options_description desc("settings");
     desc.add_options()
@@ -42,6 +42,6 @@ void load_settings()
         ("finger.param", po::value< string >(&finger_param), "param table");
 
     po::variables_map vm;
-    po::store(po::parse_config_file("../config/home.ini", desc), vm);
+    po::store(po::parse_config_file(path, desc), vm);
     notify(vm);
 }

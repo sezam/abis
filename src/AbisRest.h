@@ -105,7 +105,7 @@ using namespace utility;
 #define ABIS_TEMPLATE_LEN	    512 
 #define ABIS_TEMPLATE_SIZE	    ABIS_TEMPLATE_LEN * sizeof(float)
 
-void load_settings();
+void load_settings(char* path);
 
 extern string extract_host;
 extern int extract_port_start;
