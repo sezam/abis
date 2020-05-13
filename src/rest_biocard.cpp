@@ -176,7 +176,38 @@ void biocard_put(http_request request)
 
                         if (step > 0) step = db_add_link(db, ABIS_FACE_TEMPLATE, tmp_id, bc_id);
                         if (step > 0) inserted++;
-                        if (step < 0) db_sp_rollback(db, "face_template");
+                        if (step <= 0) db_sp_rollback(db, "face_template");
+                    }
+                    if (tmp_type == ABIS_FINGER_TEMPLATE)
+                    {
+                        db_sp_begin(db, "finger_template");
+                        step = tmp_id = db_search_finger_tmp(db, tmp_arr);
+                        if (step > 0)
+                        {
+                            float score = 0;
+
+                            void* face_tmp = malloc(ABIS_TEMPLATE_SIZE);
+                            memset(face_tmp, 0, ABIS_TEMPLATE_SIZE);
+
+                            step = db_finger_tmp_by_id(db, tmp_id, face_tmp);
+                            if (step > 0) score = cmp_finger_tmp(tmp_arr, face_tmp);
+                            free(face_tmp);
+
+                            if (score >= ABIS_FINGER_THRESHOLD)
+                            {
+                                char bc_gid[50];
+                                step = (int)db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) == 0;
+                            }
+                            else
+                            {
+                                step = tmp_id = db_get_finger_seq(db);
+                                if (step > 0) step = db_insert_finger_tmp(db, tmp_arr, tmp_id);
+                            }
+                        }
+
+                        if (step > 0) step = db_add_link(db, ABIS_FINGER_TEMPLATE, tmp_id, bc_id);
+                        if (step > 0) inserted++;
+                        if (step <= 0) db_sp_rollback(db, "finger_template");
                     }
                     free(tmp_arr);
 
@@ -190,9 +221,10 @@ void biocard_put(http_request request)
                 {
                     db_tx_commit(db);
                     answer[ELEMENT_UUID] = json::value::string(conversions::to_string_t(to_string(gid)));
-                    answer[ELEMENT_VALUE] = json_out;
                 }
                 else db_tx_rollback(db);
+                answer[ELEMENT_VALUE] = json_out;
+                answer[ELEMENT_RESULT] = json::value::boolean(true);
             }
             catch (const boost::system::error_code& ec)
             {

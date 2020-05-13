@@ -34,7 +34,6 @@ void search_get(http_request request)
 
                 json::array arr = req_json.as_array();
                 auto json_out = json::value::array();
-                int rows = 0;
                 for (size_t i = 0; i < arr.size(); i++)
                 {
                     auto json_row = json::value::object();
@@ -71,7 +70,8 @@ void search_get(http_request request)
                         {
                             void* finger_tmp = malloc(ABIS_TEMPLATE_SIZE);
                             memset(finger_tmp, 0, ABIS_TEMPLATE_SIZE);
-                            // db_finger_search...
+
+                            step = db_finger_tmp_by_id(db, tmp_id, finger_tmp);
                             if (step > 0) score = cmp_finger_tmp(json_tmp_ptr, finger_tmp);
                             free(finger_tmp);
                         }
@@ -85,11 +85,14 @@ void search_get(http_request request)
                         json_row[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));                        
                         json_row[ELEMENT_VALUE] = json::value::number(score);
                     }
+                    json_row[ELEMENT_RESULT] = json::value::boolean(step > 0);
                     json_row[ELEMENT_TYPE] = json::value::number(json_tmp_type);
-                    json_out[rows++] = json_row;
+
                     free(json_tmp_ptr);
+                    json_out[i] = json_row;
                 }
                 answer[ELEMENT_VALUE] = json_out;
+                answer[ELEMENT_RESULT] = json::value::boolean(true);
             }
             catch (const boost::system::error_code& ec)
             {

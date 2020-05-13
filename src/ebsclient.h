@@ -25,4 +25,7 @@ float cmp_face_tmp(void* tmp1, void* tmp2);
 */
 float cmp_finger_tmp(void* tmp1, void* tmp2);
 
+#define SW_NORM_P	1000
+float sugeno_weber(float x, float y);
+
 #endif

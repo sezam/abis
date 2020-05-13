@@ -153,7 +153,7 @@ void db_sp_release(PGconn* db, const char* name)
     PQclear(res);
 }
 
-int db_search_face_tmp(PGconn* db, const void* tmp_arr)
+int db_search_tmp(PGconn* db, const void* tmp_arr, string index_name, string param_name, string vector_name)
 {
     int result = 0;
 
@@ -168,12 +168,12 @@ int db_search_face_tmp(PGconn* db, const void* tmp_arr)
     string part_size_s = to_string(ABIS_TEMPLATE_LEN / face_parts);
 
     const char* paramValues[7] = { arr.c_str(),  part_size_s.c_str(), "1",
-        postgres_db.c_str(), face_param.c_str(), face_index.c_str(), face_vector.c_str()};
+        postgres_db.c_str(), param_name.c_str(), index_name.c_str(), vector_name.c_str()};
 
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = db_exec_param(db, SQL_SEARCH_FACE_TMPS, 7, paramValues, 1);
+        sql_res = db_exec_param(db, SQL_SEARCH_TMPS, 7, paramValues, 1);
 
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
@@ -188,7 +188,7 @@ int db_search_face_tmp(PGconn* db, const void* tmp_arr)
     }
     catch (const std::exception& ec)
     {
-        cout << "search_face_template_id: " << ec.what() << endl;
+        cout << "db_search_tmp: " << ec.what() << endl;
         result = -1;
     }
 
@@ -197,12 +197,17 @@ int db_search_face_tmp(PGconn* db, const void* tmp_arr)
 }
 
 
-int db_search_finger_tmp(PGconn* db, const void* tmp_arr)
+int db_search_face_tmp(PGconn* db, const void* tmp_arr)
 {
-    return 0;
+    return db_search_tmp(db, tmp_arr, face_index, face_param, face_vector);
 }
 
-int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
+int db_search_finger_tmp(PGconn* db, const void* tmp_arr)
+{
+    return db_search_tmp(db, tmp_arr,  finger_index, finger_param, finger_vector);
+}
+
+int db_insert_tmp(PGconn* db, const void* tmp_arr, int tmp_id, string index_name, string param_name, string vector_name)
 {
     int result = 0;
 
@@ -217,17 +222,17 @@ int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
     string tmp_id_s = to_string(tmp_id);
     string part_size_s = to_string(ABIS_TEMPLATE_LEN / face_parts);
     const char* paramValues[7] = { arr.c_str(),  tmp_id_s.c_str(), part_size_s.c_str(),
-        postgres_db.c_str(), face_param.c_str(), face_index.c_str(), face_vector.c_str() };
+        postgres_db.c_str(), param_name.c_str(), index_name.c_str(), vector_name.c_str() };
 
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = db_exec_param(db, SQL_INSERT_FACE_TMP, 7, paramValues, 1);
+        sql_res = db_exec_param(db, SQL_INSERT_TMP, 7, paramValues, 1);
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK) result = 1;
     }
     catch (const std::exception& ec)
     {
-        cout << "search_face_template_id: " << ec.what() << endl;
+        cout << "db_insert_tmp: " << ec.what() << endl;
         result = -1;
     }
 
@@ -235,7 +240,17 @@ int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
     return result;
 }
 
-int db_face_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
+int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
+{
+    return db_insert_tmp(db, tmp_arr, tmp_id, face_index, face_param, face_vector);
+}
+
+int db_insert_finger_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
+{
+    return db_insert_tmp(db, tmp_arr, tmp_id, finger_index, finger_param, finger_vector);
+}
+
+int db_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr, string table)
 {
     int result = 0;
 
@@ -245,7 +260,7 @@ int db_face_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
     PGresult* sql_res = nullptr;
     try
     {
-        sql_res = db_exec_param(db, (format(SQL_FACETMP_BY_ID) % face_vector).str(), 1, paramValues, 1);
+        sql_res = db_exec_param(db, str(boost::format(SQL_TMP_BY_ID) % table), 1, paramValues, 1);
 
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
@@ -265,6 +280,16 @@ int db_face_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
 
     PQclear(sql_res);
     return result;
+}
+
+int db_face_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
+{
+    return db_tmp_by_id(db, tmp_id, tmp_arr, face_vector);
+}
+
+int db_finger_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
+{
+    return db_tmp_by_id(db, tmp_id, tmp_arr, finger_vector);
 }
 
 int db_card_id_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
@@ -405,6 +430,7 @@ int db_get_face_seq(PGconn* db)
     try
     {
         sql_res = db_exec_param(db, SQL_FACE_TMP_SEQ, 0, nullptr, 1);
+        cout << "db_get_face_seq: " << PQresultErrorMessage(sql_res) << endl;
         if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
         {
             int uid_num = PQfnumber(sql_res, "uid");
@@ -414,6 +440,29 @@ int db_get_face_seq(PGconn* db)
     catch (const std::exception& ec)
     {
         cout << "db_get_face_seq: " << ec.what() << endl;
+        result = -1;
+    }
+
+    PQclear(sql_res);
+    return result;
+}
+
+int db_get_finger_seq(PGconn* db)
+{
+    int result = 0;
+    PGresult* sql_res = nullptr;
+    try
+    {
+        sql_res = db_exec_param(db, SQL_FINGER_TMP_SEQ, 0, nullptr, 1);
+        if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
+        {
+            int uid_num = PQfnumber(sql_res, "uid");
+            result = pg_ntoh64(*(uint64_t*)(PQgetvalue(sql_res, 0, uid_num)));
+        }
+    }
+    catch (const std::exception& ec)
+    {
+        cout << "db_get_finger_seq: " << ec.what() << endl;
         result = -1;
     }
 

@@ -128,8 +128,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
         tmp_ptr = face_tmp;
         res = element_type;
 
-        int count = extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE);
-        if (count != 1) res = -1;
+        if (extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE) <= 0) res = -1;
     }
     if (element_type == ABIS_FACE_TEMPLATE)
     {
@@ -148,8 +147,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
         tmp_type = ABIS_FINGER_TEMPLATE;
         tmp_ptr = finger_tmp;
-        int count = extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE);
-        if (count != 1) res = -1;
+        if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE) <= 0) res = -1;
     }
     if (element_type == ABIS_FINGER_TEMPLATE)
     {
