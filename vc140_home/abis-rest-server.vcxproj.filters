@@ -112,6 +112,9 @@
     <ClInclude Include="..\nbis\include\wsq.h">
       <Filter>Header Files\nbis</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\fplibclient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\biocard.cpp">
@@ -151,6 +154,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\fplibclient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

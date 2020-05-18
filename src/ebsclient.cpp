@@ -3,6 +3,7 @@
 #include "AbisRest.h"
 #include "ebsclient.h"
 #include "imgutils.h"
+#include "fplibclient.h"
 
 #define COUNTOF(x) (sizeof(x)/sizeof(*x))
 
@@ -128,7 +129,7 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
 }
 
 int extract_finger_template(const unsigned char* image_data, const size_t image_data_len,
-	void* template_buf, const size_t template_buf_size)
+	void* template_buf, const size_t template_buf_size, bool gost)
 {
 
 	int port_index = find_free_port();
@@ -188,7 +189,7 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
 							{
 								if (io_len == recv_data_len && template_buf_size <= recv_data_len - 1)
 								{
-									memcpy(template_buf, &recv_data[1], template_buf_size);
+									memcpy(template_buf, &recv_data[(gost ? ABIS_FINGER_TMP_GOST_SIZE : 1)], template_buf_size);
 									if (recv_data[0] == 0xFE) res = 1;
 								}
 							}

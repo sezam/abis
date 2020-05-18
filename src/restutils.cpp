@@ -147,7 +147,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
         tmp_type = ABIS_FINGER_TEMPLATE;
         tmp_ptr = finger_tmp;
-        if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE) <= 0) res = -1;
+        if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE, false) <= 0) res = -1;
     }
     if (element_type == ABIS_FINGER_TEMPLATE)
     {

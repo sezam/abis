@@ -45,7 +45,7 @@ void search_get(http_request request)
 
                     if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
                     {
-                        cout << "verify_get: error extract template" << endl;
+                        cout << "search_get: error extract template" << endl;
                         free(json_tmp_ptr);
                         continue;
                     }

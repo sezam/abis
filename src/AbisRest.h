@@ -95,19 +95,21 @@ using namespace utility;
 #define TRACE_ACTION(a, k, v) wcout << a << " (" << k.c_str() << ", " << v.c_str() << ")\n"
 
 // abis bio data types
-#define ABIS_DATA				0x00
-#define ABIS_FACE_IMAGE			0x01
-#define ABIS_FINGER_IMAGE		0x02
-#define ABIS_IRIS_IMAGE			0x03
-#define ABIS_FACE_TEMPLATE		0x11
-#define ABIS_FINGER_TEMPLATE	0x12
-#define ABIS_IRIS_TEMPLATE		0x13
+#define ABIS_DATA					0x00
+#define ABIS_FACE_IMAGE				0x01
+#define ABIS_FINGER_IMAGE			0x02
+#define ABIS_FINGER_GOST_IMAGE		0x03
+
+#define ABIS_FACE_TEMPLATE			0x11
+#define ABIS_FINGER_TEMPLATE		0x12
+#define ABIS_FINGER_GOST_TEMPLATE	0x13
 
 #define ABIS_INTEGRA_THRESHOLD  0.5f
 #define ABIS_FACE_THRESHOLD     0.5f
 #define ABIS_FINGER_THRESHOLD   0.42f
-#define ABIS_TEMPLATE_LEN	    512 
-#define ABIS_TEMPLATE_SIZE	    ABIS_TEMPLATE_LEN * sizeof(float)
+
+#define ABIS_TEMPLATE_LEN			512 
+#define ABIS_TEMPLATE_SIZE			ABIS_TEMPLATE_LEN * sizeof(float)
 
 void load_settings(char* path);
 
