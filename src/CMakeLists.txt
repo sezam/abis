@@ -62,7 +62,7 @@ target_link_libraries(${PACKAGE_TARNAME}
     ${OpenSSL_LIBRARIES}
     ${JPEG_LIBRARIES}
     ${PNG_LIBRARIES}
-    openjp2
+    ${OPENJPEG_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${PostgreSQL_LIBRARIES}
 	abiswsq
