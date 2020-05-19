@@ -33,6 +33,13 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 			gil::read_and_convert_image(inbuf, img, gil::jpeg_tag());
 			prepare_img = true;
 		}
+		/*
+		if (isJP2(image_data))
+		{
+			gil::read_and_convert_image(inbuf, img, gil::jpeg_tag());
+			prepare_img = true;
+		}
+		*/
 
 		if (prepare_img)
 		{

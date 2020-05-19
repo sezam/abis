@@ -1,5 +1,6 @@
 #include "restutils.h"
 #include "ebsclient.h"
+#include "fplibclient.h"
 
 
 std::wstring s2ws(const std::string& str)
@@ -94,12 +95,29 @@ void handle_request(
     request.reply(sc, answer);
 }
 
-void* json2array(const web::json::value& el)
+void* json2tmp(const web::json::value& el)
 {
     void* result = nullptr;
 
     float* tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
     memset(tmp, 0, ABIS_TEMPLATE_SIZE);
+
+    auto element_tmp = el.at(ELEMENT_VALUE).as_array();
+    for (size_t i = 0; i < element_tmp.size(); i++)
+    {
+        tmp[i] = element_tmp[i].as_double();
+    }
+    result = tmp;
+
+    return result;
+}
+
+void* json2fingergost_tmp(const web::json::value& el)
+{
+    void* result = nullptr;
+
+    float* tmp = (float*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
+    memset(tmp, 0, ABIS_FINGER_TMP_GOST_SIZE);
 
     auto element_tmp = el.at(ELEMENT_VALUE).as_array();
     for (size_t i = 0; i < element_tmp.size(); i++)
@@ -128,12 +146,12 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
         tmp_ptr = face_tmp;
         res = element_type;
 
-        if (extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE) <= 0) res = -1;
+        if (extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE) <= 0) res = -element_type;
     }
     if (element_type == ABIS_FACE_TEMPLATE)
     {
         tmp_type = ABIS_FACE_TEMPLATE;
-        tmp_ptr = json2array(el);
+        tmp_ptr = json2tmp(el);
         res = element_type;
     }
 
@@ -147,14 +165,32 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
         tmp_type = ABIS_FINGER_TEMPLATE;
         tmp_ptr = finger_tmp;
-        if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE, false) <= 0) res = -1;
+        if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE, false) <= 0) res = -element_type;
     }
     if (element_type == ABIS_FINGER_TEMPLATE)
     {
         tmp_type = ABIS_FINGER_TEMPLATE;
-        tmp_ptr = json2array(el);
+        tmp_ptr = json2tmp(el);
         res = element_type;
     }
 
+    if (element_type == ABIS_FINGER_GOST_IMAGE)
+    {
+        auto element_image = el.at(ELEMENT_VALUE).as_string();
+        vector<unsigned char> buf = conversions::from_base64(element_image);
+
+        unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
+        memset(finger_tmp, 0, ABIS_FINGER_TMP_GOST_SIZE);
+
+        tmp_type = ABIS_FINGER_TEMPLATE;
+        tmp_ptr = finger_tmp;
+        if (get_fingerprint_template(buf.data(), buf.size(), finger_tmp, ABIS_FINGER_TMP_GOST_SIZE) != 0) res = -element_type;
+    }
+    if (element_type == ABIS_FINGER_GOST_TEMPLATE)
+    {
+        tmp_type = ABIS_FINGER_GOST_TEMPLATE;
+        tmp_ptr = json2fingergost_tmp(el);
+        res = element_type;
+    }
     return res;
 }

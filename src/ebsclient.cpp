@@ -10,6 +10,7 @@
 interprocess_semaphore mx_logger(1);
 interprocess_semaphore mx_finder(1);
 vector<interprocess_semaphore*> mx_ports;
+io_service boost_io_service;
 
 int find_free_port()
 {
@@ -51,7 +52,6 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
 	int current_port = port_index + extract_port_start;
 	try
 	{
-		io_service boost_io_service;
 		tcp::socket client_socket(boost_io_service);
 		tcp::resolver::query query(extract_host, to_string(current_port));
 		tcp::resolver::iterator endpoint_iterator = tcp::resolver(boost_io_service).resolve(query);
@@ -139,7 +139,6 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
 	int current_port = port_index + extract_port_start;
 	try
 	{
-		io_service boost_io_service;
 		tcp::socket client_socket(boost_io_service);
 		tcp::resolver::query query(extract_host, to_string(current_port));
 		tcp::resolver::iterator endpoint_iterator = tcp::resolver(boost_io_service).resolve(query);

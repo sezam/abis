@@ -37,6 +37,15 @@ bool isWSQ(const unsigned char* img)
     return true;
 }
 
+bool isJP2(const unsigned char* img)
+{
+    for (size_t i = 0; i < sizeof(rexpJP2); i++)
+    {
+        if (img[i] != rexpJP2[i]) return false;
+    }
+    return true;
+}
+
 void convert_image(const unsigned char* i_image_data, const size_t i_image_data_len,
     unsigned char*& o_image_data, const size_t& o_image_data_len)
 {
