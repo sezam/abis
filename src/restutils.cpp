@@ -2,7 +2,7 @@
 #include "ebsclient.h"
 #include "fplibclient.h"
 
-void JSON_EXCEPTION(web::json::value obj, string msg)
+void JSON_EXCEPTION(web::json::value& obj, const string msg)
 {
     obj[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(msg));
     obj[ELEMENT_RESULT] = json::value::boolean(false);
