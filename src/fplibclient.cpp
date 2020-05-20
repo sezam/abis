@@ -60,8 +60,8 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 			// only linux implementation
 #ifndef _WIN32
 			cout << "getFingerPrint: before" << endl;
-			int rr = getFingerPrint(in_fpimg, template_buf);
-			cout << "getFingerPrint: after " << rr << endl;
+			getFingerPrint(in_fpimg, template_buf);
+			cout << "getFingerPrint: after " << endl;
 #endif
 			res = 0;
 		}
