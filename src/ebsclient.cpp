@@ -40,8 +40,8 @@ int find_free_port()
 	return -1;
 }
 
-int ebs_request(const unsigned char* image_data, const size_t image_data_len,
-	void* template_buf, const size_t template_buf_size, 
+int ebs_request(unsigned char* image_data, size_t image_data_len,
+	void* template_buf, size_t template_buf_size,
 	const unsigned char cmd, const unsigned char check, const size_t offset)
 {
 	int port_index = find_free_port();
@@ -132,7 +132,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		if (step)
 		{
 			memset(recv_data, 0, recv_data_len);
-			int io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
+			size_t io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
 
 			step = !err.failed() && io_len == recv_data_len && template_buf_size <= recv_data_len - 1;
 			if (!step) cout << "ebs_request: receive data allocate memory error. " << err.message() << endl;
@@ -164,17 +164,25 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 
 }
 
-int extract_face_template(const unsigned char* image_data, const size_t image_data_len,
+int extract_face_template(unsigned char* image_data, size_t image_data_len,
 	void* template_buf, const size_t template_buf_size)
 {
-	return ebs_request(image_data, image_data_len, template_buf, template_buf_size, 0, 1, 1);
+	return ebs_request(image_data, image_data_len, template_buf, template_buf_size,
+		EBS_CMD_EXTRACT_FACE, EBS_CHECK_EXTRACT_FACE, 1);
 }
 
-int extract_finger_template(const unsigned char* image_data, const size_t image_data_len,
+int extract_finger_template(unsigned char* image_data, size_t image_data_len,
 	void* template_buf, const size_t template_buf_size, bool gost)
 {
+	int res = -1;
 
-	return ebs_request(image_data, image_data_len, template_buf, template_buf_size, 1, 0xFE, (gost ? ABIS_FINGER_TMP_GOST_SIZE : 1));
+	if (gost)
+		res = get_fingerprint_template(image_data, image_data_len, (unsigned char*)template_buf, template_buf_size);
+	else
+		res = ebs_request(image_data, image_data_len, template_buf, template_buf_size,
+			EBS_CMD_EXTRACT_FINGER, EBS_CHECK_EXTRACT_FINGER, (gost ? ABIS_FINGER_TMP_GOST_SIZE : 1));
+
+	return res;
 }
 
 float fvec_eq_dis(const float* x, const float* y, size_t size)

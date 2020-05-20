@@ -45,6 +45,8 @@ of the software.
 #ifndef _DATA_IO_H
 #define _DATA_IO_H
 
+#define __NBISLE__
+
 /* dataio.c */
 extern int read_byte(unsigned char *, FILE *);
 extern int getc_byte(unsigned char *, unsigned char **, unsigned char *);

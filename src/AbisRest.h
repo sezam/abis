@@ -20,6 +20,7 @@
 #define __STDC_WANT_LIB_EXT1__ 1
 
 #include <iostream>
+#include <ostream>
 #include <map>
 #include <set>
 #include <vector>

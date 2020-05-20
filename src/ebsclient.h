@@ -3,16 +3,22 @@
 #ifndef EBSCLIENT_H
 #define EBSCLIENT_H
 
+#define EBS_CMD_EXTRACT_FACE		0x00
+#define EBS_CMD_EXTRACT_FINGER		0x01
+
+#define EBS_CHECK_EXTRACT_FACE		0x01
+#define EBS_CHECK_EXTRACT_FINGER	0xFE
+
 /*
 получает шаблон из изображения лица
 */
-int extract_face_template(const unsigned char* image_data, const size_t image_data_len,
+int extract_face_template(unsigned char* image_data, size_t image_data_len,
 	void* template_buf, const size_t template_buf_size);
 
 /*
 получает шаблон из изображения пальца
 */
-int extract_finger_template(const unsigned char* image_data, const size_t image_data_len,
+int extract_finger_template(unsigned char* image_data, size_t image_data_len,
     void* template_buf, const size_t template_buf_size, bool gost);
 
 /*
