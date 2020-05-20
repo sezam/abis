@@ -2,7 +2,7 @@
 #include "fplibclient.h"
 #include "imgutils.h"
 
-int get_fingerprint_template(const unsigned char* image_data, const size_t image_data_len,
+int get_fingerprint_template(unsigned char* image_data, const size_t image_data_len,
 	unsigned char* template_buf, const size_t template_buf_len)
 {
 	int res = -1;
@@ -12,46 +12,21 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 
 	try
 	{
-		gil::gray8_image_t img;
+		gil::gray8c_view_t img_view;
 		bool prepare_img = false;
 
-		std::stringstream inbuf;
-		inbuf.write((const char*)image_data, image_data_len);
-
-		if (isBMP(image_data))
-		{
-			gil::read_and_convert_image(inbuf, img, gil::bmp_tag());
-			prepare_img = true;
-		}
-		if (isPNG(image_data))
-		{
-			gil::read_and_convert_image(inbuf, img, gil::png_tag());
-			prepare_img = true;
-		}
-		if (isJPG(image_data))
-		{
-			gil::read_and_convert_image(inbuf, img, gil::jpeg_tag());
-			prepare_img = true;
-		}
-		/*
-		if (isJP2(image_data))
-		{
-			gil::read_and_convert_image(inbuf, img, gil::jpeg_tag());
-			prepare_img = true;
-		}
-		*/
+		convert_image(image_data, image_data_len, img_view);
 
 		if (prepare_img)
 		{
-			in_fpimg = (fp_img*)malloc(sizeof(fp_img) + img.width() * img.height() + 4);
-			in_fpimg->width = img.width();
-			in_fpimg->height = img.height();
-			in_fpimg->length = img.width() * img.height();
+			in_fpimg = (fp_img*)malloc(sizeof(fp_img) + img_view.width() * img_view.height() + 4);
+			in_fpimg->width = img_view.width();
+			in_fpimg->height = img_view.height();
+			in_fpimg->length = img_view.width() * img_view.height();
 			in_fpimg->minutiae = NULL;
 			in_fpimg->binarized = NULL;
 			in_fpimg->flags = 0;
 
-			auto img_view = gil::const_view(img);
 			unsigned char* fp_data = in_fpimg->data;
 			for (auto it = img_view.begin(); it != img_view.end(); ++it) *fp_data++ = *it;
 

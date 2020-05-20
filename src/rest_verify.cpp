@@ -54,7 +54,6 @@ void verify_get(http_request request)
 					vector<float> sw_score;
 					for (size_t i = 0; i < arr.size(); i++)
 					{
-						int tmp_id = 0;
 						int json_tmp_type = ABIS_DATA;
 						void* json_tmp_ptr = nullptr;
 

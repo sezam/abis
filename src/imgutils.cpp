@@ -46,10 +46,8 @@ bool isJP2(const unsigned char* img)
     return true;
 }
 
-void convert_image(const unsigned char* i_image_data, const size_t i_image_data_len,
-    unsigned char*& o_image_data, const size_t& o_image_data_len)
+void convert_image(unsigned char* &i_image_data, const size_t i_image_data_len, gil::gray8c_view_t &img_view)
 {
-    gil::gray8c_view_t img_view;
     gil::gray8_image_t img;
     std::stringstream inbuf;
 
@@ -83,8 +81,11 @@ void convert_image(const unsigned char* i_image_data, const size_t i_image_data_
     {
         unsigned char* img_ptr;
         int width, height, depth, ppi, lossy;
-        int res = wsq_decode_mem(&img_ptr, &width, &height, &depth, &ppi, &lossy,
-            (unsigned char*)i_image_data, i_image_data_len);
+        int res = wsq_decode_mem(&img_ptr, &width, &height, &depth, &ppi, &lossy, (unsigned char*)i_image_data, i_image_data_len);
+        if (res) throw runtime_error("Error convert wsq");
+
+        free(i_image_data);
+        i_image_data = img_ptr;
 
         img_view = gil::interleaved_view(width, height, (gil::gray8_pixel_t*) img_ptr, width);
         prepare_img = true;

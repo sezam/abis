@@ -1,8 +1,8 @@
 #include "AbisRest.h"
 
 string extract_host("localhost");
-int extract_port_start = 10080;
-int extract_port_count = 4;
+size_t extract_port_start = 10080;
+size_t extract_port_count = 4;
 
 string postgres_host("localhost");
 string postgres_port("5432");
@@ -25,8 +25,8 @@ void load_settings(char* path)
     po::options_description desc("settings");
     desc.add_options()
         ("extract.host", po::value< string >(&extract_host), "hostname, ip")
-        ("extract.port_start", po::value< int >(&extract_port_start), "start port number")
-        ("extract.port_count", po::value< int >(&extract_port_count), "ports used")
+        ("extract.port_start", po::value< size_t >(&extract_port_start), "start port number")
+        ("extract.port_count", po::value< size_t >(&extract_port_count), "ports used")
         ("postgres.host", po::value< string >(&postgres_host), "hostname, ip")
         ("postgres.port", po::value< string >(&postgres_port), "port number")
         ("postgres.db", po::value< string >(&postgres_db), "db name")
