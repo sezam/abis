@@ -51,6 +51,9 @@
     <ClInclude Include="..\src\restutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\fplibclient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
@@ -100,6 +103,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\fplibclient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
