@@ -59,18 +59,22 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 
 			// only linux implementation
 #ifndef _WIN32
-			getFingerPrint(in_fpimg, template_buf);
+			cout << "getFingerPrint: before" << endl;
+			int rr = getFingerPrint(in_fpimg, template_buf);
+			cout << "getFingerPrint: after " << rr << endl;
 #endif
 			res = 0;
 		}
 	}
 	catch (const boost::system::error_code& ec)
 	{
-		res = ec.value();
+		cout << "Exception: get_fingerprint_template " << ec.message() << endl;
+		res = -ec.value();
 	}
 	catch (const std::exception& ec)
 	{
-		res = std::error_code().value();
+		cout << "Exception: get_fingerprint_template " << ec.what() << endl;
+		res = -std::error_code().value();
 	}
 
 	if (in_fpimg != NULL) free(in_fpimg);
