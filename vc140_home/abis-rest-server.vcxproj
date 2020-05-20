@@ -185,6 +185,18 @@
     <ClInclude Include="..\src\rest_verify.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\nbis\ioutil\dataio.cpp" />
+    <ClCompile Include="..\nbis\ioutil\filesize.cpp" />
+    <ClCompile Include="..\nbis\wsq\cropcoeff.cpp" />
+    <ClCompile Include="..\nbis\wsq\decoder.cpp" />
+    <ClCompile Include="..\nbis\wsq\encoder.cpp" />
+    <ClCompile Include="..\nbis\wsq\globals.cpp" />
+    <ClCompile Include="..\nbis\wsq\huff.cpp" />
+    <ClCompile Include="..\nbis\wsq\ppi.cpp" />
+    <ClCompile Include="..\nbis\wsq\sd14util.cpp" />
+    <ClCompile Include="..\nbis\wsq\tableio.cpp" />
+    <ClCompile Include="..\nbis\wsq\tree.cpp" />
+    <ClCompile Include="..\nbis\wsq\util.cpp" />
     <ClCompile Include="..\src\biocard.cpp" />
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\dbclient.cpp" />

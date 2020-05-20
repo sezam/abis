@@ -19,6 +19,12 @@
     <Filter Include="Header Files\nbis">
       <UniqueIdentifier>{7c68b3f2-64a8-451d-8f4c-24592a760fce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\nbis\wsq">
+      <UniqueIdentifier>{512fca9d-69ef-46a5-afb2-8c853223cb1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\nbis\ioutil">
+      <UniqueIdentifier>{66621dd1-1a5b-4808-9186-a4d79c7ebcde}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\readme.txt" />
@@ -158,6 +164,42 @@
     </ClCompile>
     <ClCompile Include="..\src\fplibclient.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\cropcoeff.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\decoder.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\encoder.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\globals.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\huff.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\ppi.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\sd14util.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\tableio.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\tree.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\wsq\util.cpp">
+      <Filter>Header Files\nbis\wsq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\ioutil\dataio.cpp">
+      <Filter>Header Files\nbis\ioutil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\nbis\ioutil\filesize.cpp">
+      <Filter>Header Files\nbis\ioutil</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
