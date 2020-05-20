@@ -41,7 +41,8 @@ int find_free_port()
 }
 
 int ebs_request(const unsigned char* image_data, const size_t image_data_len,
-	void* template_buf, const size_t template_buf_size, const char cmd, const char check, const size_t offset)
+	void* template_buf, const size_t template_buf_size, 
+	const unsigned char cmd, const unsigned char check, const size_t offset)
 {
 	int port_index = find_free_port();
 	if (port_index < 0) return -1;
