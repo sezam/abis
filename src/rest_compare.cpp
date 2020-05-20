@@ -22,7 +22,7 @@ void compare_get(http_request request)
 {
     TRACE(L"GET compare\n");
 
-    http::status_code sc = status_codes::OK;
+    http::status_code sc = status_codes::BadRequest;
 
     handle_request(
         request,
@@ -66,18 +66,15 @@ void compare_get(http_request request)
                 answer[ELEMENT_VALUE] = json::value::number(score);
                 answer[ELEMENT_RESULT] = json::value::boolean(true);
                 answer[ELEMENT_TYPE] = json::value::number(compare_type);
+                sc = status_codes::OK;
             }
             catch (const boost::system::error_code& ec)
             {
-                sc = status_codes::BadRequest;
-                answer[ELEMENT_RESULT] = json::value::boolean(false);
-                cout << "Exception: " << ec.message() << endl;
+                JSON_EXCEPTION(answer, ec.message());
             }
             catch (const std::exception& ec)
             {
-                sc = status_codes::BadRequest;
-                answer[ELEMENT_RESULT] = json::value::boolean(false);
-                cout << "Exception: " << ec.what() << endl;
+                JSON_EXCEPTION(answer, ec.what());
             }
 
             for (size_t i = 0; i < tmps.size(); i++) free(tmps[i]);

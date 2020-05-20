@@ -21,7 +21,7 @@ void extract_get(http_request request)
 {
 	TRACE(L"GET extract\n");
 
-	http::status_code sc = status_codes::OK;
+	http::status_code sc = status_codes::BadRequest;
 
 	handle_request(
 		request,
@@ -81,18 +81,15 @@ void extract_get(http_request request)
 					answer[ELEMENT_TYPE] = json::value::number(ABIS_FINGER_GOST_TEMPLATE);
 					answer[ELEMENT_RESULT] = json::value::boolean(res > 0);
 				}
+				sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)
 			{
-				sc = status_codes::BadRequest;
-				answer[ELEMENT_RESULT] = json::value::boolean(false);
-				cout << "Exception: " << ec.message() << endl;
+				JSON_EXCEPTION(answer, ec.message());
 			}
 			catch (const std::exception& ec)
 			{
-				sc = status_codes::BadRequest;
-				answer[ELEMENT_RESULT] = json::value::boolean(false);
-				cout << "Exception: " << ec.what() << endl;
+				JSON_EXCEPTION(answer, ec.what());
 			}
 		});
 

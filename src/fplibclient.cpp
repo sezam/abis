@@ -66,12 +66,10 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 	}
 	catch (const boost::system::error_code& ec)
 	{
-		if (in_fpimg != NULL) free(in_fpimg);
 		res = ec.value();
 	}
 	catch (const std::exception& ec)
 	{
-		if (in_fpimg != NULL) free(in_fpimg);
 		res = std::error_code().value();
 	}
 

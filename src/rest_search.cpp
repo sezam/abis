@@ -21,7 +21,7 @@ void search_get(http_request request)
 {
     cout << "GET search " << st2s(request.relative_uri().to_string()) << endl;
 
-    http::status_code sc = status_codes::OK;
+    http::status_code sc = status_codes::BadRequest;
 
     handle_request(
         request,
@@ -93,18 +93,15 @@ void search_get(http_request request)
                 }
                 answer[ELEMENT_VALUE] = json_out;
                 answer[ELEMENT_RESULT] = json::value::boolean(true);
+                sc = status_codes::OK;
             }
             catch (const boost::system::error_code& ec)
             {
-                sc = status_codes::BadRequest;
-                answer[ELEMENT_RESULT] = json::value::boolean(false);
-                cout << "Exception: " << ec.message() << endl;
+                JSON_EXCEPTION(answer, ec.message());
             }
             catch (const std::exception& ec)
             {
-                sc = status_codes::BadRequest;
-                answer[ELEMENT_RESULT] = json::value::boolean(false);
-                cout << "Exception: " << ec.what() << endl;
+                JSON_EXCEPTION(answer, ec.what());
             }
 
             db_close(db);

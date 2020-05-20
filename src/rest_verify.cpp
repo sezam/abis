@@ -21,7 +21,7 @@ void verify_get(http_request request)
 {
 	cout << "GET verify " << st2s(request.relative_uri().to_string()) << endl;
 
-	http::status_code sc = status_codes::OK;
+	http::status_code sc = status_codes::BadRequest;
 
 	handle_request(
 		request,
@@ -110,18 +110,15 @@ void verify_get(http_request request)
 					answer[ELEMENT_RESULT] = json::value::boolean(true);
 				}
 				else answer[ELEMENT_RESULT] = json::value::boolean(false);
+				sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)
 			{
-				sc = status_codes::BadRequest;
-				answer[ELEMENT_RESULT] = json::value::boolean(false);
-				cout << "Exception: " << ec.message() << endl;
+				JSON_EXCEPTION(answer, ec.message());
 			}
 			catch (const std::exception& ec)
 			{
-				sc = status_codes::BadRequest;
-				answer[ELEMENT_RESULT] = json::value::boolean(false);
-				cout << "Exception: " << ec.what() << endl;
+				JSON_EXCEPTION(answer, ec.what());
 			}
 			PQclear(sql_res);
 			db_close(db);

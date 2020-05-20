@@ -2,6 +2,12 @@
 #include "ebsclient.h"
 #include "fplibclient.h"
 
+void JSON_EXCEPTION(web::json::value obj, string msg)
+{
+    obj[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(msg));
+    obj[ELEMENT_RESULT] = json::value::boolean(false);
+    cout << "Exception: " << msg << endl;
+}
 
 std::wstring s2ws(const std::string& str)
 {
@@ -60,7 +66,7 @@ void handle_request(
     auto answer = json::value::object();
 
     http::status_code sc = status_codes::OK;
-
+    cout << "From remote: " << utility::conversions::to_utf8string(request.get_remote_address()) << endl;
     try
     {
         request
@@ -76,19 +82,14 @@ void handle_request(
                     }
                     catch (http_exception const& ec)
                     {
-                        sc = status_codes::BadRequest;
-                        //answer[U("exception")] = json::value::string(conversions::to_string_t(ec.what()));
-                        cout << ec.what() << endl;
+                        JSON_EXCEPTION(answer, ec.what());
                     }
                 })
             .wait();
     }
     catch (const std::exception& ec)
     {
-        sc = status_codes::BadRequest;
-        //answer[U("exception")] = json::value::string(conversions::to_string_t(ec.what()));
-
-        cout << ec.what() << endl;
+        JSON_EXCEPTION(answer, ec.what());
     }
 
     display_json(answer, "Answer: ");

@@ -112,6 +112,7 @@ using namespace utility;
 #define ABIS_TEMPLATE_SIZE			ABIS_TEMPLATE_LEN * sizeof(float)
 
 void load_settings(char* path);
+void JSON_EXCEPTION(web::json::value obj, string msg);
 
 extern string extract_host;
 extern int extract_port_start;
