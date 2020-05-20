@@ -46,10 +46,11 @@ bool isJP2(const unsigned char* img)
 	return true;
 }
 
-void convert_image(unsigned char*& image_data, size_t image_data_len, gil::gray8c_view_t& img_view)
+void convert_image(unsigned char* image_data, size_t image_data_len, gil::gray8c_view_t& img_view, unsigned char* &img_ptr)
 {
 	gil::gray8_image_t img;
 	std::stringstream inbuf;
+	img_ptr = nullptr;
 
 	bool prepare_img = false;
 
@@ -60,7 +61,6 @@ void convert_image(unsigned char*& image_data, size_t image_data_len, gil::gray8
 		img_view = gil::const_view(img);
 
 		prepare_img = true;
-		image_data = nullptr;
 	}
 	if (isPNG(image_data))
 	{
@@ -69,7 +69,6 @@ void convert_image(unsigned char*& image_data, size_t image_data_len, gil::gray8
 		img_view = gil::const_view(img);
 
 		prepare_img = true;
-		image_data = nullptr;
 	}
 	if (isJPG(image_data))
 	{
@@ -78,16 +77,14 @@ void convert_image(unsigned char*& image_data, size_t image_data_len, gil::gray8
 		img_view = gil::const_view(img);
 
 		prepare_img = true;
-		image_data = nullptr;
 	}
 	if (isWSQ(image_data))
 	{
-		unsigned char* img_ptr;
+		cout << "convert_image: wsq_decode_mem before" << endl;
 		int width, height, depth, ppi, lossy;
 		int res = wsq_decode_mem(&img_ptr, &width, &height, &depth, &ppi, &lossy, (unsigned char*)image_data, image_data_len);
+		cout << "convert_image: wsq_decode_mem after" << endl;
 		if (res) throw runtime_error("Error convert wsq");
-
-		image_data = img_ptr;
 
 		img_view = gil::interleaved_view(width, height, (gil::gray8_pixel_t*) img_ptr, width);
 		// img_view = gil::interleaved_view(width, height, reinterpret_cast<const boost::gil::gray8_image_t*>(img_ptr), width);

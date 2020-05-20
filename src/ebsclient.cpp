@@ -62,7 +62,7 @@ int ebs_request(unsigned char* image_data, size_t image_data_len,
 		bool step = !err.failed() && client_socket.is_open();
 		if (!step) cout << "ebs_request: extract service not response. " << err.message() << endl;
 
-		int send_data_len = image_data_len + 1;
+		size_t send_data_len = image_data_len + 1;
 		if (step)
 		{
 			unsigned char send_header[8];
