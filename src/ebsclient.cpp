@@ -15,7 +15,7 @@ io_service boost_io_service;
 int find_free_port()
 {
 	if (mx_ports.size() == 0)
-		for (size_t i = 0; i < extract_port_count; i++)
+		for (int i = 0; i < extract_port_count; i++)
 		{
 			interprocess_semaphore* sem = new interprocess_semaphore(1);
 			mx_ports.push_back(sem);
@@ -24,7 +24,7 @@ int find_free_port()
 
 	while (true)
 	{
-		for (size_t i = 0; i < extract_port_count; i++)
+		for (int i = 0; i < extract_port_count; i++)
 		{
 			if (mx_ports[i]->try_wait())
 			{
