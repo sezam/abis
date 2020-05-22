@@ -20,7 +20,7 @@
 #define __STDC_WANT_LIB_EXT1__ 1
 
 #include <iostream>
-#include <ostream>
+#include <sstream>
 #include <map>
 #include <set>
 #include <vector>
@@ -55,15 +55,12 @@ using namespace boost::interprocess;
 
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
-
 #include "boost/format.hpp"
 
 #include <boost/gil.hpp>
-#include <boost/gil/extension/dynamic_image/any_image.hpp>
 #include <boost/gil/extension/io/bmp.hpp>
 #include <boost/gil/extension/io/png.hpp>
 #include <boost/gil/extension/io/jpeg.hpp>
-#include <boost/mp11.hpp>
 namespace gil = boost::gil;
 
 #include <boost/uuid/uuid_io.hpp>

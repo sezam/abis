@@ -17,6 +17,6 @@ bool isBMP(const unsigned char* img);
 bool isWSQ(const unsigned char* img);
 bool isJP2(const unsigned char* img);
 
-void convert_image(unsigned char* image_data, size_t image_data_len, gil::gray8c_view_t& img_view, unsigned char*& img_ptr);
+void convert_image(const unsigned char* i_image_data, const size_t i_image_data_len, unsigned char*& o_image_data, size_t& o_image_data_len);
 
 #endif

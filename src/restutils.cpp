@@ -190,7 +190,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 		tmp_type = ABIS_FINGER_TEMPLATE;
 		tmp_ptr = finger_tmp;
 
-		if (get_fingerprint_template(buf.data(), buf.size(), finger_tmp, ABIS_FINGER_TMP_GOST_SIZE) != 0) res = -element_type;
+		if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE, true) <= 0) res = -element_type;
 	}
 	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
 	{

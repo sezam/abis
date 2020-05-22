@@ -64,7 +64,7 @@ target_link_libraries(${PACKAGE_TARNAME}
     ${PNG_LIBRARIES}
     ${OPENJPEG_LIBRARIES}
     ${ZLIB_LIBRARIES}
-    ${PostgreSQL_LIBRARIES}
+    PostgreSQL::PostgreSQL
 	abiswsq
 )
 
