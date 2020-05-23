@@ -3,30 +3,22 @@
 #
 cmake_minimum_required (VERSION 3.0)
 
-if (MSVC)
-    add_definitions(-D_WIN32_WINNT=0x600 -D_SCL_SECURE_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS -DBOOST_UUID_FORCE_AUTO_LINK)
+add_compile_options(
+    -w
+    -D_SCL_SECURE_NO_WARNINGS 
+    -D_WINSOCK_DEPRECATED_NO_WARNINGS 
+    -DBOOST_UUID_FORCE_AUTO_LINK
+#    -Wall 
+#    -Wno-long-long 
+#    -Wno-deprecated-declarations 
+#    -Wno-unknown-pragmas
+)
 
+if(UNIX)
     include_directories(
-        d:/lib/vcpkg/installed/x64-windows/include/
-        ../nbis/include
-    )
-
-    link_directories(
-        d:/lib/vcpkg/installed/x64-windows/lib/
-    )
-elseif(UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wno-long-long -Wno-deprecated-declarations -Wno-unknown-pragmas")
-
-    include_directories(
-        /opt/vcpkg/installed/x64-linux/include/
         /opt/vcpkg/installed/x64-linux/include/postgresql/
         /opt/vcpkg/installed/x64-linux/include/postgresql/server/
         /opt/vcpkg/installed/x64-linux/include/postgresql/internal/
-        ../nbis/include
-    )
-
-    link_directories(
-        /opt/vcpkg/installed/x64-linux/lib
     )
 
     find_library(FPRINT_LIB libfprint.so ${PROJECT_SOURCE_DIR}/shared/)
@@ -46,6 +38,8 @@ endif()
 
 file (GLOB COMMON_SRC *.cpp *.h finger/*.h live/*.h)
 set (SOURCE  ${COMMON_SRC})
+
+message( "Found environment variable LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}" )
 
 find_package(Boost 1.72.0 REQUIRED COMPONENTS program_options)
 find_package(cpprestsdk REQUIRED NAMES cpprestsdk cpprest)
@@ -71,7 +65,7 @@ target_link_libraries(${PACKAGE_TARNAME}
 )
 
 if(UNIX)
-    target_link_libraries(${PACKAGE_TARNAME} 
+    target_link_libraries(${PACKAGE_TARNAME}
         ${FPRINT_LIB}
         ${LIVE_LIB}
     )

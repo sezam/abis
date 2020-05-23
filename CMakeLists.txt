@@ -8,18 +8,13 @@ set(PACKAGE_VERSION   "0.3")
 set(PACKAGE_STRING    "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 
-project(${PACKAGE_NAME} CXX)
-
-SET( CMAKE_CXX_STANDARD 14 )
-SET( CMAKE_CXX_STANDARD_REQUIRED ON )
+project(${PACKAGE_NAME} VERSION ${PACKAGE_VERSION} DESCRIPTION "abis-rest-server" LANGUAGES CXX)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.1)
         message(FATAL_ERROR "GCC version must be at least 7.1!")
     endif()
 endif()
-
-message( "Found environment variable LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}" )
 
 add_subdirectory (nbis)
 add_subdirectory (src)
