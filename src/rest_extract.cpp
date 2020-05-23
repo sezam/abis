@@ -3,6 +3,7 @@
 #include "restutils.h"
 #include "ebsclient.h"
 #include "fplibclient.h"
+#include "liveclient.h"
 
 http_listener register_extract(web::uri url)
 {
@@ -79,6 +80,13 @@ void extract_get(http_request request)
 					free(vec_tmp);
 
 					answer[ELEMENT_TYPE] = json::value::number(ABIS_FINGER_GOST_TEMPLATE);
+					answer[ELEMENT_RESULT] = json::value::boolean(res > 0);
+				}
+				if (element_type == ABIS_LIVEFACE_IMAGE)
+				{
+					int res = live_check(buf.data());
+
+					answer[ELEMENT_TYPE] = json::value::number(ABIS_LIVEFACE_IMAGE);
 					answer[ELEMENT_RESULT] = json::value::boolean(res > 0);
 				}
 				sc = status_codes::OK;

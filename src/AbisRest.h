@@ -94,6 +94,7 @@ using namespace utility;
 #define ABIS_FACE_IMAGE				0x01
 #define ABIS_FINGER_IMAGE			0x02
 #define ABIS_FINGER_GOST_IMAGE		0x03
+#define ABIS_LIVEFACE_IMAGE			0x04
 
 #define ABIS_FACE_TEMPLATE			0x11
 #define ABIS_FINGER_TEMPLATE		0x12

@@ -25,6 +25,9 @@
     <Filter Include="Header Files\nbis\ioutil">
       <UniqueIdentifier>{66621dd1-1a5b-4808-9186-a4d79c7ebcde}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\live">
+      <UniqueIdentifier>{2494c8bd-9757-4998-8607-46cf64f4f19b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\readme.txt" />
@@ -34,6 +37,9 @@
     </Text>
     <Text Include="..\src\db.txt">
       <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="..\nbis\CMakeLists.txt">
+      <Filter>Header Files\nbis</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +127,12 @@
     <ClInclude Include="..\src\fplibclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\live\Live.h">
+      <Filter>Header Files\live</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\liveclient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\biocard.cpp">
@@ -200,6 +212,9 @@
     </ClCompile>
     <ClCompile Include="..\nbis\ioutil\filesize.cpp">
       <Filter>Header Files\nbis\ioutil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\liveclient.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

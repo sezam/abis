@@ -35,9 +35,16 @@ elseif(UNIX)
     else()
         MESSAGE(FATAL_ERROR "Looking for libfprint - not found")
     endif()
+
+    find_library(LIVE_LIB libLive.so ${PROJECT_SOURCE_DIR}/shared/)
+    if(LIVE_LIB)
+        MESSAGE(STATUS "Found libLive: ${LIVE_LIB}")
+    else()
+        MESSAGE(FATAL_ERROR "Looking for libLive - not found")
+    endif()
 endif()
 
-file (GLOB COMMON_SRC *.cpp *.h finger/*.h)
+file (GLOB COMMON_SRC *.cpp *.h finger/*.h live/*.h)
 set (SOURCE  ${COMMON_SRC})
 
 find_package(Boost 1.72.0 REQUIRED COMPONENTS program_options)
@@ -63,5 +70,8 @@ target_link_libraries(${PACKAGE_TARNAME}
 )
 
 if(UNIX)
-    target_link_libraries(${PACKAGE_TARNAME} ${FPRINT_LIB})
+    target_link_libraries(${PACKAGE_TARNAME} 
+        ${FPRINT_LIB}
+        ${LIVE_LIB}
+    )
 endif()

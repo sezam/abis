@@ -139,7 +139,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>bcrypt.lib;abiswsq.lib;cpprest_2_10.lib;boost_locale-vc140-mt.lib;boost_date_time-vc140-mt.lib;boost_regex-vc140-mt.lib;boost_program_options-vc140-mt.lib;libpng16.lib;jpeg.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bcrypt.lib;abiswsq.lib;cpprest_2_10.lib;boost_program_options-vc140-mt.lib;opencv_core.lib;opencv_imgcodecs.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
+    <Text Include="..\nbis\CMakeLists.txt" />
     <Text Include="..\readme.txt" />
     <Text Include="..\src\CMakeLists.txt" />
     <Text Include="..\src\db.txt" />
@@ -176,6 +177,8 @@
     <ClInclude Include="..\src\finger\libfprint.h" />
     <ClInclude Include="..\src\fplibclient.h" />
     <ClInclude Include="..\src\imgutils.h" />
+    <ClInclude Include="..\src\liveclient.h" />
+    <ClInclude Include="..\src\live\Live.h" />
     <ClInclude Include="..\src\restutils.h" />
     <ClInclude Include="..\src\rest_biocard.h" />
     <ClInclude Include="..\src\rest_compare.h" />
@@ -203,6 +206,7 @@
     <ClCompile Include="..\src\ebsclient.cpp" />
     <ClCompile Include="..\src\fplibclient.cpp" />
     <ClCompile Include="..\src\imgutils.cpp" />
+    <ClCompile Include="..\src\liveclient.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\restutils.cpp" />
     <ClCompile Include="..\src\rest_biocard.cpp" />

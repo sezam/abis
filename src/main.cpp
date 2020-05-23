@@ -7,6 +7,7 @@
 #include "rest_search.h"
 #include "dbclient.h"
 #include "restutils.h"
+#include "liveclient.h"
 
 int debug;
 
@@ -59,8 +60,12 @@ void rest_server()
 int main(int argc, char* argv[])
 {
     load_settings(argv[1]);
+
     db_prepare();
+    live_prepare();
+
     rest_server();
 
+    live_free();
     return 0;
 }
