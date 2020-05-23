@@ -54,6 +54,7 @@ find_package(OpenSSL REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(PostgreSQL REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS core imgcodecs)
+find_library(libwsq REQUIRED)
 
 #Финальный штрих и сборка.
 add_executable(${PACKAGE_TARNAME} ${SOURCE})
@@ -66,7 +67,7 @@ target_link_libraries(${PACKAGE_TARNAME}
     PostgreSQL::PostgreSQL
     opencv_core
     opencv_imgcodecs
-	abiswsq
+	libwsq
 )
 
 if(UNIX)
