@@ -3,14 +3,14 @@
 void live_prepare()
 {
 #ifndef _WIN32
-	//init();
+	init();
 #endif
 }
 
 int live_check(unsigned char* data)
 {
 #ifndef _WIN32
-	//return Live(data);
+	return Live(data);
 #endif
 	return 0;
 }
@@ -18,6 +18,6 @@ int live_check(unsigned char* data)
 void live_free()
 {
 #ifndef _WIN32
-	//return clear();
+	return clear();
 #endif
 }

@@ -23,23 +23,21 @@ if(UNIX)
 
     find_library(FPRINT_LIB libfprint.so ${PROJECT_SOURCE_DIR}/shared/)
     if(FPRINT_LIB)
-        MESSAGE(STATUS "Found libfprint: ${FPRINT_LIB}")
+        message(STATUS "Found libfprint: ${FPRINT_LIB}")
     else()
-        MESSAGE(FATAL_ERROR "Looking for libfprint - not found")
+        message(FATAL_ERROR "Looking for libfprint - not found")
     endif()
 
     find_library(LIVE_LIB libLive.so ${PROJECT_SOURCE_DIR}/shared/)
     if(LIVE_LIB)
-        MESSAGE(STATUS "Found libLive: ${LIVE_LIB}")
+        message(STATUS "Found libLive: ${LIVE_LIB}")
     else()
-        MESSAGE(FATAL_ERROR "Looking for libLive - not found")
+        message(FATAL_ERROR "Looking for libLive - not found")
     endif()
 endif()
 
 file (GLOB COMMON_SRC *.cpp *.h finger/*.h live/*.h)
 set (SOURCE  ${COMMON_SRC})
-
-message( "Found environment variable LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}" )
 
 find_package(Boost 1.72.0 REQUIRED COMPONENTS program_options)
 find_package(cpprestsdk REQUIRED NAMES cpprestsdk cpprest)
