@@ -187,7 +187,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
 		memset(finger_tmp, 0, ABIS_FINGER_TMP_GOST_SIZE);
 
-		tmp_type = ABIS_FINGER_TEMPLATE;
+		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
 		tmp_ptr = finger_tmp;
 
 		if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_FINGER_TMP_GOST_SIZE, true) <= 0) res = -element_type;

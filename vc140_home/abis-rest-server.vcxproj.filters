@@ -19,12 +19,6 @@
     <Filter Include="Header Files\nbis">
       <UniqueIdentifier>{7c68b3f2-64a8-451d-8f4c-24592a760fce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\nbis\wsq">
-      <UniqueIdentifier>{512fca9d-69ef-46a5-afb2-8c853223cb1c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\nbis\ioutil">
-      <UniqueIdentifier>{66621dd1-1a5b-4808-9186-a4d79c7ebcde}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\live">
       <UniqueIdentifier>{2494c8bd-9757-4998-8607-46cf64f4f19b}</UniqueIdentifier>
     </Filter>
@@ -85,42 +79,6 @@
     <ClInclude Include="..\src\dbclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\nbis\include\computil.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\dataio.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\defs.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\fet.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\ihead.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\ioutil.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\jpegl.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\jpeglsd4.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\nistcom.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\swap.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\usebsd.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\nbis\include\util.h">
-      <Filter>Header Files\nbis</Filter>
-    </ClInclude>
     <ClInclude Include="..\nbis\include\wsq.h">
       <Filter>Header Files\nbis</Filter>
     </ClInclude>
@@ -176,42 +134,6 @@
     </ClCompile>
     <ClCompile Include="..\src\fplibclient.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\cropcoeff.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\decoder.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\encoder.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\globals.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\huff.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\ppi.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\sd14util.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\tableio.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\tree.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\wsq\util.cpp">
-      <Filter>Header Files\nbis\wsq</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\ioutil\dataio.cpp">
-      <Filter>Header Files\nbis\ioutil</Filter>
-    </ClCompile>
-    <ClCompile Include="..\nbis\ioutil\filesize.cpp">
-      <Filter>Header Files\nbis\ioutil</Filter>
     </ClCompile>
     <ClCompile Include="..\src\liveclient.cpp">
       <Filter>Source Files</Filter>

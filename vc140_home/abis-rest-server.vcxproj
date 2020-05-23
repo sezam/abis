@@ -156,18 +156,6 @@
     <Text Include="..\src\db.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\nbis\include\computil.h" />
-    <ClInclude Include="..\nbis\include\dataio.h" />
-    <ClInclude Include="..\nbis\include\defs.h" />
-    <ClInclude Include="..\nbis\include\fet.h" />
-    <ClInclude Include="..\nbis\include\ihead.h" />
-    <ClInclude Include="..\nbis\include\ioutil.h" />
-    <ClInclude Include="..\nbis\include\jpegl.h" />
-    <ClInclude Include="..\nbis\include\jpeglsd4.h" />
-    <ClInclude Include="..\nbis\include\nistcom.h" />
-    <ClInclude Include="..\nbis\include\swap.h" />
-    <ClInclude Include="..\nbis\include\usebsd.h" />
-    <ClInclude Include="..\nbis\include\util.h" />
     <ClInclude Include="..\nbis\include\wsq.h" />
     <ClInclude Include="..\src\AbisRest.h" />
     <ClInclude Include="..\src\biocard.h" />
@@ -188,18 +176,6 @@
     <ClInclude Include="..\src\rest_verify.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\nbis\ioutil\dataio.cpp" />
-    <ClCompile Include="..\nbis\ioutil\filesize.cpp" />
-    <ClCompile Include="..\nbis\wsq\cropcoeff.cpp" />
-    <ClCompile Include="..\nbis\wsq\decoder.cpp" />
-    <ClCompile Include="..\nbis\wsq\encoder.cpp" />
-    <ClCompile Include="..\nbis\wsq\globals.cpp" />
-    <ClCompile Include="..\nbis\wsq\huff.cpp" />
-    <ClCompile Include="..\nbis\wsq\ppi.cpp" />
-    <ClCompile Include="..\nbis\wsq\sd14util.cpp" />
-    <ClCompile Include="..\nbis\wsq\tableio.cpp" />
-    <ClCompile Include="..\nbis\wsq\tree.cpp" />
-    <ClCompile Include="..\nbis\wsq\util.cpp" />
     <ClCompile Include="..\src\biocard.cpp" />
     <ClCompile Include="..\src\config.cpp" />
     <ClCompile Include="..\src\dbclient.cpp" />
