@@ -40,31 +40,25 @@ endif()
 file (GLOB COMMON_SRC *.cpp *.h finger/*.h)
 set (SOURCE  ${COMMON_SRC})
 
-find_package(Boost 1.72.0 REQUIRED COMPONENTS locale regex date_time program_options)
+find_package(Boost 1.72.0 REQUIRED COMPONENTS program_options)
 find_package(cpprestsdk REQUIRED NAMES cpprestsdk cpprest)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(JPEG REQUIRED)
-find_package(PNG REQUIRED)
-find_package(OpenJPEG REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(PostgreSQL REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS core imgcodecs)
 
 #Финальный штрих и сборка.
 add_executable(${PACKAGE_TARNAME} ${SOURCE})
 
 target_link_libraries(${PACKAGE_TARNAME}
     cpprestsdk::cpprest
-    Boost::regex
-    Boost::locale
-    Boost::date_time
     Boost::program_options 
     ${OpenSSL_LIBRARIES}
-    ${JPEG_LIBRARIES}
-    ${PNG_LIBRARIES}
-    ${OPENJPEG_LIBRARIES}
     ${ZLIB_LIBRARIES}
     PostgreSQL::PostgreSQL
+    opencv_core
+    opencv_imgcodecs
 	abiswsq
 )
 

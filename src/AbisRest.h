@@ -30,6 +30,9 @@
 #include <cmath>
 using namespace std;
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+
 #include <chrono>
 using namespace std::chrono;
 
@@ -56,12 +59,6 @@ using namespace boost::interprocess;
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include "boost/format.hpp"
-
-#include <boost/gil.hpp>
-#include <boost/gil/extension/io/bmp.hpp>
-#include <boost/gil/extension/io/png.hpp>
-#include <boost/gil/extension/io/jpeg.hpp>
-namespace gil = boost::gil;
 
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>

@@ -48,60 +48,33 @@ bool isJP2(const unsigned char* img)
 
 void convert_image(const unsigned char* i_image_data, const size_t i_image_data_len, unsigned char*& o_image_data, size_t& o_image_data_len)
 {
-	gil::gray8_view_t img_view;
-	gil::gray8_image_t iim;
-	unsigned char* img_ptr = nullptr;
+	cv::Mat gr_img;
 
-	bool prepare_img = false;
-	std::stringstream inbuf(ios_base::in | ios_base::out | ios_base::binary);
-
-	if (isBMP(i_image_data))
-	{
-		inbuf.write((const char*)i_image_data, i_image_data_len);
-		gil::read_and_convert_image(inbuf, iim, gil::bmp_tag());
-		img_view = gil::view(iim);
-
-		prepare_img = true;
-	}
-	if (isPNG(i_image_data))
-	{
-		inbuf.write((const char*)i_image_data, i_image_data_len);
-		gil::read_and_convert_image(inbuf, iim, gil::png_tag());
-		img_view = gil::view(iim);
-
-		prepare_img = true;
-	}
-	if (isJPG(i_image_data))
-	{
-		inbuf.write((const char*)i_image_data, i_image_data_len);
-		gil::read_and_convert_image(inbuf, iim, gil::jpeg_tag());
-		img_view = gil::view(iim);
-
-		prepare_img = true;
-	}
 	if (isWSQ(i_image_data))
 	{
+		unsigned char* img_ptr = nullptr;
 		int width, height, depth, ppi, lossy;
+
 		int res = wsq_decode_mem(&img_ptr, &width, &height, &depth, &ppi, &lossy, (unsigned char*)i_image_data, i_image_data_len);
 		if (res) throw runtime_error("Error convert wsq");
 
-		img_view = gil::interleaved_view(width, height, (gil::gray8_pixel_t*) img_ptr, width);
-		prepare_img = true;
+		gr_img = cv::Mat(height, width, CV_8UC1, (char*)img_ptr);
 	}
-
-	if (prepare_img)
+	else
 	{
-		inbuf.str("");
-		gil::write_view(inbuf, img_view, gil::png_tag());
-
-		o_image_data_len = inbuf.tellp();
-		o_image_data = (unsigned char*)malloc(o_image_data_len);
-		inbuf.read((char*)o_image_data, o_image_data_len);
-
-		if (img_ptr) free(img_ptr);
-
-		ofstream oimg("last_finger_image.png", ios::binary);
-		oimg.write((char*)o_image_data, o_image_data_len);
+		gr_img = cv::imdecode(cv::Mat(1, i_image_data_len, CV_8UC1, (char*)i_image_data), cv::IMREAD_GRAYSCALE);
 	}
-	else throw runtime_error("Unknown image format");
+
+	if (gr_img.data == nullptr) throw runtime_error("Unsupported image format");
+
+	vector<uchar> out_img;
+	vector<int> out_params{0};
+	cv::imencode(".png", gr_img, out_img, out_params);
+
+	o_image_data_len = out_img.size();
+	o_image_data = (unsigned char*)malloc(o_image_data_len);
+	memcpy(o_image_data, out_img.data(), o_image_data_len);
+
+	cv::imwrite("last_finger_image.png", gr_img);
+	gr_img.release();
 }

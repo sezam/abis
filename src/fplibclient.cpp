@@ -8,32 +8,26 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 	int res = 0;
 	fp_img* in_fpimg = nullptr;
 
-	if (template_buf_len < ABIS_FINGER_TMP_GOST_SIZE) throw runtime_error("Buffer too small.");
+	assert(image_data != nullptr);
+	assert(template_buf != nullptr);
+	assert(template_buf_len >= ABIS_FINGER_TMP_GOST_SIZE);
 
 	try
 	{
-		std::stringstream inbuf(ios_base::in | ios_base::out | ios_base::binary);
-		inbuf.write((const char*)image_data, image_data_len);
+		cv::Mat gr_img = cv::imdecode(cv::Mat(1, image_data_len, CV_8UC1, (char*)image_data), cv::IMREAD_GRAYSCALE);
 
-		gil::gray8_image_t imgimg;
-		gil::read_and_convert_image(inbuf, imgimg, gil::png_tag());
-
-		gil::gray8_view_t img_view;
-		img_view = gil::view(imgimg);
-
-		in_fpimg = (fp_img*)malloc(sizeof(fp_img) + img_view.width() * img_view.height() + 4);
-		in_fpimg->width = img_view.width();
-		in_fpimg->height = img_view.height();
-		in_fpimg->length = img_view.width() * img_view.height();
+		size_t img_len = gr_img.rows * gr_img.cols;
+		in_fpimg = (fp_img*)malloc(sizeof(fp_img) + img_len + 4);
+		in_fpimg->width = gr_img.cols;
+		in_fpimg->height = gr_img.rows;
+		in_fpimg->length = img_len;
 		in_fpimg->minutiae = NULL;
 		in_fpimg->binarized = NULL;
 		in_fpimg->flags = 0;
 
-		unsigned char* fp_data = in_fpimg->data;
-		for (auto it = img_view.begin(); it != img_view.end(); ++it) *fp_data++ = *it;
+		memcpy(in_fpimg->data, gr_img.data, img_len);
 
 		memset(template_buf, 0, ABIS_FINGER_TMP_GOST_SIZE);
-
 		// only linux implementation
 #ifndef _WIN32
 		getFingerPrint(in_fpimg, template_buf);
@@ -60,7 +54,7 @@ float cmp_fingerprint_gost_template(void* tmp1, void* tmp2) {
 	float score = 0;
 	// only linux implementation
 #ifndef _WIN32
-	score = matchFingerPrint((unsigned char*)tmp1, (unsigned char*)tmp2) / 100.0f;
+	score = matchSegmentsTemplate((unsigned char*)tmp1, (unsigned char*)tmp2, 0, 0) / 100.0f;
 #endif
 	return score;
 }

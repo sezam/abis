@@ -129,7 +129,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <AdditionalDependencies>bcrypt.lib;abiswsq.lib;cpprest_2_10d.lib;boost_locale-vc140-mt-gd.lib;boost_date_time-vc140-mt-gd.lib;boost_regex-vc140-mt-gd.lib;boost_program_options-vc140-mt-gd.lib;libpng16d.lib;jpegd.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bcrypt.lib;abiswsq.lib;cpprest_2_10d.lib;boost_program_options-vc140-mt-gd.lib;opencv_cored.lib;opencv_imgcodecsd.lib;libpq.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </Link>
     <ClCompile>
