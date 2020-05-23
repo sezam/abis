@@ -73,6 +73,6 @@ target_link_libraries(${PACKAGE_TARNAME}
 if(UNIX)
     target_link_libraries(${PACKAGE_TARNAME} 
         ${FPRINT_LIB}
-        #${LIVE_LIB}
+        ${LIVE_LIB}
     )
 endif()

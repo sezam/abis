@@ -19,5 +19,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     endif()
 endif()
 
+message( "Found environment variable LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}" )
+
 add_subdirectory (nbis)
 add_subdirectory (src)

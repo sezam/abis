@@ -40,10 +40,10 @@ void display_json(json::value const& jvalue, std::string const& prefix)
 		{
 #ifdef _WIN32
 			wcout << "\t{ " << e.first.substr(0, 20);
-			wcout << " : \t" << e.second.to_string().substr(0, 50) << "}" << endl;
+			wcout << " : \t" << e.second.to_string().substr(0, 150) << "}" << endl;
 #else
 			cout << "\t{ " << e.first.substr(0, 20);
-			cout << " : \t" << e.second.to_string().substr(0, 50) << "}" << endl;
+			cout << " : \t" << e.second.to_string().substr(0, 150) << "}" << endl;
 #endif
 		}
 		cout << "    }" << endl;
