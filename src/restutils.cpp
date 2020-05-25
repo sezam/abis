@@ -100,7 +100,7 @@ void handle_request(
 	display_json(answer, cc_s + "Answer: ");
 
 	auto diff = steady_clock::now() - start;
-	cout << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % 1000).count() << "ms" << endl;
+	cout << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms" << endl;
 
 	request.reply(sc, answer);
 }
