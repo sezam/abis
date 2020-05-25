@@ -88,6 +88,7 @@ void extract_get(http_request request)
 
 					answer[ELEMENT_TYPE] = json::value::number(ABIS_LIVEFACE_IMAGE);
 					answer[ELEMENT_RESULT] = json::value::boolean(res > 0);
+					answer[ELEMENT_VALUE] = json::value::number(res);
 				}
 				sc = status_codes::OK;
 			}
