@@ -56,6 +56,7 @@ using boost::lambda::_1;
 #include "boost/log/utility/setup.hpp"
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/detail/config.hpp>
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
 namespace sinks = boost::log::sinks;

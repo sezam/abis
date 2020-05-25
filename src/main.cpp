@@ -97,7 +97,7 @@ static const std::string COMMON_FMT("[%TimeStamp%][%ThreadID%][%Severity%]:  %Me
 void logging_prepare()
 {
 	logging::trivial::severity_level lvl;
-	logging::v2_mt_nt6::trivial::from_string(logging_level.c_str(), logging_level.length(), lvl);
+	logging::trivial::from_string(logging_level.c_str(), logging_level.length(), lvl);
 	logging::core::get()->set_filter
 	(
 		logging::trivial::severity >= lvl
