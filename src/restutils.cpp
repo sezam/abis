@@ -59,24 +59,29 @@ void display_json(json::value const& jvalue, std::string const& prefix)
 	}
 }
 
+static size_t _counter = 1;
+
 void handle_request(
 	http_request request,
 	function<void(json::value const&, json::value&)> action)
 {
-	auto answer = json::value::object();
-
+	size_t cc = _counter++;
+	auto start = steady_clock::now();
 	http::status_code sc = status_codes::OK;
-	cout << "From remote: " << utility::conversions::to_utf8string(request.get_remote_address()) << endl;
+	string cc_s = to_string(cc) + ":";
+	cout << cc_s << "From remote: " << utility::conversions::to_utf8string(request.get_remote_address()) << endl;
+
+	auto answer = json::value::object();
 	try
 	{
 		request
 			.extract_json()
-			.then([&answer, &action, &sc](pplx::task<json::value> task)
+			.then([&answer, &cc_s, &action, &sc](pplx::task<json::value> task)
 				{
 					try
 					{
 						auto const& jvalue = task.get();
-						display_json(jvalue, "Request: ");
+						display_json(jvalue, cc_s + "Request: ");
 
 						action(jvalue, answer);
 					}
@@ -92,7 +97,11 @@ void handle_request(
 		JSON_EXCEPTION(answer, ec.what());
 	}
 
-	display_json(answer, "Answer: ");
+	display_json(answer, cc_s + "Answer: ");
+
+	auto diff = steady_clock::now() - start;
+	cout << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff).count() << "ms" << endl;
+
 	request.reply(sc, answer);
 }
 
