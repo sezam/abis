@@ -12,7 +12,7 @@ http_listener register_compare(uri url)
 
     listener
         .open()
-        .then([&listener]() { cout << "starting to listen compare" << endl; })
+        .then([&listener]() { BOOST_LOG_TRIVIAL(info) << "starting to listen compare"; })
         .wait();
 
     return listener;
@@ -20,8 +20,6 @@ http_listener register_compare(uri url)
 
 void compare_get(http_request request)
 {
-    TRACE(L"GET compare\n");
-
     http::status_code sc = status_codes::BadRequest;
 
     handle_request(
@@ -42,7 +40,7 @@ void compare_get(http_request request)
 
                     if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
                     {
-                        cout << "compare_get: error extract template" << endl;
+                        BOOST_LOG_TRIVIAL(debug) << "compare_get: error extract template";
                         free(json_tmp_ptr);
                         throw runtime_error("compare: error extract template");
                     }
@@ -79,6 +77,5 @@ void compare_get(http_request request)
 
             for (size_t i = 0; i < tmps.size(); i++) free(tmps[i]);
         });
-
     request.reply(sc, "");
 }

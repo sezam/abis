@@ -15,9 +15,9 @@
 #endif
 
 #define _CRT_NONSTDC_NO_DEPRECATE
+#define __STDC_WANT_LIB_EXT1__ 1
 
 #define BOOST_NO_ANSI_APIS
-#define __STDC_WANT_LIB_EXT1__ 1
 
 #include <iostream>
 #include <sstream>
@@ -36,6 +36,9 @@ using namespace std;
 #include <chrono>
 using namespace std::chrono;
 
+#include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include <boost/asio.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -43,22 +46,22 @@ using namespace std::chrono;
 using namespace boost::asio;
 using boost::asio::ip::tcp;
 
-#include <boost/locale.hpp>
-using namespace boost::locale;
-using namespace boost::locale::conv;
-
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 using boost::lambda::bind;
 using boost::lambda::var;
 using boost::lambda::_1;
 
+#include <boost/log/trivial.hpp>
+#include "boost/log/utility/setup.hpp"
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+namespace logging = boost::log;
+namespace keywords = boost::log::keywords;
+namespace sinks = boost::log::sinks;
+
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
 using namespace boost::interprocess;
-
-#include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
-#include "boost/format.hpp"
 
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -86,9 +89,6 @@ using namespace utility;
 #define	STD_TO_UTF(mbstr) mbstr
 #endif
 
-#define TRACE(msg)            wcout << msg
-#define TRACE_ACTION(a, k, v) wcout << a << " (" << k.c_str() << ", " << v.c_str() << ")\n"
-
 // abis bio data types
 #define ABIS_DATA					0x00
 #define ABIS_FACE_IMAGE				0x01
@@ -113,6 +113,9 @@ void JSON_EXCEPTION(web::json::value& obj, const string msg);
 extern string extract_host;
 extern int extract_port_start;
 extern int extract_port_count;
+
+extern string logging_path;
+extern string logging_level;
 
 extern string postgres_host;
 extern string postgres_port;

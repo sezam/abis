@@ -12,7 +12,7 @@ http_listener register_echo(uri url)
 
     listener
         .open()
-        .then([&listener]() { cout << "starting to listen echo" << endl; })
+        .then([&listener]() { BOOST_LOG_TRIVIAL(info) << "starting to listen echo"; })
         .wait();
 
     return listener;
@@ -20,8 +20,6 @@ http_listener register_echo(uri url)
 
 void echo_get(http_request request)
 {
-    TRACE("GET echo\n");
-
     handle_request(
         request,
         [](json::value const& jvalue, json::value& answer) {
@@ -33,8 +31,6 @@ void echo_get(http_request request)
 
 void echo_post(http_request request)
 {
-    TRACE("POST echo\n");
-
     handle_request(
         request,
         [](json::value const& jvalue, json::value& answer) {
@@ -46,8 +42,6 @@ void echo_post(http_request request)
 
 void echo_put(http_request request)
 {
-    TRACE("PUT echo\n");
-
     handle_request(
         request,
         [](json::value const& jvalue, json::value& answer) {
@@ -59,8 +53,6 @@ void echo_put(http_request request)
 
 void echo_del(http_request request)
 {
-    TRACE("DEL echo\n");
-
     handle_request(
         request,
         [](json::value const& jvalue, json::value& answer) {

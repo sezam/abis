@@ -12,17 +12,19 @@ vcpkg install libjpeg-turbo
 vcpkg install libpng
 vcpkg install libpq
 
-сборка под win7
+#сборка под win7
 cd build
 cmake .. -T v140 -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_TOOLCHAIN_FILE=D:\lib\vcpkg\scripts\buildsystems\vcpkg.cmake
 cmake --build . --config Release -j 4
 
-сборка под linux
+#сборка под linux
 scl enable devtoolset-8 bash
 cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake
 cmake --build . --config Release -j 4
 
+#запуск с выводом в файл
+./abis-rest-server-0.3 ./setting.ini |& tee out.txt
 
 curl -i -X GET localhost:10101/extract -H "Content-Type: application/json" --data-binary "@img/face.b64.json" -v
 

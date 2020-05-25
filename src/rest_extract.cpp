@@ -12,7 +12,7 @@ http_listener register_extract(web::uri url)
 
 	listener
 		.open()
-		.then([&listener]() { cout << "starting to listen extact" << endl; })
+		.then([&listener]() { BOOST_LOG_TRIVIAL(info) << "starting to listen extact"; })
 		.wait();
 
 	return listener;
@@ -20,8 +20,6 @@ http_listener register_extract(web::uri url)
 
 void extract_get(http_request request)
 {
-	TRACE(L"GET extract\n");
-
 	http::status_code sc = status_codes::BadRequest;
 
 	handle_request(
@@ -101,6 +99,5 @@ void extract_get(http_request request)
 				JSON_EXCEPTION(answer, ec.what());
 			}
 		});
-
 	request.reply(sc, "");
 }

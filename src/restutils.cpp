@@ -6,56 +6,31 @@ void JSON_EXCEPTION(web::json::value& obj, const string msg)
 {
 	obj[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(msg));
 	obj[ELEMENT_RESULT] = json::value::boolean(false);
-	cout << "Exception: " << msg << endl;
-}
-
-std::wstring s2ws(const std::string& str)
-{
-	return utf_to_utf<wchar_t>(str.c_str(), str.c_str() + str.size());
-}
-
-std::string ws2s(const std::wstring& wstr)
-{
-	return utf_to_utf<char>(wstr.c_str(), wstr.c_str() + wstr.size());
-}
-
-std::string st2s(const utility::string_t& strt)
-{
-#ifdef _WIN32
-	return ws2s(strt);
-#else
-	return strt;
-#endif
+	BOOST_LOG_TRIVIAL(error) << "Exception: " << msg;
 }
 
 void display_json(json::value const& jvalue, std::string const& prefix)
 {
-	//cout << prefix << jvalue.serialize() << endl;
-	cout << prefix << endl;
+	if (!prefix.empty()) BOOST_LOG_TRIVIAL(debug) << prefix;
 
 	if (jvalue.is_object())
 	{
-		cout << "    {" << endl;
+		BOOST_LOG_TRIVIAL(debug) << "    {";
 		for (auto const& e : jvalue.as_object())
 		{
-#ifdef _WIN32
-			wcout << "\t{ " << e.first.substr(0, 20);
-			wcout << " : \t" << e.second.to_string().substr(0, 150) << "}" << endl;
-#else
-			cout << "\t{ " << e.first.substr(0, 20);
-			cout << " : \t" << e.second.to_string().substr(0, 150) << "}" << endl;
-#endif
+			BOOST_LOG_TRIVIAL(debug) << "      { " << conversions::to_utf8string(e.first).substr(0, 20)
+				<< " : \t" << conversions::to_utf8string(e.second.to_string()).substr(0, 150) << "}";
 		}
-		cout << "    }" << endl;
+		BOOST_LOG_TRIVIAL(debug) << "    }";
 	}
 	if (jvalue.is_array())
 	{
-		cout << "  [";
+		BOOST_LOG_TRIVIAL(debug) << "  [";
 		for (auto const& e : jvalue.as_array())
 		{
 			display_json(e, "");
 		}
-		cout << "  ]" << endl;
+		BOOST_LOG_TRIVIAL(debug) << "  ]";
 	}
 }
 
@@ -69,7 +44,9 @@ void handle_request(
 	auto start = steady_clock::now();
 	http::status_code sc = status_codes::OK;
 	string cc_s = to_string(cc) + ":";
-	cout << cc_s << "From remote: " << utility::conversions::to_utf8string(request.get_remote_address()) << endl;
+	BOOST_LOG_TRIVIAL(debug) << cc_s << "From remote: " << utility::conversions::to_utf8string(request.get_remote_address());
+	BOOST_LOG_TRIVIAL(debug) << cc_s << utility::conversions::to_utf8string(request.method()) << " "
+		<< utility::conversions::to_utf8string(request.request_uri().to_string());
 
 	auto answer = json::value::object();
 	try
@@ -100,7 +77,7 @@ void handle_request(
 	display_json(answer, cc_s + "Answer: ");
 
 	auto diff = steady_clock::now() - start;
-	cout << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms" << endl;
+	BOOST_LOG_TRIVIAL(debug) << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
 
 	request.reply(sc, answer);
 }

@@ -11,7 +11,7 @@ http_listener register_search(uri url)
 
     listener
         .open()
-        .then([&listener]() { cout << "starting to listen search" << endl; })
+        .then([&listener]() { BOOST_LOG_TRIVIAL(info) << "starting to listen search"; })
         .wait();
 
     return listener;
@@ -19,8 +19,6 @@ http_listener register_search(uri url)
 
 void search_get(http_request request)
 {
-    cout << "GET search " << st2s(request.relative_uri().to_string()) << endl;
-
     http::status_code sc = status_codes::BadRequest;
 
     handle_request(
@@ -45,7 +43,7 @@ void search_get(http_request request)
 
                     if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
                     {
-                        cout << "search_get: error extract template" << endl;
+                        BOOST_LOG_TRIVIAL(debug) << "search_get: error extract template";
                         free(json_tmp_ptr);
                         continue;
                     }
@@ -106,6 +104,5 @@ void search_get(http_request request)
 
             db_close(db);
         });
-
     request.reply(sc, "");
 }

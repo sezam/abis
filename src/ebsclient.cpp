@@ -31,7 +31,7 @@ int find_free_port()
 				return i;
 			}
 			this_thread::yield();
-			cout << "extract face service busy" << endl;
+			BOOST_LOG_TRIVIAL(debug) << "extract face service busy";
 		}
 		this_thread::sleep_for(milliseconds(100));
 	};
@@ -60,7 +60,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		connect(client_socket, endpoint_iterator, err);
 
 		bool step = !err.failed() && client_socket.is_open();
-		if (!step) cout << "ebs_request: extract service not response. " << err.message() << endl;
+		if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: extract service not response. " << err.message();
 
 		size_t send_data_len = image_data_len + 1;
 		if (step)
@@ -77,21 +77,21 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 
 			write(client_socket, buffer(send_header, 8), err);
 			step = !err.failed();
-			if (!step) cout << "ebs_request: send header error. " << err.message() << endl;
+			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: send header error. " << err.message();
 		}
 
 		if (step)
 		{
 			write(client_socket, buffer(image_data, image_data_len), err);
 			step = !err.failed();
-			if (!step) cout << "ebs_request: send image error. " << err.message() << endl;
+			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: send image error. " << err.message();
 		}
 
 		if (step)
 		{
 			write(client_socket, buffer(&cmd, 1), err);
 			step = !err.failed();
-			if (!step) cout << "ebs_request: send cmd error. " << err.message() << endl;
+			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: send cmd error. " << err.message();
 		}
 
 		unsigned char recv_header[8];
@@ -99,13 +99,13 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		{
 			size_t io_len = client_socket.read_some(buffer(recv_header, 8), err);
 			step = !err.failed() && io_len == 8;
-			if (!step) cout << "ebs_request: receive header error. " << err.message() << endl;
+			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header error. " << err.message();
 		}
 
 		if (step)
 		{
 			step = recv_header[0] == 'a' && recv_header[1] == 'n' && recv_header[2] == 's' && recv_header[3] == 'w';
-			if (!step) cout << "ebs_request: receive header format error. " << err.message() << endl;
+			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header format error. " << err.message();
 		}
 
 		size_t recv_data_len = 0;
@@ -118,7 +118,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 			recv_data_len = (size_t)(p1 * 16777216 + p2 * 65536 + p3 * 256 + p4);
 
 			step = recv_data_len > 0;
-			if (!step) cout << "ebs_request: receive header datalen error. " << err.message() << endl;
+			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header datalen error. " << err.message();
 		}
 
 		unsigned char* recv_data = nullptr;
@@ -126,7 +126,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		{
 			recv_data = (unsigned char*)malloc(recv_data_len);
 			step = recv_data != nullptr;
-			if (!step) cout << "ebs_request: receive data allocate memory error. " << err.message() << endl;
+			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data allocate memory error. " << err.message();
 		}
 
 		if (step)
@@ -135,7 +135,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 			size_t io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
 
 			step = !err.failed() && io_len == recv_data_len && template_buf_size <= recv_data_len - 1;
-			if (!step) cout << "ebs_request: receive data allocate memory error. " << err.message() << endl;
+			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data allocate memory error. " << err.message();
 		}
 
 		if (step)
@@ -150,12 +150,12 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 	}
 	catch (const boost::system::error_code& ec)
 	{
-		cout << "ebs_request: " << ec.message() << endl;
+		BOOST_LOG_TRIVIAL(error) << "ebs_request: " << ec.message();
 		res = -1;
 	}
 	catch (const std::exception& ec)
 	{
-		cout << "ebs_request: " << ec.what() << endl;
+		BOOST_LOG_TRIVIAL(error) << "ebs_request: " << ec.what();
 		res = -2;
 	}
 

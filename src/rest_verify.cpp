@@ -11,7 +11,7 @@ http_listener register_verify(uri url)
 
 	listener
 		.open()
-		.then([&listener]() { cout << "starting to listen verify" << endl; })
+		.then([&listener]() { BOOST_LOG_TRIVIAL(info) << "starting to listen verify"; })
 		.wait();
 
 	return listener;
@@ -19,8 +19,6 @@ http_listener register_verify(uri url)
 
 void verify_get(http_request request)
 {
-	cout << "GET verify " << st2s(request.relative_uri().to_string()) << endl;
-
 	http::status_code sc = status_codes::BadRequest;
 
 	handle_request(
@@ -36,7 +34,7 @@ void verify_get(http_request request)
 				auto sp = uri::split_path(request.relative_uri().to_string());
 				if (sp.size() != 1) throw runtime_error("GET verify/{uuid} expected.");
 
-				string gids = st2s(sp[0]);
+				string gids = utility::conversions::to_utf8string(sp[0]);
 				string_generator gen;
 				uuid gid = gen(gids);
 
@@ -59,7 +57,7 @@ void verify_get(http_request request)
 
 						if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
 						{
-							cout << "verify_get: error extract template" << endl;
+							BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract template";
 							free(json_tmp_ptr);
 							continue;
 						}
@@ -122,6 +120,5 @@ void verify_get(http_request request)
 			PQclear(sql_res);
 			db_close(db);
 		});
-
 	request.reply(sc, "");
 }

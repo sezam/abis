@@ -13,7 +13,7 @@ http_listener register_biocard(uri url)
 
 	listener
 		.open()
-		.then([&listener]() { cout << "starting to listen biocard" << endl; })
+		.then([&listener]() { BOOST_LOG_TRIVIAL(info) << "starting to listen biocard"; })
 		.wait();
 
 	return listener;
@@ -21,8 +21,6 @@ http_listener register_biocard(uri url)
 
 void biocard_get(http_request request)
 {
-	cout << "GET biocard" << st2s(request.relative_uri().to_string()) << endl;
-
 	http::status_code sc = status_codes::BadRequest;
 
 	handle_request(
@@ -37,7 +35,7 @@ void biocard_get(http_request request)
 				if (sp.size() != 1) throw runtime_error("GET biocard/{uuid} expected.");
 
 				string_generator gen;
-				uuid gid = gen(st2s(sp[0]));
+				uuid gid = gen(utility::conversions::to_utf8string(sp[0]));
 
 				db = db_open();
 
@@ -69,8 +67,8 @@ void biocard_get(http_request request)
 				}
 				else
 				{
+					BOOST_LOG_TRIVIAL(debug) << "biocard_get: " << PQerrorMessage(db);
 					answer[ELEMENT_ERROR] = json::value::string(conversions::to_string_t(PQerrorMessage(db)));
-					cout << "biocard_get: " << PQerrorMessage(db) << endl;
 				}
 				sc = status_codes::OK;
 			}
@@ -91,8 +89,6 @@ void biocard_get(http_request request)
 
 void biocard_put(http_request request)
 {
-	cout << "PUT biocard " << st2s(request.relative_uri().to_string()) << endl;
-
 	http::status_code sc = status_codes::BadRequest;
 
 	handle_request(
@@ -120,7 +116,7 @@ void biocard_put(http_request request)
 				if (sp.size() > 0)
 				{
 					string_generator gen;
-					gid = gen(st2s(sp[0]));
+					gid = gen(utility::conversions::to_utf8string(sp[0]));
 
 					bc_id = db_card_id_by_gid(db, to_string(gid).c_str());
 					if (bc_id <= 0) throw runtime_error("biocard_put: biocard not found.");
@@ -139,7 +135,7 @@ void biocard_put(http_request request)
 
 					if (tmp_from_json(arr[i], tmp_type, tmp_arr) <= 0)
 					{
-						cout << "biocard_put: error extract template" << endl;
+						BOOST_LOG_TRIVIAL(debug) << "biocard_put: error extract template";
 						free(tmp_arr);
 						continue;
 					}
@@ -240,8 +236,6 @@ void biocard_put(http_request request)
 
 void biocard_del(http_request request)
 {
-	cout << "DELETE biocard" << st2s(request.relative_uri().to_string()) << endl;
-
 	http::status_code sc = status_codes::BadRequest;
 
 	handle_request(
@@ -256,7 +250,7 @@ void biocard_del(http_request request)
 				if (sp.size() != 1) throw runtime_error("DELETE biocard/{uuid} expected.");
 
 				string_generator gen;
-				uuid gid = gen(st2s(sp[0]));
+				uuid gid = gen(utility::conversions::to_utf8string(sp[0]));
 
 				db = db_open();
 

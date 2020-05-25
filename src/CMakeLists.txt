@@ -39,7 +39,7 @@ endif()
 file (GLOB COMMON_SRC *.cpp *.h finger/*.h live/*.h)
 set (SOURCE  ${COMMON_SRC})
 
-find_package(Boost 1.72.0 REQUIRED COMPONENTS program_options)
+find_package(Boost 1.72.0 REQUIRED COMPONENTS log program_options thread)
 find_package(cpprestsdk REQUIRED NAMES cpprestsdk cpprest)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -53,7 +53,9 @@ add_executable(${PACKAGE_TARNAME} ${SOURCE})
 
 target_link_libraries(${PACKAGE_TARNAME}
     cpprestsdk::cpprest
+    Boost::log 
     Boost::program_options 
+    Boost::thread 
     ${OpenSSL_LIBRARIES}
     ${ZLIB_LIBRARIES}
     PostgreSQL::PostgreSQL

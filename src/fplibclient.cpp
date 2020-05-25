@@ -37,12 +37,12 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 	}
 	catch (const boost::system::error_code& ec)
 	{
-		cout << "Exception: get_fingerprint_template " << ec.message() << endl;
+		BOOST_LOG_TRIVIAL(error) << "Exception: get_fingerprint_template " << ec.message();
 		res = -ec.value();
 	}
 	catch (const std::exception& ec)
 	{
-		cout << "Exception: get_fingerprint_template " << ec.what() << endl;
+		BOOST_LOG_TRIVIAL(error) << "Exception: get_fingerprint_template " << ec.what();
 		res = -std::error_code().value();
 	}
 
@@ -54,10 +54,7 @@ float cmp_fingerprint_gost_template(void* tmp1, void* tmp2) {
 	float score = 0;
 	// only linux implementation
 #ifndef _WIN32		
-	cout << "finger1: " << *(int*)tmp1 << " finger2: " << *(int*)tmp2 << endl;
-	int rr = matchSegmentsTemplate((unsigned char*)tmp1, 0, 0, (unsigned char*)tmp2, 0, 0);
-	score = rr / 100.0f;
-	cout << "finger cmp: " << rr << " : " << score << endl;
+	score = matchSegmentsTemplate((unsigned char*)tmp1, 0, 0, (unsigned char*)tmp2, 0, 0) / 100.0f;
 #endif
 	return score;
 }
