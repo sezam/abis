@@ -57,41 +57,6 @@ void goznak_rest_server()
 	}
 }
 
-void rt_rest_server()
-{
-	uri_builder endpointBuilder;
-	endpointBuilder.set_scheme(U("http"));
-	endpointBuilder.set_port(10101);
-#ifdef _WIN32
-	endpointBuilder.set_host(U("*"));
-#else
-	endpointBuilder.set_host(U("0.0.0.0"));
-#endif // _WIN32
-
-	try
-	{
-		endpointBuilder.set_path(U("/v2/face/pattern/extract"));
-		//http_listener echo_listener = register_echo(endpointBuilder.to_uri());
-
-		endpointBuilder.set_path(U("/v2/finger/pattern/extract"));
-
-		endpointBuilder.set_path(U("/v2/face/pattern/compare"));
-		endpointBuilder.set_path(U("/v2/finger/pattern/compare"));
-
-		endpointBuilder.set_path(U("/v2/face/pattern/verify"));
-		endpointBuilder.set_path(U("/v2/finger/pattern/verify"));
-
-		endpointBuilder.set_path(U("/v2/pattern/health"));
-		while (true);
-
-		//echo_listener.close().wait();
-	}
-	catch (exception const& e)
-	{
-		BOOST_LOG_TRIVIAL(error) << e.what();
-	}
-}
-
 static const std::string COMMON_FMT("[%TimeStamp%][%ThreadID%][%Severity%]:  %Message%");
 
 void logging_prepare()
