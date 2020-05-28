@@ -36,10 +36,11 @@ void display_json(json::value const& jvalue, std::string const& prefix)
 
 static size_t _counter = 1;
 
-void handle_request(
-	http_request request,
-	function<void(json::value const&, json::value&)> action)
+void handle_request(http_request request, function<void(json::value const&, json::value&)> action)
 {
+	_CrtMemState s1, s2, s3;
+	_CrtMemDumpStatistics( &s1 );
+
 	size_t cc = _counter++;
 	auto start = steady_clock::now();
 	http::status_code sc = status_codes::OK;
@@ -80,6 +81,9 @@ void handle_request(
 	BOOST_LOG_TRIVIAL(debug) << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
 
 	request.reply(sc, answer);
+
+	_CrtMemCheckpoint(&s2);
+	if (_CrtMemDifference(&s3, &s1, &s2)) _CrtMemDumpStatistics(&s3);
 }
 
 void* json2tmp(const web::json::value& el)

@@ -30,6 +30,11 @@
 #include <cmath>
 using namespace std;
 
+//memory leak debug
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 

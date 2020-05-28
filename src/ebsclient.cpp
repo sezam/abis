@@ -49,10 +49,11 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 
 	int res = 0;
 	int current_port = port_index + extract_port_start;
+
+	io_service boost_io_service;
+	tcp::socket client_socket(boost_io_service);
 	try
 	{
-		io_service boost_io_service;
-		tcp::socket client_socket(boost_io_service);
 		tcp::resolver::query query(extract_host, to_string(current_port));
 		tcp::resolver::iterator endpoint_iterator = tcp::resolver(boost_io_service).resolve(query);
 
@@ -145,7 +146,6 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		}
 		if (recv_data != nullptr) free(recv_data);
 
-		client_socket.close();
 		(step ? res = 1 : 0);
 	}
 	catch (const boost::system::error_code& ec)
@@ -159,6 +159,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		res = -2;
 	}
 
+	client_socket.close();
 	mx_ports[port_index]->post();
 	return res;
 
