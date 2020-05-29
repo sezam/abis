@@ -29,6 +29,7 @@ void extract_get(http_request request)
 			try
 			{
 				auto element_image = req_json.at(ELEMENT_VALUE).as_string();
+				while ((element_image.length() % 4) != 0) element_image += U("=");
 				vector<unsigned char> buf = conversions::from_base64(element_image);
 
 				int element_type = req_json.at(ELEMENT_TYPE).as_integer();

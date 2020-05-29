@@ -38,9 +38,6 @@ static size_t _counter = 1;
 
 void handle_request(http_request request, function<void(json::value const&, json::value&)> action)
 {
-	_CrtMemState s1, s2, s3;
-	_CrtMemDumpStatistics( &s1 );
-
 	size_t cc = _counter++;
 	auto start = steady_clock::now();
 	http::status_code sc = status_codes::OK;
@@ -81,9 +78,6 @@ void handle_request(http_request request, function<void(json::value const&, json
 	BOOST_LOG_TRIVIAL(debug) << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
 
 	request.reply(sc, answer);
-
-	_CrtMemCheckpoint(&s2);
-	if (_CrtMemDifference(&s3, &s1, &s2)) _CrtMemDumpStatistics(&s3);
 }
 
 void* json2tmp(const web::json::value& el)
@@ -134,6 +128,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	if (element_type == ABIS_FACE_IMAGE)
 	{
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
 
 		float* face_tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
@@ -153,6 +148,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	if (element_type == ABIS_FINGER_IMAGE)
 	{
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
 
 		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_TEMPLATE_SIZE);
@@ -172,6 +168,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	if (element_type == ABIS_FINGER_GOST_IMAGE)
 	{
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
 
 		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
