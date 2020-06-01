@@ -26,6 +26,9 @@ cmake --build . --config Release -j 4
 #запуск с выводом в файл
 ./abis-rest-server-0.3 ./setting.ini |& tee out.txt
 
+#для сборки lblive
+export LD_LIBRARY_PATH=.:/root/Realsense/libtorch-cxx11/libtorch/lib/
+
 curl -i -X GET localhost:10101/extract -H "Content-Type: application/json" --data-binary "@img/face.b64.json" -v
 
 
