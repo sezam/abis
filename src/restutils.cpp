@@ -82,15 +82,14 @@ void handle_request(http_request request, function<void(json::value const&, json
 	auto diff = steady_clock::now() - start;
 	BOOST_LOG_TRIVIAL(debug) << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
 
-	request.reply(sc, answer);
-
 #ifndef _WIN32
 	auto m2 = mallinfo();
-	BOOST_LOG_TRIVIAL(debug) << "Total non-mmapped bytes (arena):     " << m1.arena << " : " << m2.arena << " : " << m2.arena - m1.arena;
-	BOOST_LOG_TRIVIAL(debug) << "Total allocated space (uordblks):    " << m1.uordblks << " : " << m2.uordblks << " : " << m2.uordblks - m1.uordblks;
-	BOOST_LOG_TRIVIAL(debug) << "Total free space (fordblks):         " << m1.fordblks << " : " << m2.fordblks << " : " << m2.fordblks - m1.fordblks;
-	BOOST_LOG_TRIVIAL(debug) << "Topmost releasable block (keepcost): " << m1.keepcost << " : " << m2.keepcost << " : " << m2.keepcost - m1.keepcost;
+	BOOST_LOG_TRIVIAL(debug) << "Total non-mmapped bytes: " << m1.arena << " : " << m2.arena << " : " << m2.arena - m1.arena;
+	BOOST_LOG_TRIVIAL(debug) << "Total allocated space:   " << m1.uordblks << " : " << m2.uordblks << " : " << m2.uordblks - m1.uordblks;
+	BOOST_LOG_TRIVIAL(debug) << "Total free space:        " << m1.fordblks << " : " << m2.fordblks << " : " << m2.fordblks - m1.fordblks;
 #endif
+
+	request.reply(sc, answer);
 }
 
 void* json2tmp(const web::json::value& el)
