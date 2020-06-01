@@ -5,12 +5,12 @@
 int get_fingerprint_template(const unsigned char* image_data, const size_t image_data_len,
 	unsigned char* template_buf, const size_t template_buf_len)
 {
-	int res = 0;
-	fp_img* in_fpimg = nullptr;
-
 	assert(image_data != nullptr);
 	assert(template_buf != nullptr);
 	assert(template_buf_len >= ABIS_FINGER_TMP_GOST_SIZE);
+
+	int res = 0;
+	fp_img* in_fpimg = nullptr;
 
 	try
 	{

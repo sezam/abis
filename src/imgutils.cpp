@@ -49,10 +49,10 @@ bool isJP2(const unsigned char* img)
 void convert_image(const unsigned char* i_image_data, const size_t i_image_data_len, unsigned char*& o_image_data, size_t& o_image_data_len)
 {
 	cv::Mat gr_img;
+	unsigned char* img_ptr = nullptr;
 
 	if (isWSQ(i_image_data))
 	{
-		unsigned char* img_ptr = nullptr;
 		int width, height, depth, ppi, lossy;
 
 		int res = wsq_decode_mem(&img_ptr, &width, &height, &depth, &ppi, &lossy, (unsigned char*)i_image_data, i_image_data_len);
@@ -68,7 +68,7 @@ void convert_image(const unsigned char* i_image_data, const size_t i_image_data_
 	if (gr_img.data == nullptr) throw runtime_error("Unsupported image format");
 
 	vector<uchar> out_img;
-	vector<int> out_params{0};
+	vector<int> out_params{ 0 };
 	cv::imencode(".png", gr_img, out_img, out_params);
 
 	o_image_data_len = out_img.size();
@@ -76,5 +76,6 @@ void convert_image(const unsigned char* i_image_data, const size_t i_image_data_
 	memcpy(o_image_data, out_img.data(), o_image_data_len);
 
 	cv::imwrite("last_finger_image.png", gr_img);
-	gr_img.release();
+
+	if (img_ptr != nullptr) free(img_ptr);
 }
