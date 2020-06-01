@@ -84,9 +84,7 @@ void handle_request(http_request request, function<void(json::value const&, json
 
 #ifndef _WIN32
 	auto m2 = mallinfo();
-	BOOST_LOG_TRIVIAL(debug) << "Total non-mmapped bytes: " << m1.arena << " : " << m2.arena << " : " << m2.arena - m1.arena;
-	BOOST_LOG_TRIVIAL(debug) << "Total allocated space:   " << m1.uordblks << " : " << m2.uordblks << " : " << m2.uordblks - m1.uordblks;
-	BOOST_LOG_TRIVIAL(debug) << "Total free space:        " << m1.fordblks << " : " << m2.fordblks << " : " << m2.fordblks - m1.fordblks;
+	BOOST_LOG_TRIVIAL(debug) << cc_s << "memory calc:" << (m2.arena - m1.arena) - (m2.uordblks - m1.uordblks) - (m2.fordblks - m1.fordblks);
 #endif
 
 	request.reply(sc, answer);
