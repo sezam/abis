@@ -40,12 +40,15 @@ void verify_get(http_request request)
 
 				string s1 = to_string(gid);
 				const char* paramValues[1] = { s1.c_str() };
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 1";
 
 				sql_res = db_exec_param(db, SQL_TMP_IDS_BY_BC_GID, 1, paramValues, 1);
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 2";
 				if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 				{
 					int id_num = PQfnumber(sql_res, "tmp_id");
 					int type_num = PQfnumber(sql_res, "tmp_type");
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 3";
 
 					json::array arr = req_json.as_array();
 					vector<float> sw_trhld;
@@ -55,6 +58,7 @@ void verify_get(http_request request)
 						int json_tmp_type = ABIS_DATA;
 						void* json_tmp_ptr = nullptr;
 
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 4";
 						if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
 						{
 							BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract template";
@@ -66,9 +70,11 @@ void verify_get(http_request request)
 						{
 							int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
 							int db_tmp_type = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 5";
 
 							if (db_tmp_type == ABIS_FACE_TEMPLATE && db_tmp_type == json_tmp_type)
 							{
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 6";
 								void* arr_ptr = malloc(ABIS_TEMPLATE_SIZE);
 								memset(arr_ptr, 0, ABIS_TEMPLATE_SIZE);
 
@@ -82,6 +88,7 @@ void verify_get(http_request request)
 							}
 							if (db_tmp_type == ABIS_FINGER_TEMPLATE && db_tmp_type == json_tmp_type)
 							{
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 7";
 								void* arr_ptr = malloc(ABIS_TEMPLATE_SIZE);
 								memset(arr_ptr, 0, ABIS_TEMPLATE_SIZE);
 
@@ -94,6 +101,7 @@ void verify_get(http_request request)
 								sw_score.push_back(cmp);
 							}
 						}
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 8";
 						free(json_tmp_ptr);
 					}
 					float trhld = sw_trhld[0];
@@ -105,6 +113,7 @@ void verify_get(http_request request)
 					}
 					answer[ELEMENT_VALUE] = json::value::number(score * ABIS_INTEGRA_THRESHOLD / trhld);
 					answer[ELEMENT_RESULT] = json::value::boolean(true);
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 9";
 				}
 				else answer[ELEMENT_RESULT] = json::value::boolean(false);
 				sc = status_codes::OK;
@@ -117,8 +126,10 @@ void verify_get(http_request request)
 			{
 				JSON_EXCEPTION(answer, ec.what());
 			}
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 10";
 			PQclear(sql_res);
 			db_close(db);
 		});
-	request.reply(sc, "");
+BOOST_LOG_TRIVIAL(debug) << "verify_get: 11";
+		request.reply(sc, "");
 }
