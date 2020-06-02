@@ -45,7 +45,7 @@ void print_json(json::value const& jvalue)
 	ss << "../log/" << std::put_time(std::localtime(&in_time_t), "%d-%m-%Y %H-%M-%S") << ".json.txt";
 
 	ofstream ofs(ss.str(), ios::out);
-	if(!ofs.is_open()) BOOST_LOG_TRIVIAL(debug) << "JSON saver error: " << strerror(errno);
+	if(!ofs.is_open()) BOOST_LOG_TRIVIAL(debug) << "JSON saver error: " << std::strerror(errno);
 	ofs << conversions::to_utf8string(jvalue.serialize());
 
 	ofs.close();
