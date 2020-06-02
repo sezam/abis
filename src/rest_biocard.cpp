@@ -178,7 +178,7 @@ void biocard_put(http_request request)
 								if (cmp_face_tmp(tmp_in, tmp_db) >= ABIS_FACE_THRESHOLD)
 								{
 									char bc_gid[50];
-									step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) == 0;
+									step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) > 0;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get biocard for face template";
 								}
 								else
@@ -273,7 +273,7 @@ void biocard_put(http_request request)
 								if (score_gost >= ABIS_FINGER_GOST_THRESHOLD)
 								{
 									char bc_gid[50];
-									step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) == 0;
+									step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) > 0;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: finger template already in biocard";
 								}
 								else

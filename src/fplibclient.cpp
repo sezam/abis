@@ -38,6 +38,7 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 		for (size_t i = 0; i < xyt->nrows; i++) q += (int)(xyt->quality[i] > ABIS_FINGER_GOST_QUALITY);
 
 		res = (int)(xyt->nrows > ABIS_FINGER_GOST_POINTS && q > xyt->nrows * ABIS_FINGER_GOST_QUALITY / 100);
+		BOOST_LOG_TRIVIAL(debug) << "get_fingerprint_template: points = " << xyt->nrows << " good = " << q << " res = " << res;
 	}
 	catch (const boost::system::error_code& ec)
 	{

@@ -19,7 +19,7 @@ struct xyt_struct {
 #define ABIS_FINGER_TMP_GOST_LEN    sizeof(xyt_struct)
 #define ABIS_FINGER_TMP_GOST_SIZE   ABIS_FINGER_TMP_GOST_LEN
 
-#define ABIS_FINGER_GOST_QUALITY	70
+#define ABIS_FINGER_GOST_QUALITY	60
 #define ABIS_FINGER_GOST_POINTS		12
 
 int get_fingerprint_template(const unsigned char* image_data, const size_t image_data_len,

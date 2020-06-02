@@ -116,7 +116,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 			unsigned char p2 = recv_header[5];
 			unsigned char p3 = recv_header[6];
 			unsigned char p4 = recv_header[7];
-			recv_data_len = (size_t)(p1 * 16777216 + p2 * 65536 + p3 * 256 + p4);
+			recv_data_len = (size_t)(p1) * 16777216 + (size_t)(p2) * 65536 + (size_t)(p3) * 256 + (size_t)(p4);
 
 			step = recv_data_len > 0;
 			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header datalen error. " << err.message();
