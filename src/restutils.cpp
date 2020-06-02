@@ -39,10 +39,6 @@ static size_t _counter = 1;
 
 void handle_request(http_request request, function<void(json::value const&, json::value&)> action)
 {
-#ifndef _WIN32
-	auto m1 =  mallinfo();
-#endif
-
 	size_t cc = _counter++;
 	auto start = steady_clock::now();
 	http::status_code sc = status_codes::OK;
@@ -81,11 +77,6 @@ void handle_request(http_request request, function<void(json::value const&, json
 
 	auto diff = steady_clock::now() - start;
 	BOOST_LOG_TRIVIAL(debug) << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
-
-#ifndef _WIN32
-	auto m2 = mallinfo();
-	BOOST_LOG_TRIVIAL(debug) << cc_s << "memory calc: " << (m2.arena - m1.arena) - (m2.uordblks - m1.uordblks) - (m2.fordblks - m1.fordblks);
-#endif
 
 	request.reply(sc, answer);
 }

@@ -1,8 +1,9 @@
-#include "rest_verify.h"
 #include "AbisRest.h"
+#include "rest_verify.h"
 #include "restutils.h"
 #include "dbclient.h"
 #include "ebsclient.h"
+#include "fplibclient.h"
 
 http_listener register_verify(uri url)
 {
@@ -20,7 +21,6 @@ http_listener register_verify(uri url)
 void verify_get(http_request request)
 {
 	http::status_code sc = status_codes::BadRequest;
-BOOST_LOG_TRIVIAL(debug) << "verify_get: start";
 
 	handle_request(
 		request,
@@ -53,14 +53,25 @@ BOOST_LOG_TRIVIAL(debug) << "verify_get: start";
 					vector<float> sw_score;
 					for (size_t i = 0; i < arr.size(); i++)
 					{
-						int json_tmp_type = ABIS_DATA;
-						void* json_tmp_ptr = nullptr;
+						void* tmp_in = nullptr;
+						void* tmp_gost = nullptr;
+						int tmp_type = ABIS_DATA;
+						int tmp_id = 0;
+						float score = 0;
+						bool step = false;
 
-						if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
+						int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
+						if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE)
 						{
-							BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract template";
-							free(json_tmp_ptr);
-							continue;
+							step = face_tmp_from_json(arr[i], tmp_type, tmp_in) > 0;
+							if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract face template";
+						}
+
+						if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_GOST_IMAGE)
+						{
+							tmp_type = ABIS_FINGER_TEMPLATE;
+							step = finger_tmp_from_json(arr[i], tmp_in, tmp_gost) > 0;
+							if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract finger template";
 						}
 
 						for (int r = 0; r < PQntuples(sql_res); r++)
@@ -68,48 +79,60 @@ BOOST_LOG_TRIVIAL(debug) << "verify_get: start";
 							int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
 							int db_tmp_type = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
 
-							if (db_tmp_type == ABIS_FACE_TEMPLATE && db_tmp_type == json_tmp_type)
+							if (db_tmp_type == ABIS_FACE_TEMPLATE && db_tmp_type == tmp_type)
 							{
-								void* arr_ptr = malloc(ABIS_TEMPLATE_SIZE);
-								memset(arr_ptr, 0, ABIS_TEMPLATE_SIZE);
+								void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
+								step = tmp_db != nullptr;
+								if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error memory allocate 1";
 
-								float cmp = 0;
-								int t = db_face_tmp_by_id(db, db_tmp_id, arr_ptr);
-								if (t > 0) cmp = cmp_face_tmp(json_tmp_ptr, arr_ptr);
-								free(arr_ptr);
+								float score = 0;
+								if (step)
+								{
+									memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
+
+									step = db_face_tmp_by_id(db, db_tmp_id, tmp_db) > 0;
+									if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get face template";
+								}
+
+								if (step) score = cmp_face_tmp(tmp_in, tmp_db);
+								if (tmp_db != nullptr) free(tmp_db);
 
 								sw_trhld.push_back(ABIS_FACE_THRESHOLD);
-								sw_score.push_back(cmp);
+								sw_score.push_back(score);
 							}
-							if (db_tmp_type == ABIS_FINGER_TEMPLATE && db_tmp_type == json_tmp_type)
+							if (db_tmp_type == ABIS_FINGER_TEMPLATE && db_tmp_type == tmp_type)
 							{
-								void* arr_ptr = malloc(ABIS_TEMPLATE_SIZE);
-								memset(arr_ptr, 0, ABIS_TEMPLATE_SIZE);
+								void* gost_db = malloc(ABIS_FINGER_TMP_GOST_SIZE);
+								step = gost_db != nullptr;
+								if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error memory allocate 2";
 
-								float cmp = 0;
-								int t = db_finger_tmp_by_id(db, db_tmp_id, arr_ptr);
-								if (t > 0) cmp = cmp_finger_tmp(json_tmp_ptr, arr_ptr);
-								free(arr_ptr);
+								if (step)
+								{
+									memset(gost_db, 0, ABIS_FINGER_TMP_GOST_SIZE);
+
+									step = db_gost_tmp_by_id(db, tmp_id, gost_db) > 0;
+									if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get finger template";
+								}
+								if (step) score = cmp_fingerprint_gost_template(tmp_gost, gost_db);
+								if (gost_db != nullptr) free(gost_db);
 
 								sw_trhld.push_back(ABIS_FINGER_THRESHOLD);
-								sw_score.push_back(cmp);
+								sw_score.push_back(score);
 							}
 						}
-BOOST_LOG_TRIVIAL(debug) << "verify_get: 1";
-						if(json_tmp_ptr != nullptr) free(json_tmp_ptr);
+						if (tmp_in != nullptr) free(tmp_in);
+						if (tmp_gost != nullptr) free(tmp_gost);
 					}
+
 					float trhld = sw_trhld[0];
 					float score = sw_score[0];
 					for (size_t i = 1; i < sw_trhld.size(); i++)
 					{
-BOOST_LOG_TRIVIAL(debug) << "verify_get: 2";
 						trhld = sugeno_weber(trhld, sw_trhld[i]);
-BOOST_LOG_TRIVIAL(debug) << "verify_get: 3";
 						score = sugeno_weber(score, sw_score[i]);
 					}
 					answer[ELEMENT_VALUE] = json::value::number(score * ABIS_INTEGRA_THRESHOLD / trhld);
 					answer[ELEMENT_RESULT] = json::value::boolean(true);
-BOOST_LOG_TRIVIAL(debug) << "verify_get: 4";
 				}
 				else answer[ELEMENT_RESULT] = json::value::boolean(false);
 				sc = status_codes::OK;
@@ -125,6 +148,5 @@ BOOST_LOG_TRIVIAL(debug) << "verify_get: 4";
 			PQclear(sql_res);
 			db_close(db);
 		});
-BOOST_LOG_TRIVIAL(debug) << "verify_get: end";
-		request.reply(sc, "");
+	request.reply(sc, "");
 }

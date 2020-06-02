@@ -160,38 +160,37 @@ void biocard_put(http_request request)
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error search face template";
 						}
 
-						void* tmp_db = nullptr;
 						if (step)
 						{
-							tmp_db = malloc(ABIS_TEMPLATE_SIZE);
+							void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
 							step = tmp_db != nullptr;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error memory allocate 1";
-						}
 
-						if (step)
-						{
-							memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
-							step = db_face_tmp_by_id(db, tmp_id, tmp_db) > 0;
-							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get face template";
-						}
+							if (step)
+							{
+								memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
+								step = db_face_tmp_by_id(db, tmp_id, tmp_db) > 0;
+								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get face template";
+							}
 
-						if (step)
-						{
-							if (cmp_face_tmp(tmp_in, tmp_db) >= ABIS_FACE_THRESHOLD)
+							if (step)
 							{
-								char bc_gid[50];
-								step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) == 0;
-								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get biocard for face template";
+								if (cmp_face_tmp(tmp_in, tmp_db) >= ABIS_FACE_THRESHOLD)
+								{
+									char bc_gid[50];
+									step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) == 0;
+									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get biocard for face template";
+								}
+								else
+								{
+									tmp_id = db_get_face_seq(db);
+									step = tmp_id > 0;
+									if (step) step = db_insert_face_tmp(db, tmp_in, tmp_id);
+									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert face template";
+								}
 							}
-							else
-							{
-								tmp_id = db_get_face_seq(db);
-								step = tmp_id > 0;
-								if (step) step = db_insert_face_tmp(db, tmp_in, tmp_id);
-								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert face template";
-							}
+							if (tmp_db != nullptr) free(tmp_db);
 						}
-						if (tmp_db != nullptr) free(tmp_db);
 
 						if (step)
 						{
@@ -296,8 +295,7 @@ void biocard_put(http_request request)
 							if (step) inserted++;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template in biocard";
 						}
-
-						if (!step) db_sp_rollback(db, "finger_template");
+						else db_sp_rollback(db, "finger_template");
 					}
 
 					if (step) json_row[ELEMENT_ID] = json::value::number(tmp_id);
@@ -305,6 +303,9 @@ void biocard_put(http_request request)
 					json_row[ELEMENT_RESULT] = json::value::boolean(step);
 
 					json_out[i] = json_row;
+
+					if (tmp_in != nullptr) free(tmp_in);
+					if (tmp_gost != nullptr) free(tmp_gost);
 				}
 				if (inserted > 0)
 				{

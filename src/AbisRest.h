@@ -28,7 +28,6 @@
 #include <limits>
 #include <cstdint>
 #include <cmath>
-#include <malloc.h>
 using namespace std;
 
 #include <opencv2/core/core.hpp>
