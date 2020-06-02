@@ -1,6 +1,7 @@
 ﻿#include "AbisRest.h"
 #include "dbclient.h"
 #include "ebsclient.h"
+#include "fplibclient.h"
 
 // a helper function to get the number of elements in an array
 int getNoEle(char* m)
@@ -247,6 +248,73 @@ int db_insert_finger_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
 	return db_insert_tmp(db, tmp_arr, tmp_id, finger_index, finger_param, finger_vector);
 }
 
+int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
+{
+	int result = 0;
+
+	string arr("{");
+	for (size_t i = 0; i < ABIS_FINGER_TMP_GOST_LEN; i++)
+	{
+		arr.append(to_string(((unsigned char*)tmp_arr)[i]));
+		if (i != ABIS_FINGER_TMP_GOST_LEN - 1) arr.append(",");
+	}
+	arr.append("}");
+
+	string s1 = to_string(tmp_id);
+	const char* paramValues[2] = { arr.c_str(), s1.c_str() };
+
+	PGresult* sql_res = nullptr;
+	try
+	{
+		sql_res = db_exec_param(db, str(boost::format(SQL_ADDGOST_FINGER) % finger_vector), 2, paramValues, 1);
+
+		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
+		{
+			int id_num = PQfnumber(sql_res, "id");
+			result = pg_ntoh32(*(int*)(PQgetvalue(sql_res, 0, id_num)));
+		}
+	}
+	catch (const std::exception& ec)
+	{
+		BOOST_LOG_TRIVIAL(debug) << PQcmdStatus(sql_res);
+		BOOST_LOG_TRIVIAL(error) << "db_append_finger_gost: " << ec.what();
+		result = -1;
+	}
+
+	PQclear(sql_res);
+	return result;
+}
+
+int db_set_finger_num(PGconn* db, int tmp_id, int fnum)
+{
+	int result = 0;
+
+	string s1 = to_string(tmp_id);
+	string s2 = to_string(fnum);
+	const char* paramValues[2] = { s1.c_str(), s2.c_str() };
+
+	PGresult* sql_res = nullptr;
+	try
+	{
+		sql_res = db_exec_param(db, str(boost::format(SQL_TMP_BY_ID) % finger_vector), 2, paramValues, 1);
+
+		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
+		{
+			int fpos_num = PQfnumber(sql_res, "fpos");
+			result = pg_ntoh32(*(int*)(PQgetvalue(sql_res, 0, fpos_num)));
+		}
+	}
+	catch (const std::exception& ec)
+	{
+		BOOST_LOG_TRIVIAL(debug) << PQcmdStatus(sql_res);
+		BOOST_LOG_TRIVIAL(error) << "db_set_finger_num: " << ec.what();
+		result = -1;
+	}
+
+	PQclear(sql_res);
+	return result;
+}
+
 int db_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr, string table)
 {
 	int result = 0;
@@ -273,6 +341,42 @@ int db_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr, string table)
 	{
 		BOOST_LOG_TRIVIAL(debug) << PQcmdStatus(sql_res);
 		BOOST_LOG_TRIVIAL(error) << "db_get_tmp_by_id: " << ec.what();
+		result = -1;
+	}
+
+	PQclear(sql_res);
+	return result;
+}
+
+int db_gost_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
+{
+	int result = 0;
+
+	string s1 = to_string(tmp_id);
+	const char* paramValues[1] = { s1.c_str() };
+
+	PGresult* sql_res = nullptr;
+	try
+	{
+		sql_res = db_exec_param(db, str(boost::format(SQL_TMP_BY_ID) % finger_vector), 1, paramValues, 1);
+
+		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
+		{
+			int arr_num = PQfnumber(sql_res, "vgost");
+			char* res_ptr = PQgetvalue(sql_res, 0, arr_num);
+			if (res_ptr != nullptr)
+			{
+				result = PQgetlength(sql_res, 0, arr_num);
+				unsigned char* arr_ptr = (unsigned char*)tmp_arr;
+				if (result > 0) db_get_array(arr_ptr, res_ptr);
+			}
+			else result = 1;
+		}
+	}
+	catch (const std::exception& ec)
+	{
+		BOOST_LOG_TRIVIAL(debug) << PQcmdStatus(sql_res);
+		BOOST_LOG_TRIVIAL(error) << "db_gost_tmp_by_id: " << ec.what();
 		result = -1;
 	}
 

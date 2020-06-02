@@ -19,5 +19,7 @@ void handle_request(http_request request, function<void(json::value const &, jso
 
 void* json2tmp(const web::json::value& el);
 int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr);
+int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr);
+int finger_tmp_from_json(json::value el, void*& tmp_ptr, void*& gost_tmp_ptr);
 
 #endif

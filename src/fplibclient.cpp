@@ -28,12 +28,16 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 		memcpy(in_fpimg->data, gr_img.data, img_len);
 
 		memset(template_buf, 0, ABIS_FINGER_TMP_GOST_SIZE);
+
 		// only linux implementation
 #ifndef _WIN32
 		getFingerPrint(in_fpimg, template_buf);
 #endif
-		res = 1;
+		xyt_struct* xyt = (xyt_struct*)template_buf;
+		int q = 0;
+		for (size_t i = 0; i < MAX_BOZORTH_MINUTIAE; i++) q += (int)(xyt->quality[i] > ABIS_FINGER_GOST_QUALITY);
 
+		res = (int)(xyt->nrows > ABIS_FINGER_GOST_POINTS && q > MAX_BOZORTH_MINUTIAE * ABIS_FINGER_GOST_QUALITY / 100);
 	}
 	catch (const boost::system::error_code& ec)
 	{
@@ -51,10 +55,27 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 }
 
 float cmp_fingerprint_gost_template(void* tmp1, void* tmp2) {
+	assert(tmp1 != nullptr);
+	assert(tmp2 != nullptr);
+
+	xyt_struct* xyt1 = (xyt_struct*)tmp1;
+	xyt_struct* xyt2 = (xyt_struct*)tmp2;
+
 	float score = 0;
-	// only linux implementation
+	int q1 = 0, q2 = 0;
+	for (size_t i = 0; i < MAX_BOZORTH_MINUTIAE; i++)
+	{
+		q1 += (int)(xyt1->quality[i] > ABIS_FINGER_GOST_QUALITY);
+		q2 += (int)(xyt2->quality[i] > ABIS_FINGER_GOST_QUALITY);
+	}
+
+	if (xyt1->nrows > ABIS_FINGER_GOST_POINTS && q1 > MAX_BOZORTH_MINUTIAE * ABIS_FINGER_GOST_QUALITY / 100 &&
+		xyt2->nrows > ABIS_FINGER_GOST_POINTS && q2 > MAX_BOZORTH_MINUTIAE * ABIS_FINGER_GOST_QUALITY / 100)
+	{
+		// only linux implementation
 #ifndef _WIN32		
-	score = matchSegmentsTemplate((unsigned char*)tmp1, 0, 0, (unsigned char*)tmp2, 0, 0) / 100.0f;
+		score = matchSegmentsTemplate((unsigned char*)tmp1, 0, 0, (unsigned char*)tmp2, 0, 0) / 100.0f;
 #endif
+	}
 	return score;
 }

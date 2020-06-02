@@ -76,6 +76,6 @@ void convert_image(const unsigned char* i_image_data, const size_t i_image_data_
 	memcpy(o_image_data, out_img.data(), o_image_data_len);
 
 	cv::imwrite("last_finger_image.png", gr_img);
-
-	if (img_ptr != nullptr) free(img_ptr);
+	gr_img.release();
+	//if (img_ptr != nullptr) free(img_ptr);
 }

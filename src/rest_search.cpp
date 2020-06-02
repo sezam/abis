@@ -1,8 +1,9 @@
-#include "rest_search.h"
 #include "AbisRest.h"
+#include "rest_search.h"
 #include "restutils.h"
 #include "dbclient.h"
 #include "ebsclient.h"
+#include "fplibclient.h"
 
 http_listener register_search(uri url)
 {
