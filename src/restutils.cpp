@@ -35,6 +35,22 @@ void display_json(json::value const& jvalue, std::string const& prefix)
 	}
 }
 
+
+void print_json(json::value const& jvalue)
+{
+	auto now = std::chrono::system_clock::now();
+	auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+	std::stringstream ss;
+	ss << "../log/" << std::put_time(std::localtime(&in_time_t), "%d-%m-%Y %H-%M-%S") << ".json.txt";
+
+	ofstream ofs(ss.str(), ios::out);
+	if(!ofs.is_open()) BOOST_LOG_TRIVIAL(debug) << "JSON saver error: " << strerror(errno);
+	ofs << conversions::to_utf8string(jvalue.serialize());
+
+	ofs.close();
+}
+
 static size_t _counter = 1;
 
 void handle_request(http_request request, function<void(json::value const&, json::value&)> action)
@@ -58,6 +74,8 @@ void handle_request(http_request request, function<void(json::value const&, json
 					{
 						auto const& jvalue = task.get();
 						display_json(jvalue, cc_s + "Request: ");
+
+						print_json(jvalue);
 
 						action(jvalue, answer);
 					}
