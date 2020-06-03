@@ -116,7 +116,7 @@ void verify_get(http_request request)
 								if (step) score = cmp_fingerprint_gost_template(tmp_gost, gost_db);
 								if (gost_db != nullptr) free(gost_db);
 
-								sw_trhld.push_back(ABIS_FINGER_THRESHOLD);
+								sw_trhld.push_back(ABIS_FINGER_GOST_THRESHOLD);
 								sw_score.push_back(score);
 							}
 						}
