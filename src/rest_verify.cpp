@@ -110,7 +110,7 @@ void verify_get(http_request request)
 								{
 									memset(gost_db, 0, ABIS_FINGER_TMP_GOST_SIZE);
 
-									step = db_gost_tmp_by_id(db, tmp_id, gost_db) > 0;
+									step = db_gost_tmp_by_id(db, db_tmp_id, gost_db) > 0;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get finger template";
 								}
 								if (step) score = cmp_fingerprint_gost_template(tmp_gost, gost_db);
