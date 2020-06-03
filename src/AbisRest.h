@@ -39,6 +39,9 @@ using namespace std::chrono;
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <boost/beast/core/detail/base64.hpp>
+using namespace boost::beast::detail;
+
 #include <boost/asio.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>

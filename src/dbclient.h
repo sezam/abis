@@ -21,7 +21,7 @@ static const string SQL_TMP_BY_ID("SELECT * FROM %1% fv WHERE fv.id=$1::integer"
 static const string SQL_SEARCH_TMPS("SELECT search_data($1::real[], $2::integer, $3::integer, $4, $5, $6, $7)");
 static const string SQL_INSERT_TMP("SELECT insert_data($1::real[], $2::integer, $3::integer, $4, $5, $6, $7)");
 static const string SQL_UPDATE_FINGER("UPDATE %1% SET fpos = $1 WHERE id = $2 RETURNING *");
-static const string SQL_ADDGOST_FINGER("UPDATE %1% SET vgost = $1::bytea WHERE id = $2 RETURNING *");
+static const string SQL_ADDGOST_FINGER("UPDATE %1% SET gv = $1::bytea WHERE id = $2 RETURNING *");
 
 static const string SQL_ADD_BC("INSERT INTO  t_biocards (gid, info) VALUES ($1::uuid, $2) RETURNING uid");
 static const string SQL_ADD_LINK("INSERT INTO  t_biocard_template_link (tmp_type, tmp_id, biocard_id) \
@@ -87,9 +87,9 @@ int db_card_id_by_gid(PGconn* db, const char* gid);
 /*
 получение шаблона по его ИД
 */
-int db_face_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr);
-int db_finger_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr);
-int db_gost_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr);
+int db_face_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr);
+int db_finger_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr);
+int db_gost_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr);
 
 /*
 добавляем в базу биокарту 

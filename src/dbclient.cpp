@@ -192,7 +192,7 @@ void db_sp_rollback(PGconn* db, const char* name)
 	q.append(name);
 
 	PGresult* res = PQexec(db, q.c_str());
-	BOOST_LOG_TRIVIAL(debug) << "db_sp_rollback: " << PQerrorMessage(db) << PQresultErrorMessage(res);
+	logging_res("db_sp_rollback", res);
 	if (PQresultStatus(res) != PGRES_COMMAND_OK) throw runtime_error("db_sp_rollback: error rollback savepoint");
 	PQclear(res);
 }
@@ -323,38 +323,39 @@ int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
 	assert(tmp_id > 0);
 
 	int result = 0;
+	int esz = base64::encoded_size(ABIS_FINGER_TMP_GOST_SIZE);
 
-	string arr("{");
-	for (size_t i = 0; i < ABIS_FINGER_TMP_GOST_LEN; i++)
+	unsigned char* b64 = (unsigned char*)malloc( esz + 1);
+	if (b64 != nullptr)
 	{
-		arr.append(to_string(((unsigned char*)tmp_arr)[i]));
-		if (i != ABIS_FINGER_TMP_GOST_LEN - 1) arr.append(",");
-	}
-	arr.append("}");
+		size_t res = base64::encode(b64, tmp_arr, ABIS_FINGER_TMP_GOST_SIZE);
+		b64[esz] = 0;
 
-	string s1 = to_string(tmp_id);
-	const char* paramValues[2] = { arr.c_str(), s1.c_str() };
+		string s1 = to_string(tmp_id);
+		const char* paramValues[2] = { (const char*)b64, s1.c_str() };
 
-	PGresult* sql_res = nullptr;
-	try
-	{
-		sql_res = db_exec_param(db, str(boost::format(SQL_ADDGOST_FINGER) % finger_vector), 2, paramValues, 1);
-		logging_res("db_append_finger_gost", sql_res);
-
-		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
+		PGresult* sql_res = nullptr;
+		try
 		{
-			int id_num = PQfnumber(sql_res, "id");
-			result = pg_ntoh32(*(int*)(PQgetvalue(sql_res, 0, id_num)));
-		}
-	}
-	catch (const std::exception& ec)
-	{
-		BOOST_LOG_TRIVIAL(debug) << PQcmdStatus(sql_res);
-		BOOST_LOG_TRIVIAL(error) << "db_append_finger_gost: " << ec.what();
-		result = -1;
-	}
+			sql_res = db_exec_param(db, str(boost::format(SQL_ADDGOST_FINGER) % finger_vector), 2, paramValues, 1);
+			logging_res("db_append_finger_gost", sql_res);
 
-	PQclear(sql_res);
+			if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
+			{
+				int id_num = PQfnumber(sql_res, "id");
+				result = pg_ntoh32(*(int*)(PQgetvalue(sql_res, 0, id_num)));
+			}
+		}
+		catch (const std::exception& ec)
+		{
+			BOOST_LOG_TRIVIAL(debug) << PQcmdStatus(sql_res);
+			BOOST_LOG_TRIVIAL(error) << "db_append_finger_gost: " << ec.what();
+			result = -1;
+		}
+
+		PQclear(sql_res);
+		free(b64);
+	}
 	return result;
 }
 
@@ -391,7 +392,7 @@ int db_set_finger_num(PGconn* db, int tmp_id, int fnum)
 	return result;
 }
 
-int db_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr, string table)
+int db_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr, string table)
 {
 	assert(tmp_arr != nullptr);
 	assert(tmp_id > 0);
@@ -428,7 +429,7 @@ int db_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr, string table)
 	return result;
 }
 
-int db_gost_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
+int db_gost_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr)
 {
 	assert(tmp_arr != nullptr);
 	assert(tmp_id > 0);
@@ -446,13 +447,18 @@ int db_gost_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
-			int arr_num = PQfnumber(sql_res, "vgost");
-			char* res_ptr = PQgetvalue(sql_res, 0, arr_num);
+			int arr_num = PQfnumber(sql_res, "gv");
+			const char* res_ptr = PQgetvalue(sql_res, 0, arr_num);
 			if (res_ptr != nullptr)
 			{
 				result = PQgetlength(sql_res, 0, arr_num);
-				unsigned char* arr_ptr = (unsigned char*)tmp_arr;
-				if (result > 0) db_get_array(arr_ptr, res_ptr);
+				//unsigned char* arr_ptr = (unsigned char*)tmp_arr;
+				//if (result > 0) db_get_array(arr_ptr, res_ptr);
+				if (base64::encoded_size(ABIS_FINGER_TMP_GOST_SIZE) == result)
+				{
+					auto res = base64::decode((void*)tmp_arr, res_ptr, base64::encoded_size(ABIS_FINGER_TMP_GOST_SIZE));
+					result = res.first;
+				}
 			}
 			else result = 1;
 		}
@@ -468,12 +474,12 @@ int db_gost_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
 	return result;
 }
 
-int db_face_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
+int db_face_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr)
 {
 	return db_tmp_by_id(db, tmp_id, tmp_arr, face_vector);
 }
 
-int db_finger_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
+int db_finger_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr)
 {
 	return db_tmp_by_id(db, tmp_id, tmp_arr, finger_vector);
 }
