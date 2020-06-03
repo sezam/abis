@@ -84,16 +84,17 @@ void db_get_array(char**& ar, char* mem)
 void logging_res(string fname, PGresult* sql_res)
 {
 	stringstream ss;
-	ss << fname << ": result = " << PQresStatus(PQresultStatus(sql_res)) << endl;
+	ss << fname << ": result = " << PQresStatus(PQresultStatus(sql_res));
+	ss << "tuples = " << PQcmdTuples(sql_res);
+	if (PQresultErrorMessage(sql_res) != "") ss << " msg = " << PQresultErrorMessage(sql_res);
+	ss << endl;
 
 	if (PQntuples(sql_res) > 0)
 	{
-		ss << "tuples = " << PQcmdTuples(sql_res);
-
 		for (size_t i = 0; i < PQnfields(sql_res); i++)
 		{
-			ss << ", " << PQfname(sql_res, i);
-			ss << "(len = " << PQgetlength(sql_res, 0, i);
+			ss << PQfname(sql_res, i);
+			ss << ": len = " << PQgetlength(sql_res, 0, i);
 			ss << ", type = " << PQftype(sql_res, i);
 			if (PQgetlength(sql_res, 0, i) < 10)
 			{
@@ -103,7 +104,7 @@ void logging_res(string fname, PGresult* sql_res)
 				else
 					ss << ntohl(*((uint32_t*)PQgetvalue(sql_res, 0, i)));
 			}
-			ss << ")";
+			ss << endl;
 		}
 	}
 	BOOST_LOG_TRIVIAL(debug) << ss.str();
