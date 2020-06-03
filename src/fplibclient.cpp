@@ -65,5 +65,6 @@ float cmp_fingerprint_gost_template(void* tmp1, void* tmp2) {
 #ifndef _WIN32		
 	score = matchSegmentsTemplate((unsigned char*)tmp1, 0, 0, (unsigned char*)tmp2, 0, 0) / 100.0f;
 #endif
+	BOOST_LOG_TRIVIAL(debug) << "cmp_fingerprint_gost_template: score = " << score;
 	return score;
 }

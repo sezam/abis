@@ -85,8 +85,8 @@ void logging_res(string fname, PGresult* sql_res)
 {
 	stringstream ss;
 	ss << fname << ": result = " << PQresStatus(PQresultStatus(sql_res));
-	ss << "tuples = " << PQcmdTuples(sql_res);
-	if (PQresultErrorMessage(sql_res) != "") ss << " msg = " << PQresultErrorMessage(sql_res);
+	ss << " tuples = " << PQcmdTuples(sql_res);
+	if (PQresultErrorMessage(sql_res) != nullptr) ss << " msg = " << PQresultErrorMessage(sql_res);
 	ss << endl;
 
 	if (PQntuples(sql_res) > 0)

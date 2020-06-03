@@ -202,14 +202,20 @@ float fvec_eq_dis(const float* x, const float* y, size_t size)
 }
 
 float cmp_face_tmp(void* tmp1, void* tmp2) {
-	return 1.0f - min(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, ABIS_TEMPLATE_LEN), 2.0f) / 2.0f;
+	float score = 1.0f - min(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, ABIS_TEMPLATE_LEN), 2.0f) / 2.0f;
+	BOOST_LOG_TRIVIAL(debug) << "cmp_face_tmp: score = " << score;
+	return score;
 }
 
 float cmp_finger_tmp(void* tmp1, void* tmp2) {
-	return 1.0f - min(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, ABIS_TEMPLATE_LEN), 2.0f) / 2.0f;
+	float score = 1.0f - min(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, ABIS_TEMPLATE_LEN), 2.0f) / 2.0f;
+	BOOST_LOG_TRIVIAL(debug) << "cmp_finger_tmp: score = " << score;
+	return score;
 }
 
 float sugeno_weber(float x, float y)
 {
-	return max((x + y + x * y * SW_NORM_P - 1) / (SW_NORM_P + 1), 0.0f);
+	float score =  max((x + y + x * y * SW_NORM_P - 1) / (SW_NORM_P + 1), 0.0f);
+	BOOST_LOG_TRIVIAL(debug) << "sugeno_weber: score = " << score;
+	return score;
 }
