@@ -21,8 +21,8 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 		in_fpimg->width = gr_img.cols;
 		in_fpimg->height = gr_img.rows;
 		in_fpimg->length = img_len;
-		in_fpimg->minutiae = NULL;
-		in_fpimg->binarized = NULL;
+		in_fpimg->minutiae = nullptr;
+		in_fpimg->binarized = nullptr;
 		in_fpimg->flags = 0;
 
 		memcpy(in_fpimg->data, gr_img.data, img_len);
@@ -52,7 +52,7 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 		res = -std::error_code().value();
 	}
 
-	if (in_fpimg != NULL) free(in_fpimg);
+	if (in_fpimg != nullptr) free(in_fpimg);
 	return res;
 }
 

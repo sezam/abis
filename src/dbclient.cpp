@@ -23,6 +23,9 @@ void byteswap(unsigned char* b, int n)
 template<class T>
 void db_get_array(T*& ar, char* mem)
 {
+	assert(ar != nullptr);
+	assert(mem != nullptr);
+
 	size_t nEle = getNoEle(mem);
 	size_t intSize = sizeof(int);
 
@@ -34,10 +37,14 @@ void db_get_array(T*& ar, char* mem)
 		byteSwap(ar[i], size);
 		start += (size_t)(size + intSize);
 	}
+	BOOST_LOG_TRIVIAL(debug) << "db_get_array: el_count = " << nEle << " el_size = " << sizeof(T);
 }
 
 void db_get_array(char*& ar, char* mem)
 {
+	assert(ar != nullptr);
+	assert(mem != nullptr);
+
 	size_t nEle = getNoEle(mem);
 	size_t intSize = sizeof(int);
 
@@ -48,6 +55,8 @@ void db_get_array(char*& ar, char* mem)
 		ar[i] = *(char*)(start + intSize);
 		start += (size_t)(size + intSize);
 	}
+
+	BOOST_LOG_TRIVIAL(debug) << "db_get_array: el_count = " << nEle << " el_size = " << sizeof(char);
 }
 
 /*
@@ -55,6 +64,9 @@ void db_get_array(char*& ar, char* mem)
 */
 void db_get_array(char**& ar, char* mem)
 {
+	assert(ar != nullptr);
+	assert(mem != nullptr);
+
 	size_t nEle = getNoEle(mem);
 	size_t intSize = sizeof(int);
 
@@ -62,34 +74,70 @@ void db_get_array(char**& ar, char* mem)
 	for (size_t i = 0; i < nEle; i++)
 	{
 		size_t size = pg_ntoh32(*(int*)(start));
-		ar[i] = new char[size];
+		ar[i] = new char[size]; //!!!
 		strncpy(ar[i], (char*)(start + intSize), size + 1);
 		start += (size_t)(size + intSize);
 	}
+	BOOST_LOG_TRIVIAL(debug) << "db_get_array: el_count = " << nEle << " el_size = " << sizeof(char*);
+}
+
+void logging_res(string fname, PGresult* sql_res)
+{
+	stringstream ss;
+	ss << fname << ": result = " << PQresStatus(PQresultStatus(sql_res)) << endl;
+
+	if (PQntuples(sql_res) > 0)
+	{
+		ss << "tuples = " << PQcmdTuples(sql_res);
+
+		for (size_t i = 0; i < PQnfields(sql_res); i++)
+		{
+			ss << ", " << PQfname(sql_res, i);
+			ss << "(len = " << PQgetlength(sql_res, 0, i);
+			ss << ", type = " << PQftype(sql_res, i);
+			if (PQgetlength(sql_res, 0, i) < 10)
+			{
+				ss << ", value = ";
+				if (PQfformat(sql_res, i) == 0)
+					ss << PQgetvalue(sql_res, 0, i);
+				else
+					ss << ntohl(*((uint32_t*)PQgetvalue(sql_res, 0, i)));
+			}
+			ss << ")";
+		}
+	}
+	BOOST_LOG_TRIVIAL(debug) << ss.str();
+}
+
+void logging_conn(string fname, PGconn* db)
+{
+	BOOST_LOG_TRIVIAL(debug) << fname << ": msg = " << PQerrorMessage(db);
 }
 
 void db_prepare()
 {
 	PGconn* db = db_open();
-	if (db != nullptr && PQstatus(db) != CONNECTION_OK) throw runtime_error("Error connection db.");
 
 	BOOST_LOG_TRIVIAL(info) << "DB connection success \t" << PQuser(db) << ":" << PQpass(db)
 		<< "@" << PQhost(db) << ":" << PQport(db) << "/" << PQdb(db);
 
-	PQfinish(db);
+	db_close(db);
 }
 
 PGconn* db_open()
 {
 	PGconn* db = PQsetdbLogin(postgres_host.c_str(), postgres_port.c_str(), "", "",
 		postgres_db.c_str(), postgres_user.c_str(), postgres_pwd.c_str());
-	if (PQstatus(db) != CONNECTION_OK) BOOST_LOG_TRIVIAL(debug) << "db_open: " << PQerrorMessage(db);
+	logging_conn("db_open", db);
+
+	if (PQstatus(db) != CONNECTION_OK) throw runtime_error("Error connection db.");
 
 	return db;
 }
 
 void db_close(PGconn* db)
 {
+	logging_conn("db_close", db);
 	PQfinish(db);
 }
 
@@ -101,21 +149,27 @@ PGresult* db_exec_param(PGconn* db, string sql, int nParams, const char* const* 
 void db_tx_begin(PGconn* db)
 {
 	PGresult* res = PQexec(db, "BEGIN");
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) BOOST_LOG_TRIVIAL(debug) << "db_tx_begin: " << PQerrorMessage(db);
+	logging_res("db_tx_begin", res);
+
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) throw runtime_error("db_tx_begin: error open transaction");
 	PQclear(res);
 }
 
 void db_tx_commit(PGconn* db)
 {
 	PGresult* res = PQexec(db, "COMMIT");
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) BOOST_LOG_TRIVIAL(debug) << "db_tx_commit: " << PQerrorMessage(db);
+	logging_res("db_tx_commit", res);
+
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) throw runtime_error("db_tx_commit: error commit transaction");
 	PQclear(res);
 }
 
 void db_tx_rollback(PGconn* db)
 {
 	PGresult* res = PQexec(db, "ROLLBACK");
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) BOOST_LOG_TRIVIAL(debug) << "db_tx_rollback: " << PQerrorMessage(db);
+	logging_res("db_tx_rollback", res);
+
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) throw runtime_error("db_tx_rollback: error rollback transaction");
 	PQclear(res);
 }
 
@@ -125,7 +179,9 @@ void db_sp_begin(PGconn* db, const char* name)
 	q.append(name);
 
 	PGresult* res = PQexec(db, q.c_str());
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) BOOST_LOG_TRIVIAL(debug) << "db_sp_begin: " << PQerrorMessage(db);
+	logging_res("db_sp_begin", res);
+
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) throw runtime_error("db_sp_begin: error open savepoint");
 	PQclear(res);
 }
 
@@ -135,7 +191,8 @@ void db_sp_rollback(PGconn* db, const char* name)
 	q.append(name);
 
 	PGresult* res = PQexec(db, q.c_str());
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) BOOST_LOG_TRIVIAL(debug) << "db_sp_rollback: " << PQerrorMessage(db);
+	BOOST_LOG_TRIVIAL(debug) << "db_sp_rollback: " << PQerrorMessage(db) << PQresultErrorMessage(res);
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) throw runtime_error("db_sp_rollback: error rollback savepoint");
 	PQclear(res);
 }
 
@@ -145,12 +202,16 @@ void db_sp_release(PGconn* db, const char* name)
 	q.append(name);
 
 	PGresult* res = PQexec(db, q.c_str());
-	if (PQresultStatus(res) != PGRES_COMMAND_OK) BOOST_LOG_TRIVIAL(debug) << "db_sp_release: " << PQerrorMessage(db);
+	logging_res("db_sp_release", res);
+
+	if (PQresultStatus(res) != PGRES_COMMAND_OK) throw runtime_error("db_sp_release: error release savepoint");
 	PQclear(res);
 }
 
 int db_search_tmp(PGconn* db, const void* tmp_arr, string index_name, string param_name, string vector_name)
 {
+	assert(tmp_arr != nullptr);
+
 	int result = 0;
 
 	string arr("{");
@@ -170,6 +231,7 @@ int db_search_tmp(PGconn* db, const void* tmp_arr, string index_name, string par
 	try
 	{
 		sql_res = db_exec_param(db, SQL_SEARCH_TMPS, 7, paramValues, 1);
+		logging_res("db_search_tmp", sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
@@ -206,6 +268,9 @@ int db_search_finger_tmp(PGconn* db, const void* tmp_arr)
 
 int db_insert_tmp(PGconn* db, const void* tmp_arr, int tmp_id, string index_name, string param_name, string vector_name)
 {
+	assert(tmp_arr != nullptr);
+	assert(tmp_id > 0);
+
 	int result = 0;
 
 	string arr("{");
@@ -225,6 +290,9 @@ int db_insert_tmp(PGconn* db, const void* tmp_arr, int tmp_id, string index_name
 	try
 	{
 		sql_res = db_exec_param(db, SQL_INSERT_TMP, 7, paramValues, 1);
+		logging_res("db_insert_tmp", sql_res);
+
+
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK) result = 1;
 	}
 	catch (const std::exception& ec)
@@ -250,6 +318,9 @@ int db_insert_finger_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
 
 int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
 {
+	assert(tmp_arr != nullptr);
+	assert(tmp_id > 0);
+
 	int result = 0;
 
 	string arr("{");
@@ -267,6 +338,7 @@ int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
 	try
 	{
 		sql_res = db_exec_param(db, str(boost::format(SQL_ADDGOST_FINGER) % finger_vector), 2, paramValues, 1);
+		logging_res("db_append_finger_gost", sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
@@ -287,6 +359,8 @@ int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
 
 int db_set_finger_num(PGconn* db, int tmp_id, int fnum)
 {
+	assert(tmp_id > 0);
+
 	int result = 0;
 
 	string s1 = to_string(tmp_id);
@@ -297,6 +371,7 @@ int db_set_finger_num(PGconn* db, int tmp_id, int fnum)
 	try
 	{
 		sql_res = db_exec_param(db, str(boost::format(SQL_TMP_BY_ID) % finger_vector), 2, paramValues, 1);
+		logging_res("db_set_finger_num", sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
@@ -317,6 +392,9 @@ int db_set_finger_num(PGconn* db, int tmp_id, int fnum)
 
 int db_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr, string table)
 {
+	assert(tmp_arr != nullptr);
+	assert(tmp_id > 0);
+
 	int result = 0;
 
 	string s1 = to_string(tmp_id);
@@ -326,6 +404,7 @@ int db_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr, string table)
 	try
 	{
 		sql_res = db_exec_param(db, str(boost::format(SQL_TMP_BY_ID) % table), 1, paramValues, 1);
+		logging_res("db_tmp_by_id", sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
@@ -350,6 +429,9 @@ int db_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr, string table)
 
 int db_gost_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
 {
+	assert(tmp_arr != nullptr);
+	assert(tmp_id > 0);
+
 	int result = 0;
 
 	string s1 = to_string(tmp_id);
@@ -359,6 +441,7 @@ int db_gost_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
 	try
 	{
 		sql_res = db_exec_param(db, str(boost::format(SQL_TMP_BY_ID) % finger_vector), 1, paramValues, 1);
+		logging_res("db_gost_tmp_by_id", sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
@@ -396,6 +479,9 @@ int db_finger_tmp_by_id(PGconn* db, int tmp_id, void*& tmp_arr)
 
 int db_card_id_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
 {
+	assert(gid != nullptr);
+	assert(tmp_id > 0);
+
 	int result = 0;
 
 	string s1 = to_string(tmp_type);
@@ -406,6 +492,7 @@ int db_card_id_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
 	try
 	{
 		sql_res = db_exec_param(db, SQL_LINKS_BY_TMP_ID, 2, paramValues, 1);
+		logging_res("db_card_id_by_tmp_id", sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
@@ -432,12 +519,15 @@ int db_card_id_by_tmp_id(PGconn* db, int tmp_type, int tmp_id, char* gid)
 
 int db_card_id_by_gid(PGconn* db, const char* gid)
 {
+	assert(gid != nullptr);
+
 	int result = 0;
 	const char* paramValues[1] = { gid };
 	PGresult* sql_res = nullptr;
 	try
 	{
 		sql_res = db_exec_param(db, SQL_BCS_BY_GID, 1, paramValues, 1);
+		logging_res("db_card_id_by_gid", sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
@@ -458,12 +548,16 @@ int db_card_id_by_gid(PGconn* db, const char* gid)
 
 int db_add_bc(PGconn* db, const char* gid, const char* info)
 {
+	assert(gid != nullptr);
+
 	int result = 0;
 	const char* paramValues[2] = { gid, info };
 	PGresult* sql_res = nullptr;
 	try
 	{
 		sql_res = db_exec_param(db, SQL_ADD_BC, 2, paramValues, 1);
+		logging_res("db_add_bc", sql_res);
+
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
 			int uid_num = PQfnumber(sql_res, "uid");
@@ -484,6 +578,8 @@ int db_add_bc(PGconn* db, const char* gid, const char* info)
 
 int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id)
 {
+	assert(tmp_id > 0);
+
 	int result = 0;
 	string tmp_type_s = to_string(tmp_type);
 	string tmp_id_s = to_string(tmp_id);
@@ -493,6 +589,8 @@ int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id)
 	try
 	{
 		sql_res = db_exec_param(db, SQL_ADD_LINK, 3, paramValues, 1);
+		logging_res("db_add_link", sql_res);
+
 		if (PQresultStatus(sql_res) == PGRES_COMMAND_OK) result = 1;
 	}
 	catch (const std::exception& ec)
@@ -508,6 +606,8 @@ int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id)
 
 int db_del_link(PGconn* db, int tmp_type, int tmp_id, const char* gid)
 {
+	assert(tmp_id > 0);
+
 	int result = 0;
 	string tmp_type_s = to_string(tmp_type);
 	string tmp_id_s = to_string(tmp_id);
@@ -516,6 +616,8 @@ int db_del_link(PGconn* db, int tmp_type, int tmp_id, const char* gid)
 	try
 	{
 		sql_res = db_exec_param(db, SQL_DEL_LINK, 3, paramValues, 1);
+		logging_res("db_del_link", sql_res);
+
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK) result = PQntuples(sql_res);
 	}
 	catch (const std::exception& ec)
@@ -536,6 +638,8 @@ int db_get_face_seq(PGconn* db)
 	try
 	{
 		sql_res = db_exec_param(db, SQL_FACE_TMP_SEQ, 0, nullptr, 1);
+		logging_res("db_get_face_seq", sql_res);
+
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
 			int uid_num = PQfnumber(sql_res, "uid");
@@ -560,6 +664,8 @@ int db_get_finger_seq(PGconn* db)
 	try
 	{
 		sql_res = db_exec_param(db, SQL_FINGER_TMP_SEQ, 0, nullptr, 1);
+		logging_res("db_get_finger_seq", sql_res);
+
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 		{
 			int uid_num = PQfnumber(sql_res, "uid");

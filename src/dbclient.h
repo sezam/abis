@@ -21,7 +21,7 @@ static const string SQL_TMP_BY_ID("SELECT * FROM %1% fv WHERE fv.id=$1::integer"
 static const string SQL_SEARCH_TMPS("SELECT search_data($1::real[], $2::integer, $3::integer, $4, $5, $6, $7)");
 static const string SQL_INSERT_TMP("SELECT insert_data($1::real[], $2::integer, $3::integer, $4, $5, $6, $7)");
 static const string SQL_UPDATE_FINGER("UPDATE %1% SET fpos = $1 WHERE id = $2 RETURNING *");
-static const string SQL_ADDGOST_FINGER("UPDATE %1% SET vgost = $1::bytea[] WHERE id = $2 RETURNING *");
+static const string SQL_ADDGOST_FINGER("UPDATE %1% SET vgost = $1::bytea WHERE id = $2 RETURNING *");
 
 static const string SQL_ADD_BC("INSERT INTO  t_biocards (gid, info) VALUES ($1::uuid, $2) RETURNING uid");
 static const string SQL_ADD_LINK("INSERT INTO  t_biocard_template_link (tmp_type, tmp_id, biocard_id) \
