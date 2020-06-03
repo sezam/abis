@@ -131,7 +131,9 @@ void verify_get(http_request request)
 						trhld = sugeno_weber(trhld, sw_trhld[i]);
 						score = sugeno_weber(score, sw_score[i]);
 					}
-					answer[ELEMENT_VALUE] = json::value::number(score * ABIS_INTEGRA_THRESHOLD / trhld);
+					score = min(score * ABIS_INTEGRA_THRESHOLD / trhld, 1.0f);
+
+					answer[ELEMENT_VALUE] = json::value::number(score);
 					answer[ELEMENT_RESULT] = json::value::boolean(true);
 				}
 				else answer[ELEMENT_RESULT] = json::value::boolean(false);
