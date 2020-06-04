@@ -48,6 +48,9 @@ bool isJP2(const unsigned char* img)
 
 void convert_image(const unsigned char* i_image_data, const size_t i_image_data_len, unsigned char*& o_image_data, size_t& o_image_data_len)
 {
+	assert(i_image_data != nullptr);
+	assert(i_image_data_len > 0);
+
 	cv::Mat gr_img;
 	unsigned char* img_ptr = nullptr;
 
@@ -76,6 +79,6 @@ void convert_image(const unsigned char* i_image_data, const size_t i_image_data_
 	memcpy(o_image_data, out_img.data(), o_image_data_len);
 
 	cv::imwrite("last_finger_image.png", gr_img);
+	if (img_ptr != nullptr) free(img_ptr);
 	gr_img.release();
-	//if (img_ptr != nullptr) free(img_ptr);
 }
