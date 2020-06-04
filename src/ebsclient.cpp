@@ -187,7 +187,7 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
 		res = ebs_request(c_image_data, c_image_data_len, template_buf, template_buf_size,
 			EBS_CMD_EXTRACT_FINGER, EBS_CHECK_EXTRACT_FINGER, (gost ? ABIS_FINGER_TMP_GOST_SIZE : 1));
 
-	if (c_image_data) free(c_image_data);
+	if (c_image_data != nullptr) free(c_image_data);
 	return res;
 }
 

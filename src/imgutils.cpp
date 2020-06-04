@@ -65,7 +65,9 @@ void convert_image(const unsigned char* i_image_data, const size_t i_image_data_
 	}
 	else
 	{
-		gr_img = cv::imdecode(cv::Mat(1, i_image_data_len, CV_8UC1, (char*)i_image_data), cv::IMREAD_GRAYSCALE);
+		cv::Mat in_img = cv::Mat(1, i_image_data_len, CV_8UC1, (char*)i_image_data);
+		gr_img = cv::imdecode(in_img, cv::IMREAD_GRAYSCALE);
+		in_img.release();
 	}
 
 	if (gr_img.data == nullptr) throw runtime_error("Unsupported image format");

@@ -14,7 +14,8 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 
 	try
 	{
-		cv::Mat gr_img = cv::imdecode(cv::Mat(1, image_data_len, CV_8UC1, (char*)image_data), cv::IMREAD_GRAYSCALE);
+		cv::Mat in_img = cv::Mat(1, image_data_len, CV_8UC1, (char*)image_data);
+		cv::Mat gr_img = cv::imdecode(in_img, cv::IMREAD_GRAYSCALE);
 
 		size_t img_len = gr_img.rows * gr_img.cols;
 		in_fpimg = (fp_img*)malloc(sizeof(fp_img) + img_len + 4);
@@ -26,6 +27,8 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 		in_fpimg->flags = 0;
 
 		memcpy(in_fpimg->data, gr_img.data, img_len);
+		in_img.release();
+		gr_img.release();
 
 		memset(template_buf, 0, ABIS_FINGER_TMP_GOST_SIZE);
 
