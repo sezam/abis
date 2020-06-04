@@ -138,5 +138,12 @@ extern string finger_vector;
 extern string finger_index;
 extern string finger_param;
 
+extern float threshold_min;
+extern float threshold_max;
+extern float ir_threshold;
+extern float fish_threshold;
+extern float ir_threshold_select;
+extern float ensembled_threshold;
+
 #endif
 
