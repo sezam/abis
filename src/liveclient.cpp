@@ -3,7 +3,7 @@
 void live_prepare()
 {
 #ifndef _WIN32
-	init();
+	init(threshold_min, threshold_max, ir_threshold, fish_threshold, ir_threshold_select, ensembled_threshold);
 #endif
 }
 

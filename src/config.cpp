@@ -23,6 +23,13 @@ string finger_param("finger_param");
 string logging_path("../log");
 string logging_level("info");
 
+float threshold_min = 0.18f;
+float threshold_max = 0.8f;
+float ir_threshold = 0.54f;
+float fish_threshold = 0.32f;
+float ir_threshold_select = 0.8f;
+float ensembled_threshold = 0.5f;
+
 void load_settings(char* path)
 {
 	if (path != nullptr)
@@ -46,7 +53,13 @@ void load_settings(char* path)
 			("finger.parts", po::value< int >(&finger_parts), "parts")
 			("finger.vector", po::value< string >(&finger_vector), "vector table")
 			("finger.index", po::value< string >(&finger_index), "index table")
-			("finger.param", po::value< string >(&finger_param), "param table");
+			("finger.param", po::value< string >(&finger_param), "param table")
+			("liveface.threshold_min", po::value< float >(&threshold_min), "threshold_min")
+			("liveface.threshold_max", po::value< float >(&threshold_max), "threshold_max")
+			("liveface.ir_threshold", po::value< float >(&ir_threshold), "ir_threshold")
+			("liveface.fish_threshold", po::value< float >(&fish_threshold), "fish_threshold")
+			("liveface.ir_threshold_select", po::value< float >(&ir_threshold_select), "ir_threshold_select")
+			("liveface.ensembled_threshold", po::value< float >(&ensembled_threshold), "ensembled_threshold");
 
 		po::variables_map vm;
 		po::store(po::parse_config_file(path, desc), vm);
