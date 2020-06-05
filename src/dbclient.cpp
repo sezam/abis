@@ -40,6 +40,26 @@ void db_get_array(T*& ar, char* mem)
 	BOOST_LOG_TRIVIAL(debug) << "db_get_array: el_count = " << nEle << " el_size = " << sizeof(T);
 }
 
+template<class T>
+void db_get_array(vector<T>& arr, char* mem)
+{
+	assert(mem != nullptr);
+
+	size_t el_count = getNoEle(mem);
+	size_t el_size = sizeof(int);
+
+	char* start = mem + 5 * el_size;
+	for (size_t i = 0; i < el_count; i++)
+	{
+		size_t size = pg_ntoh32(*(int*)(start));
+		T el = (*(T*)(start + el_size));
+		byteSwap(el, size);
+		arr.push_back(el);
+		start += (size_t)(size + el_size);
+	}
+	BOOST_LOG_TRIVIAL(debug) << "db_get_array: el_count = " << el_count << " el_size = " << sizeof(T);
+}
+
 void db_get_array(char*& ar, char* mem)
 {
 	assert(ar != nullptr);
@@ -209,7 +229,7 @@ void db_sp_release(PGconn* db, const char* name)
 	PQclear(res);
 }
 
-int db_search_tmp(PGconn* db, const void* tmp_arr, string index_name, string param_name, string vector_name)
+int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string param_name, string vector_name, int count, vector<int>& ids)
 {
 	assert(tmp_arr != nullptr);
 
@@ -224,8 +244,9 @@ int db_search_tmp(PGconn* db, const void* tmp_arr, string index_name, string par
 	arr.append("}");
 
 	string part_size_s = to_string(ABIS_TEMPLATE_LEN / face_parts);
+	string count_s = to_string(max(count, ABIS_SEARCH_COUNT));
 
-	const char* paramValues[7] = { arr.c_str(),  part_size_s.c_str(), "1",
+	const char* paramValues[7] = { arr.c_str(),  part_size_s.c_str(), count_s.c_str(),
 		postgres_db.c_str(), param_name.c_str(), index_name.c_str(), vector_name.c_str() };
 
 	PGresult* sql_res = nullptr;
@@ -234,15 +255,12 @@ int db_search_tmp(PGconn* db, const void* tmp_arr, string index_name, string par
 		sql_res = db_exec_param(db, SQL_SEARCH_TMPS, 7, paramValues, 1);
 		logging_res("db_search_tmp", sql_res);
 
-		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
+		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0 && PQgetlength(sql_res, 0, 0) > 0)
 		{
-			int value[5];
-			int* arr_ptr = value;
 			char* res_ptr = PQgetvalue(sql_res, 0, 0);
-			if (PQgetlength(sql_res, 0, 0) > 0) {
-				db_get_array(arr_ptr, res_ptr);
-				result = arr_ptr[0];
-			}
+			db_get_array(ids, res_ptr);
+			ids.resize(count);
+			result = ids.size();
 		}
 	}
 	catch (const std::exception& ec)
@@ -257,14 +275,32 @@ int db_search_tmp(PGconn* db, const void* tmp_arr, string index_name, string par
 }
 
 
-int db_search_face_tmp(PGconn* db, const void* tmp_arr)
+int db_search_face_tmps(PGconn* db, const void* tmp_arr, int count, vector<int>& ids)
 {
-	return db_search_tmp(db, tmp_arr, face_index, face_param, face_vector);
+	return db_search_tmps(db, tmp_arr, face_index, face_param, face_vector, count, ids);
 }
 
-int db_search_finger_tmp(PGconn* db, const void* tmp_arr)
+int db_search_face_tmp(PGconn* db, const void* tmp_arr, int& id)
 {
-	return db_search_tmp(db, tmp_arr, finger_index, finger_param, finger_vector);
+	vector<int> ids;
+	int res = db_search_face_tmps(db, tmp_arr, 1, ids);
+
+	if (res > 0 && ids.size() > 0) id = ids[0];
+	return res;
+}
+
+int db_search_finger_tmps(PGconn* db, const void* tmp_arr, int count, vector<int>& ids)
+{
+	return db_search_tmps(db, tmp_arr, finger_index, finger_param, finger_vector, count, ids);
+}
+
+int db_search_finger_tmp(PGconn* db, const void* tmp_arr, int& id)
+{
+	vector<int> ids;
+	int res = db_search_finger_tmps(db, tmp_arr, 1, ids);
+
+	if (res > 0 && ids.size() > 0) id = ids[0];
+	return res;
 }
 
 int db_insert_tmp(PGconn* db, const void* tmp_arr, int tmp_id, string index_name, string param_name, string vector_name)
@@ -325,7 +361,7 @@ int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
 	int result = 0;
 	int esz = base64::encoded_size(ABIS_FINGER_TMP_GOST_SIZE);
 
-	unsigned char* b64 = (unsigned char*)malloc( esz + 1);
+	unsigned char* b64 = (unsigned char*)malloc(esz + 1);
 	if (b64 != nullptr)
 	{
 		size_t res = base64::encode(b64, tmp_arr, ABIS_FINGER_TMP_GOST_SIZE);

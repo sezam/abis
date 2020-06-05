@@ -32,12 +32,16 @@ static const string SQL_DEL_LINK("DELETE FROM t_biocard_template_link bt WHERE b
                             WHERE bt.tmp_type = $1::integer AND bt.tmp_id = $2::integer AND bc.gid = $3::uuid \
                          ) RETURNING * ");
 
+#define ABIS_SEARCH_COUNT   10
+
 //functions for byte swaping
 #define ByteSwap(x)  byteswap((unsigned char*) &x, sizeof(x))
 #define byteSwap(x,n)  byteswap((unsigned char*) &x,  n)
 
 template<class T>
 void db_get_array(T*& ar, char* mem);
+template<class T>
+void db_get_array(vector<T>& arr, char* mem);
 void db_get_array(char*& ar, char* mem);
 void db_get_array(char**& ar, char* mem);
 
@@ -58,12 +62,14 @@ void db_sp_release(PGconn* db, const char* name);
 /*
 поиск id шаблона по графу
 */
-int db_search_face_tmp(PGconn* db, const void* tmp_arr);
+int db_search_face_tmps(PGconn* db, const void* tmp_arr, int count, vector<int>& ids);
+int db_search_face_tmp(PGconn* db, const void* tmp_arr, int &id);
 
 /*
 reserv
 */
-int db_search_finger_tmp(PGconn* db, const void* tmp_arr);
+int db_search_finger_tmps(PGconn* db, const void* tmp_arr, int count, vector<int>& ids);
+int db_search_finger_tmp(PGconn* db, const void* tmp_arr, int &id);
 
 /*
 вставка шаблона лица в таблицу поиска

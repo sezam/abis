@@ -129,6 +129,7 @@ void biocard_put(http_request request)
 				auto arr = req_json.at(ELEMENT_VALUE).as_array();
 				for (size_t i = 0; i < arr.size(); i++)
 				{
+					vector<int> ids;
 					void* tmp_in = nullptr;
 					void* tmp_gost = nullptr;
 					int tmp_type = ABIS_DATA;
@@ -155,8 +156,7 @@ void biocard_put(http_request request)
 						db_sp_begin(db, "face_template");
 						if (step)
 						{
-							tmp_id = db_search_face_tmp(db, tmp_in);
-							step = tmp_id > 0;
+							step = db_search_face_tmp(db, tmp_in, tmp_id) > 0;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error search face template";
 						}
 
@@ -208,8 +208,7 @@ void biocard_put(http_request request)
 						db_sp_begin(db, "finger_template");
 						if (step)
 						{
-							tmp_id = db_search_finger_tmp(db, tmp_in);
-							step = tmp_id > 0;
+							step = db_search_finger_tmp(db, tmp_in, tmp_id) > 0;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error search finger template";
 						}
 
