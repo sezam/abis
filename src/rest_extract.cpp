@@ -1,9 +1,7 @@
 #include "AbisRest.h"
 #include "rest_extract.h"
 #include "restutils.h"
-#include "ebsclient.h"
 #include "fplibclient.h"
-#include "liveclient.h"
 
 http_listener register_extract(web::uri url)
 {
@@ -28,67 +26,36 @@ void extract_get(http_request request)
 		{
 			try
 			{
-				auto element_image = req_json.at(ELEMENT_VALUE).as_string();
-				while ((element_image.length() % 4) != 0) element_image += U("=");
-				vector<unsigned char> buf = conversions::from_base64(element_image);
+				int tmp_type = ABIS_DATA;
+				void* tmp_in = nullptr;
 
-				int element_type = req_json.at(ELEMENT_TYPE).as_integer();
-				if (element_type == ABIS_FACE_IMAGE)
+				int element_type = tmp_from_json(req_json, tmp_type, tmp_in);
+				bool step = element_type > 0;
+				if (!step) BOOST_LOG_TRIVIAL(debug) << "extract_get: error extract template";
+
+
+				if (step)
 				{
-					float* vec_tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
-					memset(vec_tmp, 0, ABIS_TEMPLATE_SIZE);
 
-					int res = extract_face_template(buf.data(), buf.size(), vec_tmp, ABIS_TEMPLATE_SIZE);
-					if (res == 1)
+					if (tmp_type == ABIS_FACE_TEMPLATE || tmp_type == ABIS_FINGER_TEMPLATE)
 					{
 						for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
-							answer[ELEMENT_VALUE][i] = json::value::number(vec_tmp[i]);
+							answer[ELEMENT_VALUE][i] = json::value::number(((float*)tmp_in)[i]);
 					}
-					free(vec_tmp);
-
-					answer[ELEMENT_TYPE] = json::value::number(ABIS_FACE_TEMPLATE);
-					answer[ELEMENT_RESULT] = json::value::boolean(res > 0);
-				}
-				if (element_type == ABIS_FINGER_IMAGE)
-				{
-					float* vec_tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
-					memset(vec_tmp, 0, ABIS_TEMPLATE_SIZE);
-
-					int res = extract_finger_template(buf.data(), buf.size(), vec_tmp, ABIS_TEMPLATE_SIZE, false);
-					if (res == 1)
-					{
-						for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
-							answer[ELEMENT_VALUE][i] = json::value::number(vec_tmp[i]);
-					}
-					free(vec_tmp);
-
-					answer[ELEMENT_TYPE] = json::value::number(ABIS_FINGER_TEMPLATE);
-					answer[ELEMENT_RESULT] = json::value::boolean(res > 0);
-				}
-				if (element_type == ABIS_FINGER_GOST_IMAGE)
-				{
-					char* vec_tmp = (char*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
-					memset(vec_tmp, 0, ABIS_FINGER_TMP_GOST_SIZE);
-
-					int res = extract_finger_template(buf.data(), buf.size(), vec_tmp, ABIS_FINGER_TMP_GOST_SIZE, true);
-					if (res == 1)
+					if (tmp_type == ABIS_FINGER_GOST_TEMPLATE)
 					{
 						for (size_t i = 0; i < ABIS_FINGER_TMP_GOST_SIZE; i++)
-							answer[ELEMENT_VALUE][i] = json::value::number(vec_tmp[i]);
+							answer[ELEMENT_VALUE][i] = json::value::number(((char*)tmp_in)[i]);
 					}
-					free(vec_tmp);
-
-					answer[ELEMENT_TYPE] = json::value::number(ABIS_FINGER_GOST_TEMPLATE);
-					answer[ELEMENT_RESULT] = json::value::boolean(res > 0);
+					if (tmp_type == ABIS_LIVEFACE_IMAGE)
+					{
+						answer[ELEMENT_VALUE] = json::value::number(*((int*)tmp_in));
+					}
 				}
-				if (element_type == ABIS_LIVEFACE_IMAGE)
-				{
-					int res = live_check(buf.data());
+				if (tmp_in != nullptr)free(tmp_in);
 
-					answer[ELEMENT_TYPE] = json::value::number(ABIS_LIVEFACE_IMAGE);
-					answer[ELEMENT_RESULT] = json::value::boolean(res <= 1);
-					answer[ELEMENT_VALUE] = json::value::number(res);
-				}
+				answer[ELEMENT_TYPE] = json::value::number(tmp_type);
+				answer[ELEMENT_RESULT] = json::value::boolean(step);
 				sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)

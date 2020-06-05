@@ -2,6 +2,7 @@
 #include "restutils.h"
 #include "ebsclient.h"
 #include "fplibclient.h"
+#include "liveclient.h"
 
 void JSON_EXCEPTION(web::json::value& obj, const string msg)
 {
@@ -139,81 +140,14 @@ void* json2fingergost_tmp(const web::json::value& el)
 	return result;
 }
 
-int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
-{
-	int element_type = el.at(ELEMENT_TYPE).as_integer();
-	int res = element_type;
-
-	if (element_type == ABIS_FACE_IMAGE)
-	{
-		auto element_image = el.at(ELEMENT_VALUE).as_string();
-		while ((element_image.length() % 4) != 0) element_image += U("=");
-		vector<unsigned char> buf = conversions::from_base64(element_image);
-
-		float* face_tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
-		memset(face_tmp, 0, ABIS_TEMPLATE_SIZE);
-
-		tmp_type = ABIS_FACE_TEMPLATE;
-		tmp_ptr = face_tmp;
-
-		if (extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE) <= 0) res = -element_type;
-	}
-	if (element_type == ABIS_FACE_TEMPLATE)
-	{
-		tmp_type = ABIS_FACE_TEMPLATE;
-		tmp_ptr = json2tmp(el);
-	}
-
-	if (element_type == ABIS_FINGER_IMAGE)
-	{
-		auto element_image = el.at(ELEMENT_VALUE).as_string();
-		while ((element_image.length() % 4) != 0) element_image += U("=");
-		vector<unsigned char> buf = conversions::from_base64(element_image);
-
-		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_TEMPLATE_SIZE);
-		memset(finger_tmp, 0, ABIS_TEMPLATE_SIZE);
-
-		tmp_type = ABIS_FINGER_TEMPLATE;
-		tmp_ptr = finger_tmp;
-
-		if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE, false) <= 0) res = -element_type;
-	}
-	if (element_type == ABIS_FINGER_TEMPLATE)
-	{
-		tmp_type = ABIS_FINGER_TEMPLATE;
-		tmp_ptr = json2tmp(el);
-	}
-
-	if (element_type == ABIS_FINGER_GOST_IMAGE)
-	{
-		auto element_image = el.at(ELEMENT_VALUE).as_string();
-		while ((element_image.length() % 4) != 0) element_image += U("=");
-		vector<unsigned char> buf = conversions::from_base64(element_image);
-
-		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
-		memset(finger_tmp, 0, ABIS_FINGER_TMP_GOST_SIZE);
-
-		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
-		tmp_ptr = finger_tmp;
-
-		if (extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_FINGER_TMP_GOST_SIZE, true) <= 0) res = -element_type;
-	}
-	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
-	{
-		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
-		tmp_ptr = json2fingergost_tmp(el);
-	}
-	return res;
-}
-
-
 int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
 	int element_type = el.at(ELEMENT_TYPE).as_integer();
-	int res = element_type;
+	int res = 0;
 
 	if (element_type == ABIS_FACE_IMAGE)
 	{
+		res = element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -228,19 +162,21 @@ int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	}
 	if (element_type == ABIS_FACE_TEMPLATE)
 	{
+		res = element_type;
 		tmp_type = ABIS_FACE_TEMPLATE;
 		tmp_ptr = json2tmp(el);
 	}
 	return res;
 }
 
-int finger_tmp_from_json(json::value el, void*& tmp_ptr, void*& gost_tmp_ptr)
+int finger2_tmp_from_json(json::value el, void*& tmp_ptr, void*& gost_tmp_ptr)
 {
 	int element_type = el.at(ELEMENT_TYPE).as_integer();
-	int res = element_type;
+	int res = 0;
 
 	if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_GOST_IMAGE)
 	{
+		res = element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -256,5 +192,73 @@ int finger_tmp_from_json(json::value el, void*& tmp_ptr, void*& gost_tmp_ptr)
 		if (extract_finger_template(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, false) <= 0) res = -element_type;
 		if (extract_finger_template(buf.data(), buf.size(), gost_tmp_ptr, ABIS_FINGER_TMP_GOST_SIZE, true) <= 0) res = -element_type;
 	}
+	return res;
+}
+
+int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
+{
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
+	int res = 0;
+
+	res = face_tmp_from_json(el, tmp_type, tmp_ptr);
+
+	if (element_type == ABIS_FINGER_IMAGE)
+	{
+		res = element_type;
+		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
+		vector<unsigned char> buf = conversions::from_base64(element_image);
+
+		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_TEMPLATE_SIZE);
+		memset(finger_tmp, 0, ABIS_TEMPLATE_SIZE);
+
+		tmp_type = ABIS_FINGER_TEMPLATE;
+		tmp_ptr = finger_tmp;
+
+		res = extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE, false);
+	}
+	if (element_type == ABIS_FINGER_TEMPLATE)
+	{
+		res = element_type;
+		tmp_type = ABIS_FINGER_TEMPLATE;
+		tmp_ptr = json2tmp(el);
+	}
+
+	if (element_type == ABIS_FINGER_GOST_IMAGE)
+	{
+		res = element_type;
+		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
+		vector<unsigned char> buf = conversions::from_base64(element_image);
+
+		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
+		memset(finger_tmp, 0, ABIS_FINGER_TMP_GOST_SIZE);
+
+		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
+		tmp_ptr = finger_tmp;
+
+		res = extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_FINGER_TMP_GOST_SIZE, true);
+	}
+	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
+	{
+		res = element_type;
+		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
+		tmp_ptr = json2fingergost_tmp(el);
+	}
+
+	if (element_type == ABIS_LIVEFACE_IMAGE)
+	{
+		res = element_type;
+		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
+		vector<unsigned char> buf = conversions::from_base64(element_image);
+
+		tmp_type = ABIS_LIVEFACE_IMAGE;
+
+		int* live_res = (int*)malloc(sizeof(int));
+		res = live_check(buf.data());
+		*live_res = res;
+	}
+
 	return res;
 }

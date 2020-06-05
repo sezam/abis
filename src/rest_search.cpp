@@ -55,7 +55,7 @@ void search_get(http_request request)
 					if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_GOST_IMAGE)
 					{
 						tmp_type = ABIS_FINGER_TEMPLATE;
-						step = finger_tmp_from_json(arr[i], tmp_in, tmp_gost) > 0;
+						step = finger2_tmp_from_json(arr[i], tmp_in, tmp_gost) > 0;
 						if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract finger template";
 					}
 
