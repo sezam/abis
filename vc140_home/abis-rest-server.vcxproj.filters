@@ -22,6 +22,9 @@
     <Filter Include="Header Files\live">
       <UniqueIdentifier>{2494c8bd-9757-4998-8607-46cf64f4f19b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\tst">
+      <UniqueIdentifier>{a4acb71f-4867-4f89-ac2a-39c166ee7967}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\readme.txt" />
@@ -137,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="..\src\liveclient.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tst\test.cpp">
+      <Filter>Source Files\tst</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

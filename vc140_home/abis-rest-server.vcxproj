@@ -67,7 +67,7 @@
     <ExecutablePath>d:\lib\vcpkg\installed\x86-windows\debug\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>d:\lib\vcpkg\installed\x86-windows\debug\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>d:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>d:\lib\vcpkg\installed\x86-windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>d:\lib\vcpkg\installed\x86-windows\include;$(IncludePath);D:\work\abis\abis\src</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -75,21 +75,21 @@
     <ExecutablePath>d:\lib\vcpkg\installed\x86-windows\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>d:\lib\vcpkg\installed\x86-windows\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>d:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>d:\lib\vcpkg\installed\x86-windows\include;$(IncludePath)</IncludePath>
+    <IncludePath>d:\lib\vcpkg\installed\x86-windows\include;$(IncludePath);D:\work\abis\abis\src</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>d:\lib\vcpkg\installed\x64-windows\debug\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>d:\lib\vcpkg\installed\x64-windows\debug\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>d:\lib\vcpkg\installed\x64-windows\debug\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>d:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>d:\lib\vcpkg\installed\x64-windows\include;..\nbis\include;$(IncludePath)</IncludePath>
+    <IncludePath>d:\lib\vcpkg\installed\x64-windows\include;..\nbis\include;$(IncludePath);D:\work\abis\abis\src</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>d:\lib\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>d:\lib\vcpkg\installed\x64-windows\bin;$(ExecutablePath)</ExecutablePath>
     <ReferencePath>d:\lib\vcpkg\installed\x64-windows\bin;$(ReferencePath)</ReferencePath>
     <SourcePath>d:\lib\vcpkg\buildtrees;$(SourcePath)</SourcePath>
-    <IncludePath>d:\lib\vcpkg\installed\x64-windows\include;..\nbis\include;$(IncludePath)</IncludePath>
+    <IncludePath>d:\lib\vcpkg\installed\x64-windows\include;..\nbis\include;$(IncludePath);D:\work\abis\abis\src</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -191,6 +191,7 @@
     <ClCompile Include="..\src\rest_extract.cpp" />
     <ClCompile Include="..\src\rest_search.cpp" />
     <ClCompile Include="..\src\rest_verify.cpp" />
+    <ClCompile Include="..\tst\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

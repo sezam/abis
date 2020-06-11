@@ -36,7 +36,6 @@ void extract_get(http_request request)
 
 				if (step)
 				{
-
 					if (tmp_type == ABIS_FACE_TEMPLATE || tmp_type == ABIS_FINGER_TEMPLATE)
 					{
 						for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)

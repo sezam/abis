@@ -102,3 +102,8 @@ TODO
 пул для подключений к базе
 объеденить последовательные запросы в один
 оформить код в объекты
+
+
+
+//#include <pplx/threadpool.h>        // crossplat::threadpool
+//crossplat::threadpool::initialize_with_threads(10);

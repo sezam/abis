@@ -21,9 +21,9 @@ if(UNIX)
         /opt/vcpkg/installed/x64-linux/include/postgresql/internal/
     )
 
-    find_library(FPRINT_LIB libfingerpoints.so ${PROJECT_SOURCE_DIR}/shared/)
+    find_library(FPRINT_LIB libfprint.so ${PROJECT_SOURCE_DIR}/shared/)
     if(FPRINT_LIB)
-        message(STATUS "Found libfingerpoints: ${FPRINT_LIB}")
+        message(STATUS "Found libfprint: ${FPRINT_LIB}")
     else()
         message(FATAL_ERROR "Looking for libfprint - not found")
     endif()
@@ -36,7 +36,7 @@ if(UNIX)
     endif()
 endif()
 
-file (GLOB COMMON_SRC *.cpp *.h finger/*.h live/*.h)
+file (GLOB COMMON_SRC ../src/*.cpp ../src/*.h ../src/finger/*.h ../src/live/*.h *.cpp * h)
 set (SOURCE  ${COMMON_SRC})
 
 find_package(Boost 1.72.0 REQUIRED COMPONENTS log program_options thread)
@@ -49,7 +49,7 @@ find_package(OpenCV REQUIRED COMPONENTS core imgcodecs)
 find_library(libwsq REQUIRED)
 
 #Финальный штрих и сборка.
-add_executable(${PACKAGE_TARNAME} ${SOURCE})
+add_executable(${PACKAGE_TARNAME}_tst ${SOURCE})
 
 target_link_libraries(${PACKAGE_TARNAME}
     cpprestsdk::cpprest
@@ -65,7 +65,7 @@ target_link_libraries(${PACKAGE_TARNAME}
 )
 
 if(UNIX)
-    target_link_libraries(${PACKAGE_TARNAME}
+    target_link_libraries(${PACKAGE_TARNAME}_tst
         ${FPRINT_LIB}
         ${LIVE_LIB}
     )
