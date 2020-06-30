@@ -145,5 +145,9 @@ extern float fish_threshold;
 extern float ir_threshold_select;
 extern float ensembled_threshold;
 
+extern int finger_min_points;
+extern int finger_min_quality;
+extern int finger_min_goodpoints;
+
 #endif
 

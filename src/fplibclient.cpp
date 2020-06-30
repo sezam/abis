@@ -36,12 +36,13 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 #ifndef _WIN32
 		getFingerPrint(in_fpimg, template_buf);
 #endif
-		xyt_struct* xyt = (xyt_struct*)template_buf;
 		int q = 0;
-		for (size_t i = 0; i < xyt->nrows; i++) q += (int)(xyt->quality[i] > ABIS_FINGER_GOST_QUALITY);
-
-		res = (int)(xyt->nrows > ABIS_FINGER_GOST_POINTS && q > xyt->nrows * ABIS_FINGER_GOST_QUALITY / 100);
-		res = 1;
+		xyt_struct* xyt = (xyt_struct*)template_buf;
+		if (xyt->nrows >= finger_min_points)
+		{
+			for (size_t i = 0; i < xyt->nrows; i++) q += (int)(xyt->quality[i] >= finger_min_quality);
+			res = (int)(q >= xyt->nrows * finger_min_goodpoints / 100);
+		}
 		BOOST_LOG_TRIVIAL(debug) << "get_fingerprint_template: points = " << xyt->nrows << " good = " << q << " res = " << res;
 	}
 	catch (const boost::system::error_code& ec)

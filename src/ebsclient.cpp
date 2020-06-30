@@ -5,35 +5,44 @@
 #include "imgutils.h"
 #include "fplibclient.h"
 
-#define COUNTOF(x) (sizeof(x)/sizeof(*x))
-
 interprocess_semaphore mx_logger(1);
 interprocess_semaphore mx_finder(1);
 vector<interprocess_semaphore*> mx_ports;
+vector<tcp::socket*> extract_sockets;
+
+boost::asio::io_context io_context_;
+static int current_port_ = 0;
 
 int find_free_port()
 {
 	if (mx_ports.size() == 0)
+	{
 		for (int i = 0; i < extract_port_count; i++)
 		{
 			interprocess_semaphore* sem = new interprocess_semaphore(1);
 			mx_ports.push_back(sem);
+
+			tcp::socket* client_socket = new tcp::socket(io_context_);
+			extract_sockets.push_back(client_socket);
 		}
+	}
+
 	mx_finder.wait();
 
+	bool one = true;
 	while (true)
 	{
-		for (int i = 0; i < extract_port_count; i++)
+		int port = current_port_++ % extract_port_count;
+		if (mx_ports[port]->try_wait())
 		{
-			if (mx_ports[i]->try_wait())
-			{
-				mx_finder.post();
-				return i;
-			}
-			this_thread::yield();
-			BOOST_LOG_TRIVIAL(debug) << "extract face service busy";
+			mx_finder.post();
+			return port;
 		}
-		this_thread::sleep_for(milliseconds(100));
+		this_thread::yield();
+		if (one) BOOST_LOG_TRIVIAL(debug) << "extract face service busy on all ports";
+
+		this_thread::sleep_for(milliseconds(5 * rand() % 5));
+		one = false;
 	};
 
 	mx_finder.post();
@@ -50,18 +59,22 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 	int res = 0;
 	int current_port = port_index + extract_port_start;
 
-	io_service boost_io_service;
-	tcp::socket client_socket(boost_io_service);
+	auto start = steady_clock::now();
+
+	tcp::socket* client_socket = extract_sockets.at(port_index);
 	try
 	{
-		tcp::resolver::query query(extract_host, to_string(current_port));
-		tcp::resolver::iterator endpoint_iterator = tcp::resolver(boost_io_service).resolve(query);
-
 		boost::system::error_code err = boost::asio::error::would_block;
-		connect(client_socket, endpoint_iterator, err);
 
-		bool step = !err.failed() && client_socket.is_open();
-		if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: extract service not response. " << err.message();
+		tcp::endpoint ep = tcp::endpoint(ip::address::from_string(extract_host), current_port);
+		client_socket->connect(ep, err);
+
+		bool step = !err.failed() && client_socket->is_open();
+		if (!step)
+		{
+			BOOST_LOG_TRIVIAL(debug) << "ebs_request: extract service not response. " << err.message();
+			res = -1;
+		}
 
 		size_t send_data_len = image_data_len + 1;
 		if (step)
@@ -76,37 +89,57 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 			send_header[6] = (unsigned char)((send_data_len >> 8) & 0xFF);
 			send_header[7] = (unsigned char)(send_data_len & 0xFF);
 
-			write(client_socket, buffer(send_header, 8), err);
+			client_socket->write_some(buffer(send_header, 8), err);
 			step = !err.failed();
-			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: send header error. " << err.message();
+			if (!step)
+			{
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: send header error. " << err.message();
+				res = -2;
+			}
 		}
 
 		if (step)
 		{
-			write(client_socket, buffer(image_data, image_data_len), err);
+			client_socket->write_some(buffer(image_data, image_data_len), err);
 			step = !err.failed();
-			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: send image error. " << err.message();
+			if (!step)
+			{
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: send image error. " << err.message();
+				res = -3;
+			}
 		}
 
 		if (step)
 		{
-			write(client_socket, buffer(&cmd, 1), err);
+			client_socket->write_some(buffer(&cmd, 1), err);
 			step = !err.failed();
-			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: send cmd error. " << err.message();
+			if (!step) 
+			{
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: send cmd error. " << err.message();
+				res = -4;
+			}
 		}
 
 		unsigned char recv_header[8];
 		if (step)
 		{
-			size_t io_len = client_socket.read_some(buffer(recv_header, 8), err);
+			size_t io_len = client_socket->read_some(buffer(recv_header, 8), err);
 			step = !err.failed() && io_len == 8;
-			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header error. " << err.message();
+			if (!step)
+			{
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header error. " << err.message();
+				res = -5;
+			}
 		}
 
 		if (step)
 		{
 			step = recv_header[0] == 'a' && recv_header[1] == 'n' && recv_header[2] == 's' && recv_header[3] == 'w';
-			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header format error. " << err.message();
+			if (!step)
+			{
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header format error. " << err.message();
+				res = -6;
+			}
 		}
 
 		size_t recv_data_len = 0;
@@ -119,7 +152,11 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 			recv_data_len = (size_t)(p1) * 16777216 + (size_t)(p2) * 65536 + (size_t)(p3) * 256 + (size_t)(p4);
 
 			step = recv_data_len > 0;
-			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header datalen error. " << err.message();
+			if (!step)
+			{
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive header datalen error. " << err.message();
+				res = -7;
+			}
 		}
 
 		unsigned char* recv_data = nullptr;
@@ -127,16 +164,24 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		{
 			recv_data = (unsigned char*)malloc(recv_data_len);
 			step = recv_data != nullptr;
-			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data allocate memory error. " << err.message();
+			if (!step) 
+			{
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data allocate memory error. " << err.message();
+				res = -8;
+			}
 		}
 
 		if (step)
 		{
 			memset(recv_data, 0, recv_data_len);
-			size_t io_len = client_socket.read_some(buffer(recv_data, recv_data_len), err);
+			size_t io_len = client_socket->read_some(buffer(recv_data, recv_data_len), err);
 
 			step = !err.failed() && io_len == recv_data_len && template_buf_size <= recv_data_len - 1;
-			if (!step) BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data allocate memory error. " << err.message();
+			if (!step)
+			{
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data allocate memory error. " << err.message();
+				res = -9;
+			}
 		}
 
 		if (step)
@@ -145,22 +190,27 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 			step = recv_data[0] == check;
 		}
 		if (recv_data != nullptr) free(recv_data);
-
-		(step ? res = 1 : 0);
 	}
 	catch (const boost::system::error_code& ec)
 	{
 		BOOST_LOG_TRIVIAL(error) << "ebs_request: " << ec.message();
-		res = -1;
+		res = -11;
 	}
 	catch (const std::exception& ec)
 	{
 		BOOST_LOG_TRIVIAL(error) << "ebs_request: " << ec.what();
-		res = -2;
+		res = -12;
 	}
 
-	client_socket.close();
+	client_socket->close();
 	mx_ports[port_index]->post();
+
+	auto diff = steady_clock::now() - start;
+	BOOST_LOG_TRIVIAL(debug) << "extract: "
+		<< " image size: " << image_data_len
+		<< " duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms"
+		<< " res: " << res;
+
 	return res;
 
 }

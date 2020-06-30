@@ -30,6 +30,10 @@ float fish_threshold = 0.32f;
 float ir_threshold_select = 0.8f;
 float ensembled_threshold = 0.5f;
 
+int finger_min_points = 12;
+int finger_min_quality = 60;
+int finger_min_goodpoints = 60;
+
 void load_settings(char* path)
 {
 	if (path != nullptr)
@@ -54,6 +58,9 @@ void load_settings(char* path)
 			("finger.vector", po::value< string >(&finger_vector), "vector table")
 			("finger.index", po::value< string >(&finger_index), "index table")
 			("finger.param", po::value< string >(&finger_param), "param table")
+			("finger.min_points", po::value< int >(&finger_min_points), "finger min points")
+			("finger.min_quality", po::value< int >(&finger_min_quality), "finger min quality")
+			("finger.min_good", po::value< int >(&finger_min_goodpoints), "finger min goodpoints")
 			("liveface.threshold_min", po::value< float >(&threshold_min), "threshold_min")
 			("liveface.threshold_max", po::value< float >(&threshold_max), "threshold_max")
 			("liveface.ir_threshold", po::value< float >(&ir_threshold), "ir_threshold")
