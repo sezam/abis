@@ -21,7 +21,7 @@ if(UNIX)
         /opt/vcpkg/installed/x64-linux/include/postgresql/internal/
     )
 
-    find_library(FPRINT_LIB libfingerpoints.so ${PROJECT_SOURCE_DIR}/shared/)
+    find_library(FPRINT_LIB libfprint.so ${PROJECT_SOURCE_DIR}/shared/)
     if(FPRINT_LIB)
         message(STATUS "Found libfingerpoints: ${FPRINT_LIB}")
     else()

@@ -188,6 +188,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		{
 			memcpy(template_buf, &recv_data[offset], template_buf_size);
 			step = recv_data[0] == check;
+			res = 1;
 		}
 		if (recv_data != nullptr) free(recv_data);
 	}
