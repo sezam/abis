@@ -121,7 +121,7 @@ void search_get(http_request request)
 								json_tmp[ELEMENT_ID] = json::value::number(tmp_id);
 
 								char bc_gid[50];
-								step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) > 0;
+								step = db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) > 0;
 								if (step)
 								{
 									json_tmp[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));

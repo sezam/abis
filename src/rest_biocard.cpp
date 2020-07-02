@@ -120,7 +120,7 @@ void biocard_put(http_request request)
 					string_generator gen;
 					gid = gen(utility::conversions::to_utf8string(sp[0]));
 
-					bc_id = db_card_id_by_gid(db, to_string(gid).c_str());
+					bc_id = db_get_bc_by_gid(db, to_string(gid).c_str());
 					if (bc_id <= 0) throw runtime_error("biocard_put: biocard not found.");
 				}
 
@@ -178,7 +178,7 @@ void biocard_put(http_request request)
 								if (cmp_face_tmp(tmp_in, tmp_db) >= ABIS_FACE_THRESHOLD)
 								{
 									char bc_gid[50];
-									step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) == 0;
+									step = db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) == 0;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: face template already in biocard";
 								}
 								else
@@ -272,7 +272,7 @@ void biocard_put(http_request request)
 								if (score_gost >= ABIS_FINGER_GOST_THRESHOLD)
 								{
 									char bc_gid[50];
-									step = db_card_id_by_tmp_id(db, tmp_type, tmp_id, bc_gid) == 0;
+									step = db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) == 0;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: finger template already in biocard";
 								}
 								else
@@ -348,24 +348,34 @@ void biocard_del(http_request request)
 
 				string_generator gen;
 				uuid gid = gen(utility::conversions::to_utf8string(sp[0]));
+				string gid_s = to_string(gid);
 
 				db = db_open();
 
-				auto json_out = json::value::array();
-				auto arr = req_json.as_array();
-				for (size_t i = 0; i < arr.size(); i++)
+				if (req_json.is_null())
 				{
-					int tmp_type = arr[i].at(ELEMENT_TYPE).as_integer();
-					int tmp_id = arr[i].at(ELEMENT_ID).as_integer();
-					int del_res = db_del_link(db, tmp_type, tmp_id, to_string(gid).c_str());
+					int del_link_res = db_del_links(db, gid_s.c_str());
+					int del_bc_res = db_del_bc(db, gid_s.c_str());
 
-					auto json_row = arr[i];
-					json_row[ELEMENT_RESULT] = json::value::boolean(del_res > 0);
-					json_out[i] = json_row;
+					answer[ELEMENT_RESULT] = json::value::boolean(del_link_res > 0 && del_bc_res > 0);
 				}
+				else
+				{
+					auto json_out = json::value::array();
+					auto arr = req_json.as_array();
+					for (size_t i = 0; i < arr.size(); i++)
+					{
+						int tmp_type = arr[i].at(ELEMENT_TYPE).as_integer();
+						int tmp_id = arr[i].at(ELEMENT_ID).as_integer();
+						int del_res = db_del_link(db, tmp_type, tmp_id, gid_s.c_str());
 
-				answer[ELEMENT_VALUE] = json_out;
-				answer[ELEMENT_RESULT] = json::value::boolean(true);
+						auto json_row = arr[i];
+						json_row[ELEMENT_RESULT] = json::value::boolean(del_res > 0);
+						json_out[i] = json_row;
+					}
+					answer[ELEMENT_RESULT] = json::value::boolean(true);
+					answer[ELEMENT_VALUE] = json_out;
+				}
 				sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)
