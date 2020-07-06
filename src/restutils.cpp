@@ -46,7 +46,7 @@ void print_json(json::value const& jvalue)
 	ss << "../log/" << std::put_time(std::localtime(&in_time_t), "%d-%m-%Y %H-%M-%S") << ".json.txt";
 
 	ofstream ofs(ss.str(), ios::out);
-	if(!ofs.is_open()) BOOST_LOG_TRIVIAL(debug) << "JSON saver error: " << errno;
+	if (!ofs.is_open()) BOOST_LOG_TRIVIAL(debug) << "JSON saver error: " << errno;
 	ofs << conversions::to_utf8string(jvalue.serialize());
 
 	ofs.close();
@@ -159,6 +159,10 @@ int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 		tmp_ptr = face_tmp;
 
 		if (extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE) <= 0) res = -element_type;
+
+		float summ = 0.f;
+		for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++) summ += face_tmp[i] * face_tmp[i];
+		if (abs(summ - 1.f) >= 0.001) res = -element_type;
 	}
 	if (element_type == ABIS_FACE_TEMPLATE)
 	{
