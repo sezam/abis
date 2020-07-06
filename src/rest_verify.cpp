@@ -74,6 +74,12 @@ void verify_get(http_request request)
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract finger template";
 						}
 
+						if (element_type == ABIS_FINGER_GOST_TEMPLATE)
+						{
+							tmp_type = ABIS_FINGER_GOST_TEMPLATE;
+							tmp_gost = json2fingergost_tmp(arr[i]);
+						}
+
 						for (int r = 0; r < PQntuples(sql_res); r++)
 						{
 							int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
@@ -124,15 +130,19 @@ void verify_get(http_request request)
 						if (tmp_gost != nullptr) free(tmp_gost);
 					}
 
-					float trhld = sw_trhld[0];
-					float score = sw_score[0];
-					for (size_t i = 1; i < sw_trhld.size(); i++)
+					float trhld = 0.f;
+					float score = 0.f;
+					if (!sw_trhld.empty())
 					{
-						trhld = sugeno_weber(trhld, sw_trhld[i]);
-						score = sugeno_weber(score, sw_score[i]);
+						trhld = sw_trhld[0];
+						score = sw_score[0];
+						for (size_t i = 1; i < sw_trhld.size(); i++)
+						{
+							trhld = sugeno_weber(trhld, sw_trhld[i]);
+							score = sugeno_weber(score, sw_score[i]);
+						}
+						score = min(score * ABIS_INTEGRA_THRESHOLD / trhld, 1.0f);
 					}
-					score = min(score * ABIS_INTEGRA_THRESHOLD / trhld, 1.0f);
-
 					answer[ELEMENT_VALUE] = json::value::number(score);
 					answer[ELEMENT_RESULT] = json::value::boolean(true);
 				}

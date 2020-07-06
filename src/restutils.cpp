@@ -204,7 +204,7 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
-	res = face_tmp_from_json(el, tmp_type, tmp_ptr);
+	if (element_type == ABIS_FACE_IMAGE) res = face_tmp_from_json(el, tmp_type, tmp_ptr);
 
 	if (element_type == ABIS_FINGER_IMAGE)
 	{
