@@ -76,7 +76,7 @@ void verify_get(http_request request)
 
 						if (element_type == ABIS_FINGER_GOST_TEMPLATE)
 						{
-							tmp_type = ABIS_FINGER_GOST_TEMPLATE;
+							tmp_type = ABIS_FINGER_TEMPLATE;
 							tmp_gost = json2fingergost_tmp(arr[i]);
 						}
 

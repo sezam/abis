@@ -132,7 +132,7 @@ void* json2fingergost_tmp(const web::json::value& el)
 		auto element_tmp = el.at(ELEMENT_VALUE).as_array();
 		for (size_t i = 0; i < element_tmp.size(); i++)
 		{
-			tmp[i] = (char)(element_tmp[i].as_integer() && 0xFF);
+			tmp[i] = (char)(element_tmp[i].as_integer() & 0xFF);
 		}
 		result = tmp;
 	}
