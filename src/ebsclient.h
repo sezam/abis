@@ -21,6 +21,8 @@ int extract_face_template(const unsigned char* image_data, const size_t image_da
 int extract_finger_template(const unsigned char* image_data, const size_t image_data_len,
     void* template_buf, const size_t template_buf_size, bool gost);
 
+int extract_finger_templates(const unsigned char* image_data, const size_t image_data_len,
+	void* template_buf, const size_t template_buf_size, void* gost_template_buf, const size_t gost_template_buf_size);
 /*
 сравнивает два шаблона лица через граф
 */

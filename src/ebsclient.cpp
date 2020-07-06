@@ -113,7 +113,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		{
 			client_socket->write_some(buffer(&cmd, 1), err);
 			step = !err.failed();
-			if (!step) 
+			if (!step)
 			{
 				BOOST_LOG_TRIVIAL(debug) << "ebs_request: send cmd error. " << err.message();
 				res = -4;
@@ -164,7 +164,7 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		{
 			recv_data = (unsigned char*)malloc(recv_data_len);
 			step = recv_data != nullptr;
-			if (!step) 
+			if (!step)
 			{
 				BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data allocate memory error. " << err.message();
 				res = -8;
@@ -176,10 +176,10 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 			memset(recv_data, 0, recv_data_len);
 			size_t io_len = client_socket->read_some(buffer(recv_data, recv_data_len), err);
 
-			step = !err.failed() && io_len == recv_data_len && template_buf_size <= recv_data_len - 1;
+			step = !err.failed() && io_len == recv_data_len && offset + template_buf_size <= recv_data_len;
 			if (!step)
 			{
-				BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data allocate memory error. " << err.message();
+				BOOST_LOG_TRIVIAL(debug) << "ebs_request: receive data size error. " << err.message();
 				res = -9;
 			}
 		}
@@ -232,11 +232,35 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
 	unsigned char* c_image_data = nullptr;
 	convert_image(image_data, image_data_len, c_image_data, c_image_data_len);
 
-	if (gost)
-		res = get_fingerprint_template(c_image_data, c_image_data_len, (unsigned char*)template_buf, template_buf_size);
-	else
-		res = ebs_request(c_image_data, c_image_data_len, template_buf, template_buf_size,
-			EBS_CMD_EXTRACT_FINGER, EBS_CHECK_EXTRACT_FINGER, (gost ? ABIS_FINGER_TMP_GOST_SIZE : 1));
+	res = ebs_request(c_image_data, c_image_data_len, template_buf, template_buf_size,
+		EBS_CMD_EXTRACT_FINGER, EBS_CHECK_EXTRACT_FINGER, (gost ? ABIS_TEMPLATE_SIZE + 1 : 1));
+
+	if (c_image_data != nullptr) free(c_image_data);
+	return res;
+}
+
+int extract_finger_templates(const unsigned char* image_data, const size_t image_data_len,
+	void* template_buf, const size_t template_buf_size, void* gost_template_buf, const size_t gost_template_buf_size)
+{
+	int res = -1;
+
+	size_t c_image_data_len = 0;
+	unsigned char* c_image_data = nullptr;
+	convert_image(image_data, image_data_len, c_image_data, c_image_data_len);
+
+	void* pptr = nullptr;
+	pptr = malloc(template_buf_size + gost_template_buf_size + 1);
+	if (pptr != nullptr)
+	{
+		res = ebs_request(c_image_data, c_image_data_len, pptr, template_buf_size + gost_template_buf_size + 1,
+			EBS_CMD_EXTRACT_FINGER, EBS_CHECK_EXTRACT_FINGER, 0);
+		if (res > 0)
+		{
+			memcpy(template_buf, (uchar*)pptr + 1, template_buf_size);
+			memcpy(gost_template_buf, (uchar*)pptr + 1 + template_buf_size, gost_template_buf_size);
+		}
+	}
+	if (pptr != nullptr) free(pptr);
 
 	if (c_image_data != nullptr) free(c_image_data);
 	return res;
@@ -266,7 +290,7 @@ float cmp_finger_tmp(void* tmp1, void* tmp2) {
 
 float sugeno_weber(float x, float y)
 {
-	float score =  max((x + y + x * y * SW_NORM_P - 1) / (SW_NORM_P + 1), 0.0f);
+	float score = max((x + y + x * y * SW_NORM_P - 1) / (SW_NORM_P + 1), 0.0f);
 	BOOST_LOG_TRIVIAL(debug) << "sugeno_weber: score = " << score;
 	return score;
 }

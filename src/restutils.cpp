@@ -193,7 +193,27 @@ int finger2_tmp_from_json(json::value el, void*& tmp_ptr, void*& gost_tmp_ptr)
 		if (gost_tmp_ptr == nullptr) return -2;
 		memset(gost_tmp_ptr, 0, ABIS_FINGER_TMP_GOST_SIZE);
 
-		if (extract_finger_template(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, false) <= 0) res = -element_type;
+		if (extract_finger_templates(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, gost_tmp_ptr, ABIS_FINGER_TMP_GOST_SIZE) <= 0) res = -element_type;
+	}
+	return res;
+}
+
+int finger2_gost_from_json(json::value el, void*& gost_tmp_ptr)
+{
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
+	int res = 0;
+
+	if (element_type == ABIS_FINGER_GOST_IMAGE)
+	{
+		res = element_type;
+		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
+		vector<unsigned char> buf = conversions::from_base64(element_image);
+
+		gost_tmp_ptr = malloc(ABIS_FINGER_TMP_GOST_SIZE);
+		if (gost_tmp_ptr == nullptr) return -2;
+		memset(gost_tmp_ptr, 0, ABIS_FINGER_TMP_GOST_SIZE);
+
 		if (extract_finger_template(buf.data(), buf.size(), gost_tmp_ptr, ABIS_FINGER_TMP_GOST_SIZE, true) <= 0) res = -element_type;
 	}
 	return res;
@@ -230,18 +250,8 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 	if (element_type == ABIS_FINGER_GOST_IMAGE)
 	{
-		res = element_type;
-		auto element_image = el.at(ELEMENT_VALUE).as_string();
-		while ((element_image.length() % 4) != 0) element_image += U("=");
-		vector<unsigned char> buf = conversions::from_base64(element_image);
-
-		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
-		memset(finger_tmp, 0, ABIS_FINGER_TMP_GOST_SIZE);
-
 		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
-		tmp_ptr = finger_tmp;
-
-		res = extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_FINGER_TMP_GOST_SIZE, true);
+		res = finger2_gost_from_json(el, tmp_ptr);
 	}
 	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
 	{
