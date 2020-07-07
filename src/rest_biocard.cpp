@@ -175,7 +175,7 @@ void biocard_put(http_request request)
 
 							if (step)
 							{
-								if (cmp_face_tmp(tmp_in, tmp_db) >= ABIS_FACE_THRESHOLD)
+								if (cmp_face_tmp(tmp_in, tmp_db) >= ABIS_EQUAL_THRESHOLD)
 								{
 									char bc_gid[50];
 									step = db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) == 0;
@@ -234,7 +234,7 @@ void biocard_put(http_request request)
 						bool is_gost = false;
 						if (step)
 						{
-							if (score_tmp < ABIS_FINGER_THRESHOLD)
+							if (score_tmp < ABIS_EQUAL_THRESHOLD)
 							{
 								if (step) step = (tmp_id = db_get_finger_seq(db)) > 0;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get finger sequence";
