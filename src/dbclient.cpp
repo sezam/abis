@@ -239,6 +239,7 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 {
 	assert(tmp_arr != nullptr);
 
+	auto start = steady_clock::now();
 	int result = 0;
 
 	string arr("{");
@@ -276,6 +277,11 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 	}
 
 	PQclear(sql_res);
+
+	auto diff = steady_clock::now() - start;
+	BOOST_LOG_TRIVIAL(debug) << __func__ << ": " << vector_name << " count: " << count_s 
+		<< " duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
+
 	return result;
 }
 
@@ -363,7 +369,7 @@ int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
 	assert(tmp_id > 0);
 
 	int result = 0;
-	int esz = base64::encoded_size(ABIS_FINGER_TMP_GOST_SIZE);
+	size_t esz = base64::encoded_size(ABIS_FINGER_TMP_GOST_SIZE);
 
 	unsigned char* b64 = (unsigned char*)malloc(esz + 1);
 	if (b64 != nullptr)
