@@ -266,7 +266,6 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 		{
 			char* res_ptr = PQgetvalue(sql_res, 0, 0);
 			db_get_array(ids, res_ptr);
-			ids.resize(count);
 			result = ids.size();
 		}
 	}
@@ -279,7 +278,7 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 	PQclear(sql_res);
 
 	auto diff = steady_clock::now() - start;
-	BOOST_LOG_TRIVIAL(debug) << __func__ << ": " << vector_name << " count: " << count_s 
+	BOOST_LOG_TRIVIAL(debug) << __func__ << ": " << vector_name << " count: " << count << " size: " << ids.size()
 		<< " duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
 
 	return result;
