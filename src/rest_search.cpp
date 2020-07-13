@@ -24,7 +24,7 @@ void search_get(http_request request)
 
 	handle_request(
 		request,
-		[&](json::value const& req_json, json::value& answer)
+		[&sc](json::value const& req_json, json::value& answer)
 		{
 			PGconn* db = nullptr;
 			try
@@ -33,113 +33,134 @@ void search_get(http_request request)
 
 				json::array arr = req_json.as_array();
 				auto json_out = json::value::array();
-				for (size_t i = 0; i < arr.size(); i++)
-				{
-					auto json_row = json::value::object();
-					vector<int> ids;
-					int tmp_type = ABIS_DATA;
-					void* tmp_in = nullptr;
-					void* tmp_gost = nullptr;
-					bool step = false;
 
-					int search_count = 1;
-					if (arr[i].has_field(ELEMENT_COUNT)) search_count = arr[i].at(ELEMENT_COUNT).as_integer();
-
-					int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
-					if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE)
+				pplx::task<vector<pplx::task<void>>>([&arr, &json_out, db]()
 					{
-						step = face_tmp_from_json(arr[i], tmp_type, tmp_in) > 0;
-						if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract face template";
-					}
-
-					if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_GOST_IMAGE)
-					{
-						tmp_type = ABIS_FINGER_TEMPLATE;
-						step = finger2_tmp_from_json(arr[i], tmp_in, tmp_gost) > 0;
-						if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract finger template";
-					}
-
-					if (step)
-					{
-						if (tmp_type == ABIS_FACE_TEMPLATE)
+						vector<pplx::task<void>> vv;
+						for (size_t i = 0; i < arr.size(); i++)
 						{
-							step = db_search_face_tmps(db, tmp_in, search_count, ids) > 0;
-							if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error search face template";
+							auto tt = pplx::task<void>([i, &arr, &json_out, db]()
+								{
+									BOOST_LOG_TRIVIAL(debug) << "start task " << i;
+
+									auto json_row = json::value::object();
+									vector<int> ids;
+									int tmp_type = ABIS_DATA;
+									void* tmp_in = nullptr;
+									void* tmp_gost = nullptr;
+									bool step = false;
+
+									int search_count = 1;
+									if (arr[i].has_field(ELEMENT_COUNT)) search_count = arr[i].at(ELEMENT_COUNT).as_integer();
+
+									int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
+									if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE)
+									{
+										step = face_tmp_from_json(arr[i], tmp_type, tmp_in) > 0;
+										if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract face template";
+									}
+
+									if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_GOST_IMAGE)
+									{
+										tmp_type = ABIS_FINGER_TEMPLATE;
+										step = finger2_tmp_from_json(arr[i], tmp_in, tmp_gost) > 0;
+										if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract finger template";
+									}
+
+									if (step)
+									{
+										if (tmp_type == ABIS_FACE_TEMPLATE)
+										{
+											step = db_search_face_tmps(db, tmp_in, search_count, ids) > 0;
+											if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error search face template";
+										}
+										if (tmp_type == ABIS_FINGER_TEMPLATE)
+										{
+											step = db_search_finger_tmps(db, tmp_in, search_count, ids) > 0;
+											if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error search finger template";
+										}
+									}
+
+									if (step)
+									{
+										auto json_tmps = json::value::array();
+										for (size_t j = 0; j < ids.size(); j++)
+										{
+											auto json_tmp = json::value::object();
+											int tmp_id = ids[j];
+											float score = 0;
+
+											if (tmp_type == ABIS_FACE_TEMPLATE)
+											{
+												void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
+												step = tmp_db != nullptr;
+												if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error memory allocate 1";
+
+												if (step)
+												{
+													memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
+													step = db_face_tmp_by_id(db, tmp_id, tmp_db) > 0;
+													if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error get face template";
+												}
+
+												if (step) score = cmp_face_tmp(tmp_in, tmp_db);
+												if (tmp_db != nullptr) free(tmp_db);
+											}
+											if (tmp_type == ABIS_FINGER_TEMPLATE)
+											{
+												void* gost_db = malloc(ABIS_FINGER_TMP_GOST_SIZE);
+												step = gost_db != nullptr;
+												if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error memory allocate 2";
+
+												if (step)
+												{
+													memset(gost_db, 0, ABIS_FINGER_TMP_GOST_SIZE);
+
+													step = db_gost_tmp_by_id(db, tmp_id, gost_db) > 0;
+													if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error get finger template phase 2";
+												}
+												if (step) score = cmp_fingerprint_gost_template(tmp_gost, gost_db);
+												if (gost_db != nullptr) free(gost_db);
+											}
+
+											if (step)
+											{
+												json_tmp[ELEMENT_ID] = json::value::number(tmp_id);
+
+												char bc_gid[50];
+												step = db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) > 0;
+												if (step)
+												{
+													json_tmp[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));
+													json_tmp[ELEMENT_VALUE] = json::value::number(score);
+												}
+											}
+											json_tmp[ELEMENT_RESULT] = json::value::boolean(step);
+											json_tmps[j] = json_tmp;
+										}
+
+										json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
+										json_row[ELEMENT_VALUE] = json_tmps;
+									}
+
+									json_out[i] = json_row;
+									if (tmp_in != nullptr) free(tmp_in);
+									if (tmp_gost != nullptr) free(tmp_gost);
+
+									BOOST_LOG_TRIVIAL(debug) << "end task " << i;
+								});
+
+							vv.push_back(tt);
 						}
-						if (tmp_type == ABIS_FINGER_TEMPLATE)
+						return pplx::task_from_result <vector<pplx::task<void>>>(vv);
+					}).then([](pplx::task<vector<pplx::task<void>>> prevTask)
 						{
-							step = db_search_finger_tmps(db, tmp_in, search_count, ids) > 0;
-							if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error search finger template";
-						}
-					}
-
-
-					if (step)
-					{
-						auto json_tmps = json::value::array();
-						for (size_t j = 0; j < ids.size(); j++)
-						{
-							auto json_tmp = json::value::object();
-							int tmp_id = ids[j];
-							float score = 0;
-
-							if (tmp_type == ABIS_FACE_TEMPLATE)
+							auto vv = prevTask.get();
+							for (auto v : vv)
 							{
-								void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
-								step = tmp_db != nullptr;
-								if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error memory allocate 1";
-
-								if (step)
-								{
-									memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
-									step = db_face_tmp_by_id(db, tmp_id, tmp_db) > 0;
-									if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error get face template";
-								}
-
-								if (step) score = cmp_face_tmp(tmp_in, tmp_db);
-								if (tmp_db != nullptr) free(tmp_db);
+								v.wait();
 							}
-							if (tmp_type == ABIS_FINGER_TEMPLATE)
-							{
-								void* gost_db = malloc(ABIS_FINGER_TMP_GOST_SIZE);
-								step = gost_db != nullptr;
-								if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error memory allocate 2";
-
-								if (step)
-								{
-									memset(gost_db, 0, ABIS_FINGER_TMP_GOST_SIZE);
-
-									step = db_gost_tmp_by_id(db, tmp_id, gost_db) > 0;
-									if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error get finger template phase 2";
-								}
-								if (step) score = cmp_fingerprint_gost_template(tmp_gost, gost_db);
-								if (gost_db != nullptr) free(gost_db);
-							}
-
-							if (step)
-							{
-								json_tmp[ELEMENT_ID] = json::value::number(tmp_id);
-
-								char bc_gid[50];
-								step = db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) > 0;
-								if (step)
-								{
-									json_tmp[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));
-									json_tmp[ELEMENT_VALUE] = json::value::number(score);
-								}
-							}
-							json_tmp[ELEMENT_RESULT] = json::value::boolean(step);
-							json_tmps[j] = json_tmp;
-						}
-
-						json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
-						json_row[ELEMENT_VALUE] = json_tmps;
-					}
-
-					json_out[i] = json_row;
-					if (tmp_in != nullptr) free(tmp_in);
-					if (tmp_gost != nullptr) free(tmp_gost);
-				}
+						}).wait();
 
 				answer[ELEMENT_VALUE] = json_out;
 				answer[ELEMENT_RESULT] = json::value::boolean(true);
