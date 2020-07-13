@@ -26,22 +26,23 @@ void search_get(http_request request)
 		request,
 		[&sc](json::value const& req_json, json::value& answer)
 		{
-			PGconn* db = nullptr;
+			vector<PGconn*> dbs;
 			try
 			{
-				db = db_open();
-
 				json::array arr = req_json.as_array();
 				auto json_out = json::value::array();
 
-				pplx::task<vector<pplx::task<void>>>([&arr, &json_out, db]()
+				pplx::task<vector<pplx::task<void>>>([&arr, &json_out, &dbs]()
 					{
 						vector<pplx::task<void>> vv;
 						for (size_t i = 0; i < arr.size(); i++)
 						{
-							auto tt = pplx::task<void>([i, &arr, &json_out, db]()
+							auto tt = pplx::task<void>([i, &arr, &json_out, &dbs]()
 								{
 									BOOST_LOG_TRIVIAL(debug) << "start task " << i;
+
+									PGconn* db = db_open();
+									dbs.push_back(db);
 
 									auto json_row = json::value::object();
 									vector<int> ids;
@@ -162,9 +163,9 @@ void search_get(http_request request)
 							}
 						}).wait();
 
-				answer[ELEMENT_VALUE] = json_out;
-				answer[ELEMENT_RESULT] = json::value::boolean(true);
-				sc = status_codes::OK;
+						answer[ELEMENT_VALUE] = json_out;
+						answer[ELEMENT_RESULT] = json::value::boolean(true);
+						sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)
 			{
@@ -175,7 +176,7 @@ void search_get(http_request request)
 				JSON_EXCEPTION(answer, ec.what());
 			}
 
-			db_close(db);
+			for (auto db: dbs) db_close(db);
 		});
 	request.reply(sc, "");
 }
