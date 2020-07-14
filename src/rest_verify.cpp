@@ -58,14 +58,10 @@ void verify_get(http_request request)
 						int in_tmp_type = ABIS_DATA;
 						int in_tmp_id = 0;
 						float score = 0;
-						bool step = false;
 
 						int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
-						if (element_type != ABIS_DATA)
-						{
-							step = tmp_from_json(arr[i], in_tmp_type, in_tmp);
-							if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract template";
-						}
+						bool step = tmp_from_json(arr[i], in_tmp_type, in_tmp);
+						if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract template";
 
 						if (step)
 						{
@@ -117,9 +113,18 @@ void verify_get(http_request request)
 						if (in_tmp != nullptr) free(in_tmp);
 					}
 
-					float trhld = sugeno_weber(ABIS_FACE_THRESHOLD, ABIS_FINGER_GOST_THRESHOLD);
-					float score = sugeno_weber(score_face, score_finger);
-					score = min(score * ABIS_INTEGRA_THRESHOLD / trhld, 1.0f);
+					float score = 0.f;
+					if (score_face > 0.f && score_finger > 0.f)
+					{
+						float trhld = sugeno_weber(ABIS_FACE_THRESHOLD, ABIS_FINGER_GOST_THRESHOLD);
+						score = sugeno_weber(score_face, score_finger);
+						score = min(score * ABIS_INTEGRA_THRESHOLD / trhld, 1.0f);
+					}
+					else
+					{
+						if (score_face > 0.f) score = min(score_face * ABIS_INTEGRA_THRESHOLD / ABIS_FACE_THRESHOLD, 1.0f);
+						if (score_finger > 0.f) score = min(score_finger * ABIS_INTEGRA_THRESHOLD / ABIS_FINGER_GOST_THRESHOLD, 1.0f);
+					}
 
 					answer[ELEMENT_VALUE] = json::value::number(score);
 					answer[ELEMENT_RESULT] = json::value::boolean(true);
