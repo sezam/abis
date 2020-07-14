@@ -131,24 +131,16 @@ void biocard_put(http_request request)
 				{
 					vector<int> ids;
 					void* tmp_in = nullptr;
-					void* tmp_gost = nullptr;
 					int tmp_type = ABIS_DATA;
 					int tmp_id = 0;
 					bool step = false;
 					auto json_row = json::value::object();
 
 					int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
-					if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE)
+					if (element_type != ABIS_DATA)
 					{
-						step = face_tmp_from_json(arr[i], tmp_type, tmp_in) > 0;
-						if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error extract face template";
-					}
-
-					if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_GOST_IMAGE)
-					{
-						tmp_type = ABIS_FINGER_TEMPLATE;
-						step = finger2_tmp_from_json(arr[i], tmp_in, tmp_gost) > 0;
-						if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error extract finger template";
+						step = tmp_from_json(arr[i], tmp_type, tmp_in);
+						if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error extract bio template";
 					}
 
 					if (tmp_type == ABIS_FACE_TEMPLATE)
@@ -203,7 +195,7 @@ void biocard_put(http_request request)
 					}
 
 
-					if (tmp_type == ABIS_FINGER_TEMPLATE)
+					if (tmp_type == ABIS_FINGER_GOST_TEMPLATE)
 					{
 						db_sp_begin(db, "finger_template");
 						if (step)
@@ -242,7 +234,7 @@ void biocard_put(http_request request)
 								if (step) step = db_insert_finger_tmp(db, tmp_in, tmp_id) > 0;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template";
 
-								if (step) step = db_append_finger_gost(db, tmp_gost, tmp_id) > 0;
+								if (step) step = db_append_finger_gost(db, (uchar*)tmp_in + ABIS_TEMPLATE_SIZE, tmp_id) > 0;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template 2";
 							}
 							else
@@ -260,7 +252,7 @@ void biocard_put(http_request request)
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get finger template 2";
 								}
 
-								if (step) score_gost = cmp_fingerprint_gost_template(tmp_gost, db_gost);
+								if (step) score_gost = cmp_fingerprint_gost_template(((uchar*)tmp_in) + ABIS_TEMPLATE_SIZE, db_gost);
 								if (db_gost != nullptr) free(db_gost);
 							}
 						}
@@ -283,14 +275,14 @@ void biocard_put(http_request request)
 							}
 							else
 							{
-								if (step) step = db_append_finger_gost(db, tmp_gost, tmp_id) > 0;
+								if (step) step = db_append_finger_gost(db, ((uchar*)tmp_in) + ABIS_TEMPLATE_SIZE, tmp_id) > 0;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template 2";
 							}
 						}
 
 						if (step)
 						{
-							step = db_add_link(db, ABIS_FINGER_TEMPLATE, tmp_id, bc_id);
+							step = db_add_link(db, ABIS_FINGER_GOST_TEMPLATE, tmp_id, bc_id);
 							if (step) inserted++;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template in biocard";
 						}
@@ -304,7 +296,6 @@ void biocard_put(http_request request)
 					json_out[i] = json_row;
 
 					if (tmp_in != nullptr) free(tmp_in);
-					if (tmp_gost != nullptr) free(tmp_gost);
 				}
 				if (inserted > 0)
 				{

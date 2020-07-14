@@ -1,4 +1,5 @@
 #include "AbisRest.h"
+#include "BioTemplate.h"
 #include "restutils.h"
 #include "ebsclient.h"
 #include "fplibclient.h"
@@ -124,10 +125,10 @@ void* json2fingergost_tmp(const web::json::value& el)
 {
 	void* result = nullptr;
 
-	char* tmp = (char*)malloc(ABIS_FINGER_TMP_GOST_SIZE);
+	char* tmp = (char*)malloc(ABIS_FINGER_TEMPLATE_SIZE);
 	if (tmp != nullptr)
 	{
-		memset(tmp, 0, ABIS_FINGER_TMP_GOST_SIZE);
+		memset(tmp, 0, ABIS_FINGER_TEMPLATE_SIZE);
 
 		auto element_tmp = el.at(ELEMENT_VALUE).as_array();
 		for (size_t i = 0; i < element_tmp.size(); i++)
@@ -173,12 +174,12 @@ int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	return res;
 }
 
-int finger2_tmp_from_json(json::value el, void*& tmp_ptr, void*& gost_tmp_ptr)
+int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
 	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
-	if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_GOST_IMAGE)
+	if (element_type == ABIS_FINGER_IMAGE)
 	{
 		res = element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
@@ -189,19 +190,10 @@ int finger2_tmp_from_json(json::value el, void*& tmp_ptr, void*& gost_tmp_ptr)
 		if (tmp_ptr == nullptr) return -1;
 		memset(tmp_ptr, 0, ABIS_TEMPLATE_SIZE);
 
-		gost_tmp_ptr = malloc(ABIS_FINGER_TMP_GOST_SIZE);
-		if (gost_tmp_ptr == nullptr) return -2;
-		memset(gost_tmp_ptr, 0, ABIS_FINGER_TMP_GOST_SIZE);
+		tmp_type = ABIS_FINGER_TEMPLATE;
 
-		if (extract_finger_templates(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, gost_tmp_ptr, ABIS_FINGER_TMP_GOST_SIZE) <= 0) res = -element_type;
+		if (extract_finger_template(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, false) <= 0) res = -element_type;
 	}
-	return res;
-}
-
-int finger2_gost_from_json(json::value el, void*& gost_tmp_ptr)
-{
-	int element_type = el.at(ELEMENT_TYPE).as_integer();
-	int res = 0;
 
 	if (element_type == ABIS_FINGER_GOST_IMAGE)
 	{
@@ -210,12 +202,30 @@ int finger2_gost_from_json(json::value el, void*& gost_tmp_ptr)
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
 
-		gost_tmp_ptr = malloc(ABIS_FINGER_TMP_GOST_SIZE);
-		if (gost_tmp_ptr == nullptr) return -2;
-		memset(gost_tmp_ptr, 0, ABIS_FINGER_TMP_GOST_SIZE);
+		tmp_ptr = malloc(ABIS_FINGER_TEMPLATE_SIZE);
+		if (tmp_ptr == nullptr) return -1;
+		memset(tmp_ptr, 0, ABIS_FINGER_TEMPLATE_SIZE);
 
-		if (extract_finger_template(buf.data(), buf.size(), gost_tmp_ptr, ABIS_FINGER_TMP_GOST_SIZE, true) <= 0) res = -element_type;
+		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
+
+		if (extract_finger_templates(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE,
+			(uchar*)tmp_ptr + ABIS_TEMPLATE_SIZE, ABIS_FINGER_TMP_GOST_SIZE) <= 0) res = -element_type;
 	}
+
+	if (element_type == ABIS_FINGER_TEMPLATE)
+	{
+		res = element_type;
+		tmp_type = ABIS_FINGER_TEMPLATE;
+		tmp_ptr = json2tmp(el);
+	}
+
+	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
+	{
+		res = element_type;
+		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
+		tmp_ptr = json2fingergost_tmp(el);
+	}
+
 	return res;
 }
 
@@ -224,41 +234,9 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
-	if (element_type == ABIS_FACE_IMAGE) res = face_tmp_from_json(el, tmp_type, tmp_ptr);
-
-	if (element_type == ABIS_FINGER_IMAGE)
-	{
-		res = element_type;
-		auto element_image = el.at(ELEMENT_VALUE).as_string();
-		while ((element_image.length() % 4) != 0) element_image += U("=");
-		vector<unsigned char> buf = conversions::from_base64(element_image);
-
-		unsigned char* finger_tmp = (unsigned char*)malloc(ABIS_TEMPLATE_SIZE);
-		memset(finger_tmp, 0, ABIS_TEMPLATE_SIZE);
-
-		tmp_type = ABIS_FINGER_TEMPLATE;
-		tmp_ptr = finger_tmp;
-
-		res = extract_finger_template(buf.data(), buf.size(), finger_tmp, ABIS_TEMPLATE_SIZE, false);
-	}
-	if (element_type == ABIS_FINGER_TEMPLATE)
-	{
-		res = element_type;
-		tmp_type = ABIS_FINGER_TEMPLATE;
-		tmp_ptr = json2tmp(el);
-	}
-
-	if (element_type == ABIS_FINGER_GOST_IMAGE)
-	{
-		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
-		res = finger2_gost_from_json(el, tmp_ptr);
-	}
-	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
-	{
-		res = element_type;
-		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
-		tmp_ptr = json2fingergost_tmp(el);
-	}
+	if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE) res = face_tmp_from_json(el, tmp_type, tmp_ptr);
+	if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
+	if (element_type == ABIS_FINGER_GOST_IMAGE || element_type == ABIS_FINGER_GOST_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
 
 	if (element_type == ABIS_LIVEFACE_IMAGE)
 	{

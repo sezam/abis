@@ -58,7 +58,7 @@ void compare_get(http_request request)
                     score = cmp_finger_tmp(tmps[0], tmps[1]);
                 }
                 if (compare_type == ABIS_FINGER_GOST_TEMPLATE) {
-                    score = cmp_fingerprint_gost_template(tmps[0], tmps[1]);
+                    score = cmp_fingerprint_gost_template(((uchar*)tmps[0]) + ABIS_TEMPLATE_SIZE, ((uchar*)tmps[1]) + ABIS_TEMPLATE_SIZE);
                 }
 
                 answer[ELEMENT_VALUE] = json::value::number(score);

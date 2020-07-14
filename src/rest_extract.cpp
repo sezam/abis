@@ -38,12 +38,12 @@ void extract_get(http_request request)
 				{
 					if (tmp_type == ABIS_FACE_TEMPLATE || tmp_type == ABIS_FINGER_TEMPLATE)
 					{
-						for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
+						for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++) 
 							answer[ELEMENT_VALUE][i] = json::value::number(((float*)tmp_in)[i]);
 					}
 					if (tmp_type == ABIS_FINGER_GOST_TEMPLATE)
 					{
-						for (size_t i = 0; i < ABIS_FINGER_TMP_GOST_SIZE; i++)
+						for (size_t i = 0; i < ABIS_FINGER_TEMPLATE_SIZE; i++)
 							answer[ELEMENT_VALUE][i] = json::value::number(((char*)tmp_in)[i]);
 					}
 					if (tmp_type == ABIS_LIVEFACE_IMAGE)

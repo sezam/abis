@@ -159,6 +159,7 @@
     <ClInclude Include="..\nbis\include\wsq.h" />
     <ClInclude Include="..\src\AbisRest.h" />
     <ClInclude Include="..\src\biocard.h" />
+    <ClInclude Include="..\src\BioTemplate.h" />
     <ClInclude Include="..\src\dbclient.h" />
     <ClInclude Include="..\src\ebsclient.h" />
     <ClInclude Include="..\src\finger\fp_internal.h" />

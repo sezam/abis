@@ -48,24 +48,16 @@ void search_get(http_request request)
 									vector<int> ids;
 									int tmp_type = ABIS_DATA;
 									void* tmp_in = nullptr;
-									void* tmp_gost = nullptr;
 									bool step = false;
 
 									int search_count = 1;
 									if (arr[i].has_field(ELEMENT_COUNT)) search_count = arr[i].at(ELEMENT_COUNT).as_integer();
 
 									int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
-									if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE)
+									if (element_type != ABIS_DATA)
 									{
-										step = face_tmp_from_json(arr[i], tmp_type, tmp_in) > 0;
-										if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract face template";
-									}
-
-									if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_GOST_IMAGE)
-									{
-										tmp_type = ABIS_FINGER_TEMPLATE;
-										step = finger2_tmp_from_json(arr[i], tmp_in, tmp_gost) > 0;
-										if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract finger template";
+										step = tmp_from_json(arr[i], tmp_type, tmp_in);
+										if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract bio template";
 									}
 
 									if (step)
@@ -75,7 +67,7 @@ void search_get(http_request request)
 											step = db_search_face_tmps(db, tmp_in, search_count, ids) > 0;
 											if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error search face template";
 										}
-										if (tmp_type == ABIS_FINGER_TEMPLATE)
+										if (tmp_type == ABIS_FINGER_GOST_TEMPLATE)
 										{
 											step = db_search_finger_tmps(db, tmp_in, search_count, ids) > 0;
 											if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error search finger template";
@@ -107,7 +99,7 @@ void search_get(http_request request)
 												if (step) score = cmp_face_tmp(tmp_in, tmp_db);
 												if (tmp_db != nullptr) free(tmp_db);
 											}
-											if (tmp_type == ABIS_FINGER_TEMPLATE)
+											if (tmp_type == ABIS_FINGER_GOST_TEMPLATE)
 											{
 												void* gost_db = malloc(ABIS_FINGER_TMP_GOST_SIZE);
 												step = gost_db != nullptr;
@@ -120,7 +112,7 @@ void search_get(http_request request)
 													step = db_gost_tmp_by_id(db, tmp_id, gost_db) > 0;
 													if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error get finger template phase 2";
 												}
-												if (step) score = cmp_fingerprint_gost_template(tmp_gost, gost_db);
+												if (step) score = cmp_fingerprint_gost_template(((uchar*)tmp_in) + ABIS_TEMPLATE_SIZE, gost_db);
 												if (gost_db != nullptr) free(gost_db);
 											}
 
@@ -146,7 +138,6 @@ void search_get(http_request request)
 
 									json_out[i] = json_row;
 									if (tmp_in != nullptr) free(tmp_in);
-									if (tmp_gost != nullptr) free(tmp_gost);
 
 									BOOST_LOG_TRIVIAL(debug) << "end task " << i;
 								});
@@ -156,11 +147,7 @@ void search_get(http_request request)
 						return pplx::task_from_result <vector<pplx::task<void>>>(vv);
 					}).then([](pplx::task<vector<pplx::task<void>>> prevTask)
 						{
-							auto vv = prevTask.get();
-							for (auto v : vv)
-							{
-								v.wait();
-							}
+							for (auto v : prevTask.get()) v.wait();
 						}).wait();
 
 						answer[ELEMENT_VALUE] = json_out;
