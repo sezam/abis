@@ -34,7 +34,7 @@ static const string SQL_DEL_LINK("DELETE FROM t_biocard_template_link bt WHERE b
                             WHERE bt.tmp_type = $1::integer AND bt.tmp_id = $2::integer AND bc.gid = $3::uuid \
                          ) RETURNING * ");
 static const string SQL_DEL_LINKS_BY_ID("DELETE FROM t_biocard_template_link bt WHERE bt.uid = $1::integer RETURNING *");
-static const string SQL_DEL_LINKS_BY_GID("DELETE FROM t_biocard_template_link bt WHERE bt.uid = (\
+static const string SQL_DEL_LINKS_BY_GID("DELETE FROM t_biocard_template_link bt WHERE bt.biocard_id = (\
                             SELECT bc.uid FROM t_biocards bc WHERE bc.gid = $1::uuid \
 						) RETURNING *");
 

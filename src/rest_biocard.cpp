@@ -348,7 +348,7 @@ void biocard_del(http_request request)
 					int del_link_res = db_del_links(db, gid_s.c_str());
 					int del_bc_res = db_del_bc(db, gid_s.c_str());
 
-					answer[ELEMENT_RESULT] = json::value::boolean(del_link_res > 0 && del_bc_res > 0);
+					answer[ELEMENT_RESULT] = json::value::boolean(del_link_res >= 0 && del_bc_res > 0);
 				}
 				else
 				{

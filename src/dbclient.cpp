@@ -633,7 +633,7 @@ int db_del_bc(PGconn* db, int bc_id)
 		sql_res = db_exec_param(db, SQL_DEL_BC_BY_ID, 1, paramValues, 1);
 		logging_res(__func__, sql_res);
 
-		if (PQresultStatus(sql_res) == PGRES_COMMAND_OK) result = PQntuples(sql_res);
+		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK) result = PQntuples(sql_res);
 	}
 	catch (const std::exception& ec)
 	{
@@ -657,7 +657,7 @@ int db_del_bc(PGconn* db, const char* gid)
 		sql_res = db_exec_param(db, SQL_DEL_BC_BY_GID, 1, paramValues, 1);
 		logging_res(__func__, sql_res);
 
-		if (PQresultStatus(sql_res) == PGRES_COMMAND_OK) result = PQntuples(sql_res);
+		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK) result = PQntuples(sql_res);
 	}
 	catch (const std::exception& ec)
 	{
