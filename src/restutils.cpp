@@ -101,6 +101,15 @@ void handle_request(http_request request, function<void(json::value const&, json
 	request.reply(sc, answer);
 }
 
+bool check_tmp(void* ptr)
+{
+	float* tmp = (float*)ptr;
+	float summ = 0.f;
+	for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++) summ += tmp[i] * tmp[i];
+
+	return abs(summ - 1.f) < 0.00001f;
+}
+
 void* json2tmp(const web::json::value& el)
 {
 	void* result = nullptr;
@@ -143,12 +152,11 @@ void* json2fingergost_tmp(const web::json::value& el)
 
 int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
-	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	if (element_type == ABIS_FACE_IMAGE)
 	{
-		res = element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -159,18 +167,22 @@ int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 		tmp_type = ABIS_FACE_TEMPLATE;
 		tmp_ptr = face_tmp;
 
-		if (extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE) <= 0) res = -element_type;
+		res = extract_face_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE);
 
-		float summ = 0.f;
-		for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++) summ += face_tmp[i] * face_tmp[i];
-		if (abs(summ - 1.f) >= 0.001) res = -element_type;
+		if (res > 0)
+		{
+			float summ = 0.f;
+			for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++) summ += face_tmp[i] * face_tmp[i];
+			if (abs(summ - 1.f) >= 0.0001) res = -tmp_type;
+		}
 	}
 	if (element_type == ABIS_FACE_TEMPLATE)
 	{
-		res = element_type;
 		tmp_type = ABIS_FACE_TEMPLATE;
 		tmp_ptr = json2tmp(el);
+		(check_tmp(tmp_ptr) ? 1 : -tmp_type);
 	}
+
 	return res;
 }
 
@@ -181,7 +193,6 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 	if (element_type == ABIS_FINGER_IMAGE)
 	{
-		res = element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -192,12 +203,11 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 		tmp_type = ABIS_FINGER_TEMPLATE;
 
-		if (extract_finger_template(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, false) <= 0) res = -element_type;
+		res = extract_finger_template(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, false);
 	}
 
 	if (element_type == ABIS_FINGER_GOST_IMAGE)
 	{
-		res = element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -208,22 +218,21 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
 
-		if (extract_finger_templates(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE,
-			(uchar*)tmp_ptr + ABIS_TEMPLATE_SIZE, ABIS_FINGER_TMP_GOST_SIZE) <= 0) res = -element_type;
+		res = extract_finger_templates(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, (uchar*)tmp_ptr + ABIS_TEMPLATE_SIZE, ABIS_FINGER_TMP_GOST_SIZE);
 	}
 
 	if (element_type == ABIS_FINGER_TEMPLATE)
 	{
-		res = element_type;
 		tmp_type = ABIS_FINGER_TEMPLATE;
 		tmp_ptr = json2tmp(el);
+		(check_tmp(tmp_ptr) ? 1 : -tmp_type);
 	}
 
 	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
 	{
-		res = element_type;
 		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
 		tmp_ptr = json2fingergost_tmp(el);
+		(check_tmp(tmp_ptr) ? 1 : -tmp_type);
 	}
 
 	return res;
@@ -231,16 +240,15 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
-	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE) res = face_tmp_from_json(el, tmp_type, tmp_ptr);
 	if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
 	if (element_type == ABIS_FINGER_GOST_IMAGE || element_type == ABIS_FINGER_GOST_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
 
 	if (element_type == ABIS_LIVEFACE_IMAGE)
 	{
-		res = element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -252,5 +260,6 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 		*live_res = res;
 	}
 
+	if (res < 0) res -= element_type * 1000;
 	return res;
 }

@@ -29,8 +29,8 @@ void extract_get(http_request request)
 				int tmp_type = ABIS_DATA;
 				void* tmp_in = nullptr;
 
-				int element_type = tmp_from_json(req_json, tmp_type, tmp_in);
-				bool step = element_type > 0;
+				int res = tmp_from_json(req_json, tmp_type, tmp_in);
+				bool step = res > 0;
 				if (!step) BOOST_LOG_TRIVIAL(debug) << "extract_get: error extract template";
 
 
@@ -55,6 +55,7 @@ void extract_get(http_request request)
 
 				answer[ELEMENT_TYPE] = json::value::number(tmp_type);
 				answer[ELEMENT_RESULT] = json::value::boolean(step);
+				answer[ELEMENT_ERROR] = json::value::number(abs(res));
 				sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)

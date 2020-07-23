@@ -187,25 +187,26 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		{
 			int* p_ptr = (int*)(recv_data + 1 + ABIS_TEMPLATE_SIZE);
 			step = *p_ptr > 12;
+			if (!step) res = -10;
 		}
 
 		if (step)
 		{
 			memcpy(template_buf, &recv_data[offset], template_buf_size);
 			step = recv_data[0] == check;
-			res = 1;
+			(step ? res = 1 : res = -11);
 		}
 		if (recv_data != nullptr) free(recv_data);
 	}
 	catch (const boost::system::error_code& ec)
 	{
 		BOOST_LOG_TRIVIAL(error) << "ebs_request: " << ec.message();
-		res = -11;
+		res = -100;
 	}
 	catch (const std::exception& ec)
 	{
 		BOOST_LOG_TRIVIAL(error) << "ebs_request: " << ec.what();
-		res = -12;
+		res = -101;
 	}
 
 	client_socket->close();
@@ -247,7 +248,7 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
 int extract_finger_templates(const unsigned char* image_data, const size_t image_data_len,
 	void* template_buf, const size_t template_buf_size, void* gost_template_buf, const size_t gost_template_buf_size)
 {
-	int res = -1;
+	int res = 0;
 
 	size_t c_image_data_len = 0;
 	unsigned char* c_image_data = nullptr;
