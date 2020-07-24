@@ -38,7 +38,7 @@ void extract_get(http_request request)
 				{
 					if (tmp_type == ABIS_FACE_TEMPLATE || tmp_type == ABIS_FINGER_TEMPLATE)
 					{
-						for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++) 
+						for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
 							answer[ELEMENT_VALUE][i] = json::value::number(((float*)tmp_in)[i]);
 					}
 					if (tmp_type == ABIS_FINGER_GOST_TEMPLATE)
@@ -55,7 +55,7 @@ void extract_get(http_request request)
 
 				answer[ELEMENT_TYPE] = json::value::number(tmp_type);
 				answer[ELEMENT_RESULT] = json::value::boolean(step);
-				answer[ELEMENT_ERROR] = json::value::number(abs(res));
+				
 				sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)

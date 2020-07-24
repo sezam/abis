@@ -24,5 +24,6 @@ void* json2fingergost_tmp(const web::json::value& el);
 int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr);
 int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr);
 int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr);
+int finger_xyt_from_json(json::value el, int& tmp_type, void*& tmp_ptr);
 
 #endif

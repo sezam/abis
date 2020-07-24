@@ -245,6 +245,29 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
 	return res;
 }
 
+int extract_finger_xyt(const unsigned char* image_data, const size_t image_data_len,
+	void* template_buf, const size_t template_buf_size, void* gost_template_buf, const size_t gost_template_buf_size)
+{
+	int res = 0;
+
+	size_t c_image_data_len = 0;
+	unsigned char* c_image_data = nullptr;
+	convert_image(image_data, image_data_len, c_image_data, c_image_data_len);
+
+	void* pptr = nullptr;
+	pptr = malloc(template_buf_size + gost_template_buf_size + 1);
+	if (pptr != nullptr)
+	{
+		res = ebs_request(c_image_data, c_image_data_len, pptr, template_buf_size + gost_template_buf_size + 1,
+			EBS_CMD_EXTRACT_FINGER_XYT, EBS_CHECK_EXTRACT_FINGER, 0);
+		if (res > 0) memcpy(gost_template_buf, (uchar*)pptr + 1 + template_buf_size, gost_template_buf_size);
+	}
+	if (pptr != nullptr) free(pptr);
+
+	if (c_image_data != nullptr) free(c_image_data);
+	return res;
+}
+
 int extract_finger_templates(const unsigned char* image_data, const size_t image_data_len,
 	void* template_buf, const size_t template_buf_size, void* gost_template_buf, const size_t gost_template_buf_size)
 {

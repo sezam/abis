@@ -238,14 +238,34 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	return res;
 }
 
-int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
+int finger_xyt_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
+	if (element_type == ABIS_FINGER_GOST_IMAGE)
+	{
+		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
+		vector<unsigned char> buf = conversions::from_base64(element_image);
+
+		tmp_ptr = malloc(ABIS_FINGER_TEMPLATE_SIZE);
+		if (tmp_ptr == nullptr) return -1;
+		memset(tmp_ptr, 0, ABIS_FINGER_TEMPLATE_SIZE);
+
+		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
+
+		res = extract_finger_xyt(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, 
+			(uchar*)tmp_ptr + ABIS_TEMPLATE_SIZE, ABIS_FINGER_TMP_GOST_SIZE);
+	}
+
+	return res;
+}
+
+int livecheck_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
+{
 	int element_type = el.at(ELEMENT_TYPE).as_integer();
-	if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE) res = face_tmp_from_json(el, tmp_type, tmp_ptr);
-	if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
-	if (element_type == ABIS_FINGER_GOST_IMAGE || element_type == ABIS_FINGER_GOST_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
+	int res = 0;
 
 	if (element_type == ABIS_LIVEFACE_IMAGE)
 	{
@@ -260,6 +280,20 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 		*live_res = res;
 	}
 
+	return res;
+}
+
+int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
+{
+	int res = 0;
+
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
+	if (element_type == ABIS_FACE_IMAGE || element_type == ABIS_FACE_TEMPLATE) res = face_tmp_from_json(el, tmp_type, tmp_ptr);
+	if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
+	if (element_type == ABIS_FINGER_GOST_IMAGE || element_type == ABIS_FINGER_GOST_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
+	if (element_type == ABIS_LIVEFACE_IMAGE) res = livecheck_from_json(el, tmp_type, tmp_ptr);
+
 	if (res < 0) res -= element_type * 1000;
 	return res;
 }
+

@@ -5,6 +5,7 @@
 
 #define EBS_CMD_EXTRACT_FACE		0x00
 #define EBS_CMD_EXTRACT_FINGER		0x01
+#define EBS_CMD_EXTRACT_FINGER_XYT	0x02
 
 #define EBS_CHECK_EXTRACT_FACE		0x01
 #define EBS_CHECK_EXTRACT_FINGER	0xFE
@@ -23,6 +24,10 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
 
 int extract_finger_templates(const unsigned char* image_data, const size_t image_data_len,
 	void* template_buf, const size_t template_buf_size, void* gost_template_buf, const size_t gost_template_buf_size);
+
+int extract_finger_xyt(const unsigned char* image_data, const size_t image_data_len,
+	void* template_buf, const size_t template_buf_size, void* gost_template_buf, const size_t gost_template_buf_size);
+
 /*
 сравнивает два шаблона лица через эвклидово расстояние
 */

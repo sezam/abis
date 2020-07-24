@@ -29,13 +29,14 @@ void compare_get(http_request request)
 			vector<void*> tmps;
 			try
 			{
+				int res = 0;
 				json::array arr = req_json.as_array();
-				if (arr.size() != 2) throw runtime_error("compare: expected array[2]");
+
+				bool step = arr.size() == 2;
+				if (!step)  BOOST_LOG_TRIVIAL(debug) << "expected array[2]";
 
 				int compare_type = ABIS_DATA;
-				bool step = true;
-
-				pplx::task<vector<pplx::task<void>>>([&arr, &answer, &compare_type, &tmps, &step]()
+				pplx::task<vector<pplx::task<void>>>([&arr, &answer, &compare_type, &tmps, &step, &res]()
 					{
 						vector<pplx::task<void>> vv;
 
@@ -43,14 +44,16 @@ void compare_get(http_request request)
 						{
 							if (step)
 							{
-								auto tt = pplx::task<void>([&arr, &answer, &compare_type, &tmps, i, &step]()
+								auto tt = pplx::task<void>([&arr, &answer, &compare_type, &tmps, i, &step, &res]()
 									{
 										BOOST_LOG_TRIVIAL(debug) << "compare_get: start task " << i;
 
 										int json_tmp_type = ABIS_DATA;
 										void* json_tmp_ptr = nullptr;
 
-										int res = tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr);
+										res = finger_xyt_from_json(arr[i], json_tmp_type, json_tmp_ptr);
+										if (json_tmp_type != ABIS_FINGER_GOST_TEMPLATE) res = tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr);
+
 										step = res > 0;
 										if (!step)
 										{
@@ -81,7 +84,6 @@ void compare_get(http_request request)
 						float score = 0;
 						if (step)
 						{
-
 							if (compare_type == ABIS_FACE_TEMPLATE) {
 								score = cmp_face_tmp(tmps[0], tmps[1]);
 							}
@@ -91,11 +93,14 @@ void compare_get(http_request request)
 							if (compare_type == ABIS_FINGER_GOST_TEMPLATE) {
 								score = cmp_fingerprint_gost_template(((uchar*)tmps[0]) + ABIS_TEMPLATE_SIZE, ((uchar*)tmps[1]) + ABIS_TEMPLATE_SIZE);
 							}
+
+							answer[ELEMENT_TYPE] = json::value::number(compare_type);
+							answer[ELEMENT_VALUE] = json::value::number(score);
 						}
 
-						answer[ELEMENT_VALUE] = json::value::number(score);
 						answer[ELEMENT_RESULT] = json::value::boolean(step);
-						answer[ELEMENT_TYPE] = json::value::number(compare_type);
+						if (!step) answer[ELEMENT_ERROR] = json::value::number(abs(res));
+
 						sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)
