@@ -24,16 +24,19 @@ int extract_finger_template(const unsigned char* image_data, const size_t image_
 int extract_finger_templates(const unsigned char* image_data, const size_t image_data_len,
 	void* template_buf, const size_t template_buf_size, void* gost_template_buf, const size_t gost_template_buf_size);
 /*
-сравнивает два шаблона лица через граф
+сравнивает два шаблона лица через эвклидово расстояние
 */
 float cmp_face_tmp(void* tmp1, void* tmp2);
 
 /*
-сравнивает два шаблона пальца через граф
+сравнивает два шаблона пальца через эвклидово расстояние
 */
 float cmp_finger_tmp(void* tmp1, void* tmp2);
 
 #define SW_NORM_P	1000
+/*
+расчет комплексной оценки по двум оценкам
+*/
 float sugeno_weber(float x, float y);
 
 #endif

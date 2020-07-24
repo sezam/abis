@@ -43,8 +43,7 @@ int quality[MAX_BOZORTH_MINUTIAE];
 } xyt_struct;
 
 теперь сделаем так. если первый байт равен 254, то это шаблон пальца 512 float (2048 байт), далее после вектора идет структура xyt
-итого будет 1+2048+длина xyt
-байт
+итого будет 1+2048+длина xyt байт
 
 // сравниваем два образца
 extern "C" int matchSegments(struct fp_img* image1, struct fp_img* image2);
