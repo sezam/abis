@@ -38,9 +38,10 @@ void compare_get(http_request request)
                     int json_tmp_type = ABIS_DATA;
                     void* json_tmp_ptr = nullptr;
 
-                    if (tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr) <= 0)
+                    int res = tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr);
+                    if (res <= 0)
                     {
-                        BOOST_LOG_TRIVIAL(debug) << "compare_get: error extract template";
+                        BOOST_LOG_TRIVIAL(debug) << "compare_get: error extract template " << res;
                         free(json_tmp_ptr);
                         throw runtime_error("compare: error extract template");
                     }

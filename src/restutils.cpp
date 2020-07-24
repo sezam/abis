@@ -180,7 +180,7 @@ int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	{
 		tmp_type = ABIS_FACE_TEMPLATE;
 		tmp_ptr = json2tmp(el);
-		(check_tmp(tmp_ptr) ? 1 : -tmp_type);
+		res = (check_tmp(tmp_ptr) ? 1 : -tmp_type);
 	}
 
 	return res;
@@ -225,14 +225,14 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	{
 		tmp_type = ABIS_FINGER_TEMPLATE;
 		tmp_ptr = json2tmp(el);
-		(check_tmp(tmp_ptr) ? 1 : -tmp_type);
+		res = (check_tmp(tmp_ptr) ? 1 : -tmp_type);
 	}
 
 	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
 	{
 		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
 		tmp_ptr = json2fingergost_tmp(el);
-		(check_tmp(tmp_ptr) ? 1 : -tmp_type);
+		res = (check_tmp(tmp_ptr) ? 1 : -tmp_type);
 	}
 
 	return res;
