@@ -42,15 +42,14 @@ void compare_get(http_request request)
 
 						for (size_t i = 0; i < 2; i++)
 						{
-							if (step)
-							{
-								auto tt = pplx::task<void>([&arr, &answer, &compare_type, &tmps, i, &step, &res]()
+							auto tt = pplx::task<void>([&arr, &answer, &compare_type, &tmps, i, &step, &res]()
+								{
+									int json_tmp_type = ABIS_DATA;
+									void* json_tmp_ptr = nullptr;
+
+									BOOST_LOG_TRIVIAL(debug) << "compare_get: start task " << i;
+									if (step)
 									{
-										BOOST_LOG_TRIVIAL(debug) << "compare_get: start task " << i;
-
-										int json_tmp_type = ABIS_DATA;
-										void* json_tmp_ptr = nullptr;
-
 										res = finger_xyt_from_json(arr[i], json_tmp_type, json_tmp_ptr);
 										if (json_tmp_type != ABIS_FINGER_GOST_TEMPLATE) res = tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr);
 
@@ -60,20 +59,20 @@ void compare_get(http_request request)
 											BOOST_LOG_TRIVIAL(debug) << "compare_get: error extract template " << res;
 											if (json_tmp_ptr != nullptr) free(json_tmp_ptr);
 										}
+									}
+									if (step)
+									{
+										tmps.push_back(json_tmp_ptr);
+										if (compare_type == ABIS_DATA) compare_type = json_tmp_type;
+										step = compare_type == json_tmp_type;
 
-										if (step)
-										{
-											tmps.push_back(json_tmp_ptr);
-											if (compare_type == ABIS_DATA) compare_type = json_tmp_type;
-											step = compare_type == json_tmp_type;
+										if (!step) BOOST_LOG_TRIVIAL(debug) << "compare_get: mixed compare types ";
+									}
 
-											if (!step) BOOST_LOG_TRIVIAL(debug) << "compare_get: mixed compare types ";
-										}
-										BOOST_LOG_TRIVIAL(debug) << "compare_get: end task " << i;
-									});
+									BOOST_LOG_TRIVIAL(debug) << "compare_get: end task " << i;
+								});
 
-								vv.push_back(tt);
-							}
+							vv.push_back(tt);
 						}
 						return pplx::task_from_result <vector<pplx::task<void>>>(vv);
 					}).then([](pplx::task<vector<pplx::task<void>>> prevTask)
@@ -82,6 +81,7 @@ void compare_get(http_request request)
 						}).wait();
 
 						float score = 0;
+						if (step) step = tmps.size() == 2;
 						if (step)
 						{
 							if (compare_type == ABIS_FACE_TEMPLATE) {

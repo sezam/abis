@@ -54,13 +54,15 @@ void verify_get(http_request request)
 
 					for (size_t i = 0; i < arr.size(); i++)
 					{
-						void* in_tmp = nullptr;
-						int in_tmp_type = ABIS_DATA;
-						int in_tmp_id = 0;
+						void* json_tmp_ptr = nullptr;
+						int json_tmp_type = ABIS_DATA;
+						int json_tmp_id = 0;
 						float score = 0;
 
-						int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
-						bool step = tmp_from_json(arr[i], in_tmp_type, in_tmp);
+						int res = finger_xyt_from_json(arr[i], json_tmp_type, json_tmp_ptr);
+						if (json_tmp_type != ABIS_FINGER_GOST_TEMPLATE) res = tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr);
+						bool step = res > 0;
+
 						if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract template";
 
 						if (step)
@@ -70,27 +72,27 @@ void verify_get(http_request request)
 								int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
 								int db_tmp_type = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
 
-								if (db_tmp_type == ABIS_FACE_TEMPLATE && db_tmp_type == in_tmp_type)
+								if (db_tmp_type == ABIS_FACE_TEMPLATE && db_tmp_type == json_tmp_type)
 								{
-									void* db_tmp = malloc(ABIS_TEMPLATE_SIZE);
-									step = db_tmp != nullptr;
+									void* db_tmp_ptr = malloc(ABIS_TEMPLATE_SIZE);
+									step = db_tmp_ptr != nullptr;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error memory allocate 1";
 
 									float score = 0;
 									if (step)
 									{
-										memset(db_tmp, 0, ABIS_TEMPLATE_SIZE);
+										memset(db_tmp_ptr, 0, ABIS_TEMPLATE_SIZE);
 
-										step = db_face_tmp_by_id(db, db_tmp_id, db_tmp) > 0;
+										step = db_face_tmp_by_id(db, db_tmp_id, db_tmp_ptr) > 0;
 										if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get face template";
 									}
 
-									if (step) score = cmp_face_tmp(in_tmp, db_tmp);
-									if (db_tmp != nullptr) free(db_tmp);
+									if (step) score = cmp_face_tmp(json_tmp_ptr, db_tmp_ptr);
+									if (db_tmp_ptr != nullptr) free(db_tmp_ptr);
 
 									score_face = max(score_face, score);
 								}
-								if (db_tmp_type == ABIS_FINGER_GOST_TEMPLATE && db_tmp_type == in_tmp_type)
+								if (db_tmp_type == ABIS_FINGER_GOST_TEMPLATE && db_tmp_type == json_tmp_type)
 								{
 									void* gost_db = malloc(ABIS_FINGER_TMP_GOST_SIZE);
 									step = gost_db != nullptr;
@@ -103,14 +105,14 @@ void verify_get(http_request request)
 										step = db_gost_tmp_by_id(db, db_tmp_id, gost_db) > 0;
 										if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get finger template";
 									}
-									if (step) score = cmp_fingerprint_gost_template(((uchar*)in_tmp) + ABIS_TEMPLATE_SIZE, gost_db);
+									if (step) score = cmp_fingerprint_gost_template(((uchar*)json_tmp_ptr) + ABIS_TEMPLATE_SIZE, gost_db);
 									if (gost_db != nullptr) free(gost_db);
 
 									score_finger = max(score_finger, score);
 								}
 							}
 						}
-						if (in_tmp != nullptr) free(in_tmp);
+						if (json_tmp_ptr != nullptr) free(json_tmp_ptr);
 					}
 
 					float score = 0.f;

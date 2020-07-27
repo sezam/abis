@@ -125,6 +125,7 @@ void biocard_put(http_request request)
 				}
 
 				int inserted = 0;
+				bool step = true;
 				auto json_out = json::value::array();
 				auto arr = req_json.at(ELEMENT_VALUE).as_array();
 				for (size_t i = 0; i < arr.size(); i++)
@@ -133,17 +134,21 @@ void biocard_put(http_request request)
 					void* tmp_in = nullptr;
 					int tmp_type = ABIS_DATA;
 					int tmp_id = 0;
-					bool step = false;
 					auto json_row = json::value::object();
 
-					int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
-					if (element_type != ABIS_DATA)
+					if (step)
 					{
-						step = tmp_from_json(arr[i], tmp_type, tmp_in);
-						if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error extract bio template";
+						step = arr[i].at(ELEMENT_TYPE).as_integer() != ABIS_DATA;
+						if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error template type";
 					}
 
-					if (tmp_type == ABIS_FACE_TEMPLATE)
+					if (step)
+					{
+						step = tmp_from_json(arr[i], tmp_type, tmp_in) > 0;
+						if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error extract bio template ";
+					}
+
+					if (step && tmp_type == ABIS_FACE_TEMPLATE)
 					{
 						db_sp_begin(db, "face_template");
 						if (step)
@@ -195,7 +200,7 @@ void biocard_put(http_request request)
 					}
 
 
-					if (tmp_type == ABIS_FINGER_GOST_TEMPLATE)
+					if (step && tmp_type == ABIS_FINGER_GOST_TEMPLATE)
 					{
 						db_sp_begin(db, "finger_template");
 						if (step)
@@ -305,7 +310,7 @@ void biocard_put(http_request request)
 				else db_tx_rollback(db);
 
 				answer[ELEMENT_VALUE] = json_out;
-				answer[ELEMENT_RESULT] = json::value::boolean(true);
+				answer[ELEMENT_RESULT] = json::value::boolean(step);
 				sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)

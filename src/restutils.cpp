@@ -97,6 +97,7 @@ void handle_request(http_request request, function<void(json::value const&, json
 
 	auto diff = steady_clock::now() - start;
 	BOOST_LOG_TRIVIAL(debug) << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
+	BOOST_LOG_TRIVIAL(debug) << "---------------------------------------------------------------";
 
 	request.reply(sc, answer);
 }
@@ -157,6 +158,7 @@ int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	if (element_type == ABIS_FACE_IMAGE)
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": extract " << element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -178,6 +180,7 @@ int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	}
 	if (element_type == ABIS_FACE_TEMPLATE)
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": parse " << element_type;
 		tmp_type = ABIS_FACE_TEMPLATE;
 		tmp_ptr = json2tmp(el);
 		res = (check_tmp(tmp_ptr) ? 1 : -tmp_type);
@@ -188,11 +191,12 @@ int face_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
-	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	if (element_type == ABIS_FINGER_IMAGE)
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": extract " << element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -208,6 +212,7 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 	if (element_type == ABIS_FINGER_GOST_IMAGE)
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": extract " << element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -223,6 +228,7 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 	if (element_type == ABIS_FINGER_TEMPLATE)
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": parse " << element_type;
 		tmp_type = ABIS_FINGER_TEMPLATE;
 		tmp_ptr = json2tmp(el);
 		res = (check_tmp(tmp_ptr) ? 1 : -tmp_type);
@@ -230,6 +236,7 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": parse " << element_type;
 		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
 		tmp_ptr = json2fingergost_tmp(el);
 		res = (check_tmp(tmp_ptr) ? 1 : -tmp_type);
@@ -240,11 +247,12 @@ int finger_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 int finger_xyt_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
-	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	if (element_type == ABIS_FINGER_GOST_IMAGE)
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": extract " << element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);
@@ -264,11 +272,12 @@ int finger_xyt_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 int livecheck_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
-	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	int res = 0;
 
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
 	if (element_type == ABIS_LIVEFACE_IMAGE)
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": check " << element_type;
 		auto element_image = el.at(ELEMENT_VALUE).as_string();
 		while ((element_image.length() % 4) != 0) element_image += U("=");
 		vector<unsigned char> buf = conversions::from_base64(element_image);

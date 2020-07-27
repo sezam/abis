@@ -109,6 +109,7 @@ void logging_res(string fname, PGresult* sql_res)
 	if (PQresultErrorMessage(sql_res) != nullptr) ss << " msg = " << PQresultErrorMessage(sql_res);
 	ss << endl;
 
+	/*
 	if (PQntuples(sql_res) > 0)
 	{
 		for (size_t i = 0; i < PQnfields(sql_res); i++)
@@ -126,7 +127,7 @@ void logging_res(string fname, PGresult* sql_res)
 			}
 			ss << endl;
 		}
-	}
+	}*/
 	BOOST_LOG_TRIVIAL(debug) << ss.str();
 }
 
