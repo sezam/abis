@@ -38,7 +38,7 @@ void display_json(json::value const& jvalue, std::string const& prefix)
 }
 
 
-void print_json(json::value const& jvalue)
+void save_json(json::value const& jvalue)
 {
 	auto now = std::chrono::system_clock::now();
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -76,10 +76,12 @@ void handle_request(http_request request, function<void(json::value const&, json
 					{
 						auto const& jvalue = task.get();
 						display_json(jvalue, cc_s + "Request: ");
-
-						print_json(jvalue);
+						save_json(jvalue);
 
 						action(jvalue, answer);
+
+						display_json(answer, cc_s + "Answer: ");
+						save_json(answer);
 					}
 					catch (http_exception const& ec)
 					{
@@ -92,8 +94,6 @@ void handle_request(http_request request, function<void(json::value const&, json
 	{
 		JSON_EXCEPTION(answer, ec.what());
 	}
-
-	display_json(answer, cc_s + "Answer: ");
 
 	auto diff = steady_clock::now() - start;
 	BOOST_LOG_TRIVIAL(debug) << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
@@ -287,6 +287,7 @@ int livecheck_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 		int* live_res = (int*)malloc(sizeof(int));
 		res = live_check(buf.data());
 		*live_res = res;
+		tmp_ptr = live_res;
 	}
 
 	return res;
