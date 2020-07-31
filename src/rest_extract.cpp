@@ -53,9 +53,10 @@ void extract_get(http_request request)
 				}
 				if (tmp_ptr != nullptr)free(tmp_ptr);
 
+				if (!step) answer[ELEMENT_ERROR] = json::value::number(abs(res));
 				answer[ELEMENT_TYPE] = json::value::number(tmp_type);
 				answer[ELEMENT_RESULT] = json::value::boolean(step);
-				
+
 				sc = status_codes::OK;
 			}
 			catch (const boost::system::error_code& ec)
