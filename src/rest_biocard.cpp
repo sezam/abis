@@ -172,13 +172,14 @@ void biocard_put(http_request request)
 
 							if (step)
 							{
-								if (cmp_face_tmp(tmp_in, tmp_db) >= ABIS_EQUAL_THRESHOLD)
+								float fscore = cmp_face_tmp(tmp_in, tmp_db);
+								if (step && fscore >= ABIS_FACE_THRESHOLD)
 								{
 									char bc_gid[50];
 									step = db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) == 0;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: face template already in biocard";
 								}
-								else
+								if (step && fscore <= ABIS_EQUAL_THRESHOLD)
 								{
 									tmp_id = db_get_face_seq(db);
 									step = tmp_id > 0;

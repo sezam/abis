@@ -185,8 +185,8 @@ int ebs_request(const unsigned char* image_data, const size_t image_data_len,
 		}
 		if (step && cmd == EBS_CMD_EXTRACT_FINGER)
 		{
-			int* p_ptr = (int*)(recv_data + 1 + ABIS_TEMPLATE_SIZE);
-			step = *p_ptr > 12;
+			auto p_ptr = recv_data + 1 + ABIS_TEMPLATE_SIZE;
+			step = *(int*)p_ptr > 12;
 			if (!step) res = -10;
 		}
 
