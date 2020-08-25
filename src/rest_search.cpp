@@ -29,15 +29,15 @@ void search_get(http_request request)
 			vector<PGconn*> dbs;
 			try
 			{
-				json::array arr = req_json.as_array();
 				auto json_out = json::value::array();
-
-				pplx::task<vector<pplx::task<void>>>([&arr, &json_out, &dbs]()
+				pplx::task<vector<pplx::task<void>>>([&req_json, &json_out, &dbs]()
 					{
 						vector<pplx::task<void>> vv;
+						json::array arr = req_json.as_array();
 						for (size_t i = 0; i < arr.size(); i++)
 						{
-							auto tt = pplx::task<void>([i, &arr, &json_out, &dbs]()
+							auto el = arr[i];
+							auto tt = pplx::task<void>([i, &el, &json_out, &dbs]()
 								{
 									BOOST_LOG_TRIVIAL(debug) << "start task " << i;
 
@@ -51,12 +51,12 @@ void search_get(http_request request)
 									bool step = false;
 
 									int search_count = 1;
-									if (arr[i].has_field(ELEMENT_COUNT)) search_count = arr[i].at(ELEMENT_COUNT).as_integer();
+									if (el.has_field(ELEMENT_COUNT)) search_count = el.at(ELEMENT_COUNT).as_integer();
 
-									int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
+									int element_type = el.at(ELEMENT_TYPE).as_integer();
 									if (element_type != ABIS_DATA)
 									{
-										step = tmp_from_json(arr[i], tmp_type, tmp_in);
+										step = tmp_from_json(el, tmp_type, tmp_in);
 										if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error extract bio template";
 									}
 
@@ -163,7 +163,7 @@ void search_get(http_request request)
 				JSON_EXCEPTION(answer, ec.what());
 			}
 
-			for (auto db: dbs) db_close(db);
+			for (auto db : dbs) db_close(db);
 		});
 	request.reply(sc, "");
 }

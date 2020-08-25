@@ -9,6 +9,8 @@
 #include "restutils.h"
 #include "liveclient.h"
 
+#include <pplx/threadpool.h>
+
 int debug;
 
 void goznak_rest_server()
@@ -86,6 +88,8 @@ void logging_prepare()
 int main(int argc, char* argv[])
 {
 	load_settings(argv[1]);
+
+	crossplat::threadpool::initialize_with_threads(5);
 
 	logging_prepare();
 	db_prepare();

@@ -99,7 +99,10 @@ void handle_request(http_request request, function<void(json::value const&, json
 	BOOST_LOG_TRIVIAL(debug) << cc_s << "duration: " << duration_cast<seconds>(diff).count() << "s " << duration_cast<milliseconds>(diff % seconds(1)).count() << "ms";
 	BOOST_LOG_TRIVIAL(debug) << "---------------------------------------------------------------";
 
-	request.reply(sc, answer);
+	http_response response(sc);
+	response.set_body(answer);
+	response.headers().add(U("Access-Control-Allow-Origin"), U("*"));
+	request.reply(response);
 }
 
 bool check_tmp(void* ptr)

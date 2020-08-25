@@ -303,7 +303,8 @@ void biocard_put(http_request request)
 
 					if (tmp_in != nullptr) free(tmp_in);
 				}
-				if (inserted > 0)
+				//if (inserted > 0)
+				if(step)
 				{
 					db_tx_commit(db);
 					answer[ELEMENT_UUID] = json::value::string(conversions::to_string_t(to_string(gid)));
