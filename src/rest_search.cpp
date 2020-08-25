@@ -32,7 +32,7 @@ void search_get(http_request request)
 				json::array arr = req_json.as_array();
 				auto json_out = json::value::array();
 
-				pplx::task<vector<pplx::task<void>>>([&arr, &dbs]()
+				pplx::task<vector<pplx::task<void>>>([&arr, &json_out, &dbs]()
 					{
 						vector<pplx::task<void>> vv;
 						for (size_t i = 0; i < arr.size(); i++)
