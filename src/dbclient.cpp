@@ -104,9 +104,10 @@ void db_get_array(char**& ar, char* mem)
 void logging_res(string fname, PGresult* sql_res)
 {
 	stringstream ss;
-	ss << fname << ": result = " << PQresStatus(PQresultStatus(sql_res));
-	ss << " tuples = " << PQcmdTuples(sql_res);
-	if (PQresultErrorMessage(sql_res) != nullptr) ss << " msg = " << PQresultErrorMessage(sql_res);
+	ss << fname << ": resStatus = " << PQresStatus(PQresultStatus(sql_res));
+	ss << " cmdStatus = " << PQcmdStatus(sql_res);
+	ss << " cmdTuples = " << PQcmdTuples(sql_res);
+	if (strlen(PQresultErrorMessage(sql_res)) > 0) ss << " errMsg = " << PQresultErrorMessage(sql_res);
 	ss << endl;
 
 	/*
