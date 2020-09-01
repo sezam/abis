@@ -269,13 +269,6 @@ int finger_xyt_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 		res = extract_finger_xyt(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, 
 			(uchar*)tmp_ptr + ABIS_TEMPLATE_SIZE, ABIS_FINGER_TMP_GOST_SIZE);
 	}
-	if (element_type == ABIS_FINGER_GOST_TEMPLATE)
-	{
-		BOOST_LOG_TRIVIAL(debug) << __func__ << ": parse " << element_type;
-		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
-		tmp_ptr = json2fingergost_tmp(el);
-		res = (check_tmp(tmp_ptr) ? 1 : -tmp_type);
-	}
 
 	return res;
 }

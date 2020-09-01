@@ -65,7 +65,8 @@ float cmp_fingerprint_gost_template(void* tmp1, void* tmp2) {
 	assert(tmp2 != nullptr);
 
 	//float score = 0.0123456;
-	float score = 0.654321;
+	//float score = 0.654321;
+	float score = 1.0123456789;
 	// only linux implementation
 #ifndef _WIN32		
 	score = matchSegmentsTemplateArea((unsigned char*)tmp1, 0, 0, (unsigned char*)tmp2, 0, 0) / 100.0f;

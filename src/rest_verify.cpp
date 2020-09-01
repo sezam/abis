@@ -59,8 +59,7 @@ void verify_get(http_request request)
 						int json_tmp_id = 0;
 						float score = 0;
 
-						int res = finger_xyt_from_json(arr[i], json_tmp_type, json_tmp_ptr);
-						if (json_tmp_type != ABIS_FINGER_GOST_TEMPLATE) res = tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr);
+						int res = tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr);
 						bool step = res > 0;
 
 						if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error extract template";

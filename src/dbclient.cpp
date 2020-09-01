@@ -244,6 +244,7 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 	auto start = steady_clock::now();
 	int result = 0;
 
+	BOOST_LOG_TRIVIAL(debug) << __func__ << " 1 ";
 	string arr("{");
 	for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
 	{
@@ -251,9 +252,10 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 		if (i != ABIS_TEMPLATE_LEN - 1) arr.append(",");
 	}
 	arr.append("}");
+	BOOST_LOG_TRIVIAL(debug) << __func__ << " 2 ";
 
 	string part_size_s = to_string(ABIS_TEMPLATE_LEN / face_parts);
-	string count_s = to_string(max(count, ABIS_SEARCH_COUNT));
+	string count_s = to_string(max(min(count, 100), ABIS_SEARCH_COUNT));
 
 	const char* paramValues[7] = { arr.c_str(),  part_size_s.c_str(), count_s.c_str(),
 		postgres_db.c_str(), param_name.c_str(), index_name.c_str(), vector_name.c_str() };
@@ -261,15 +263,18 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 	PGresult* sql_res = nullptr;
 	try
 	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << " 3 ";
 		sql_res = db_exec_param(db, SQL_SEARCH_TMPS, 7, paramValues, 1);
 		logging_res(__func__, sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0 && PQgetlength(sql_res, 0, 0) > 0)
 		{
+			BOOST_LOG_TRIVIAL(debug) << __func__ << " 4 ";
 			char* res_ptr = PQgetvalue(sql_res, 0, 0);
 			db_get_array(ids, res_ptr);
 			result = ids.size();
 		}
+		BOOST_LOG_TRIVIAL(debug) << __func__ << " 5 ";
 	}
 	catch (const std::exception& ec)
 	{
@@ -278,6 +283,7 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 	}
 
 	PQclear(sql_res);
+	BOOST_LOG_TRIVIAL(debug) << __func__ << " 6 ";
 
 	auto diff = steady_clock::now() - start;
 	BOOST_LOG_TRIVIAL(debug) << __func__ << ": " << vector_name << " count: " << count << " size: " << ids.size()
