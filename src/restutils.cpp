@@ -117,19 +117,23 @@ bool check_tmp(void* ptr)
 void* json2tmp(const web::json::value& el)
 {
 	void* result = nullptr;
+	auto element_tmp = el.at(ELEMENT_VALUE).as_array();
 
 	float* tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
 	if (tmp != nullptr)
 	{
 		memset(tmp, 0, ABIS_TEMPLATE_SIZE);
 
-		auto element_tmp = el.at(ELEMENT_VALUE).as_array();
-		for (size_t i = 0; i < element_tmp.size(); i++)
+		if (element_tmp.size() == ABIS_TEMPLATE_LEN)
 		{
-			tmp[i] = element_tmp[i].as_double();
+			for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
+			{
+				tmp[i] = element_tmp[i].as_double();
+			}
 		}
 		result = tmp;
 	}
+	BOOST_LOG_TRIVIAL(debug) << __func__ << " tmp size: " << element_tmp.size();
 
 	return result;
 }
@@ -137,19 +141,23 @@ void* json2tmp(const web::json::value& el)
 void* json2fingergost_tmp(const web::json::value& el)
 {
 	void* result = nullptr;
+	auto element_tmp = el.at(ELEMENT_VALUE).as_array();
 
 	char* tmp = (char*)malloc(ABIS_FINGER_TEMPLATE_SIZE);
 	if (tmp != nullptr)
 	{
 		memset(tmp, 0, ABIS_FINGER_TEMPLATE_SIZE);
 
-		auto element_tmp = el.at(ELEMENT_VALUE).as_array();
-		for (size_t i = 0; i < element_tmp.size(); i++)
+		if (element_tmp.size() == ABIS_FINGER_TEMPLATE_SIZE)
 		{
-			tmp[i] = (char)(element_tmp[i].as_integer() & 0xFF);
+			for (size_t i = 0; i < ABIS_FINGER_TEMPLATE_SIZE; i++)
+			{
+				tmp[i] = (char)(element_tmp[i].as_integer() & 0xFF);
+			}
 		}
 		result = tmp;
 	}
+	BOOST_LOG_TRIVIAL(debug) << __func__ << " tmp size: " << element_tmp.size();
 
 	return result;
 }
@@ -266,7 +274,7 @@ int finger_xyt_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 
 		tmp_type = ABIS_FINGER_GOST_TEMPLATE;
 
-		res = extract_finger_xyt(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE, 
+		res = extract_finger_xyt(buf.data(), buf.size(), tmp_ptr, ABIS_TEMPLATE_SIZE,
 			(uchar*)tmp_ptr + ABIS_TEMPLATE_SIZE, ABIS_FINGER_TMP_GOST_SIZE);
 	}
 
