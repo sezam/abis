@@ -49,15 +49,14 @@ void verify_get(http_request request)
 					int type_num = PQfnumber(sql_res, "tmp_type");
 
 					json::array arr = req_json.as_array();
-					float score_finger = 0.f;
-					float score_face = 0.f;
+					vector<float> face_scores;
+					vector<float> finger_scores;
 
 					for (size_t i = 0; i < arr.size(); i++)
 					{
 						void* json_tmp_ptr = nullptr;
 						int json_tmp_type = ABIS_DATA;
 						int json_tmp_id = 0;
-						float score = 0;
 
 						int res = tmp_from_json(arr[i], json_tmp_type, json_tmp_ptr);
 						bool step = res > 0;
@@ -77,7 +76,6 @@ void verify_get(http_request request)
 									step = db_tmp_ptr != nullptr;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error memory allocate 1";
 
-									float score = 0;
 									if (step)
 									{
 										memset(db_tmp_ptr, 0, ABIS_TEMPLATE_SIZE);
@@ -86,10 +84,8 @@ void verify_get(http_request request)
 										if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get face template";
 									}
 
-									if (step) score = cmp_face_tmp(json_tmp_ptr, db_tmp_ptr);
+									if (step) face_scores.push_back(cmp_face_tmp(json_tmp_ptr, db_tmp_ptr));
 									if (db_tmp_ptr != nullptr) free(db_tmp_ptr);
-
-									score_face = max(score_face, score);
 								}
 								if (db_tmp_type == ABIS_FINGER_GOST_TEMPLATE && db_tmp_type == json_tmp_type)
 								{
@@ -104,27 +100,47 @@ void verify_get(http_request request)
 										step = db_gost_tmp_by_id(db, db_tmp_id, gost_db) > 0;
 										if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get finger template";
 									}
-									if (step) score = cmp_fingerprint_gost_template(((uchar*)json_tmp_ptr) + ABIS_TEMPLATE_SIZE, gost_db);
+									if (step) finger_scores.push_back(cmp_fingerprint_gost_template(((uchar*)json_tmp_ptr) + ABIS_TEMPLATE_SIZE, gost_db));
 									if (gost_db != nullptr) free(gost_db);
-
-									score_finger = max(score_finger, score);
 								}
 							}
 						}
 						if (json_tmp_ptr != nullptr) free(json_tmp_ptr);
 					}
 
-					float score = 0.f;
-					if (score_face > 0.f && score_finger > 0.f)
+					float face_score = (face_scores.empty() ? 0.f : face_scores[0]);
+					float face_thrh = ABIS_FACE_THRESHOLD;
+					if (face_scores.size() > 1)
 					{
-						float trhld = sugeno_weber(ABIS_FACE_THRESHOLD, ABIS_FINGER_GOST_THRESHOLD);
-						score = sugeno_weber(score_face, score_finger);
+						for (auto fs : face_scores)
+						{
+							face_score = sugeno_weber(face_score, fs);
+							face_thrh = sugeno_weber(face_thrh, ABIS_FACE_THRESHOLD);
+						}
+					}
+
+					float finger_score = (finger_scores.empty() ? 0.f : finger_scores[0]);
+					float finger_thrh = ABIS_FINGER_GOST_THRESHOLD;
+					if (finger_scores.size() > 1)
+					{
+						for (auto fs : finger_scores)
+						{
+							finger_score = sugeno_weber(finger_score, fs);
+							finger_thrh = sugeno_weber(finger_thrh, ABIS_FINGER_GOST_THRESHOLD);
+						}
+					}
+
+					float score = 0.f;
+					if (face_score > 0.f && finger_score > 0.f)
+					{
+						float trhld = sugeno_weber(face_thrh, finger_thrh);
+						score = sugeno_weber(face_score, finger_score);
 						score = min(score * ABIS_INTEGRA_THRESHOLD / trhld, 1.0f);
 					}
 					else
 					{
-						if (score_face > 0.f) score = min(score_face * ABIS_INTEGRA_THRESHOLD / ABIS_FACE_THRESHOLD, 1.0f);
-						if (score_finger > 0.f) score = min(score_finger * ABIS_INTEGRA_THRESHOLD / ABIS_FINGER_GOST_THRESHOLD, 1.0f);
+						if (face_score > 0.f) score = min(face_score * ABIS_INTEGRA_THRESHOLD / face_thrh, 1.0f);
+						if (finger_score > 0.f) score = min(finger_score * ABIS_INTEGRA_THRESHOLD / finger_thrh, 1.0f);
 					}
 
 					answer[ELEMENT_VALUE] = json::value::number(score);
