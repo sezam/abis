@@ -133,7 +133,7 @@ void* json2tmp(const web::json::value& el)
 		}
 		result = tmp;
 	}
-	BOOST_LOG_TRIVIAL(debug) << __func__ << " tmp size: " << element_tmp.size();
+	BOOST_LOG_TRIVIAL(debug) << __func__ << " tmp len: " << element_tmp.size() << " size: " << ABIS_TEMPLATE_SIZE;
 
 	return result;
 }
@@ -157,7 +157,7 @@ void* json2fingergost_tmp(const web::json::value& el)
 		}
 		result = tmp;
 	}
-	BOOST_LOG_TRIVIAL(debug) << __func__ << " tmp size: " << element_tmp.size();
+	BOOST_LOG_TRIVIAL(debug) << __func__ << " tmp len: " << element_tmp.size() << " size: " << element_tmp.size();
 
 	return result;
 }

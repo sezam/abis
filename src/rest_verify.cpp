@@ -108,25 +108,27 @@ void verify_get(http_request request)
 						if (json_tmp_ptr != nullptr) free(json_tmp_ptr);
 					}
 
-					float face_score = (face_scores.empty() ? 0.f : face_scores[0]);
+					float face_score = 0.f;
 					float face_thrh = ABIS_FACE_THRESHOLD;
-					if (face_scores.size() > 1)
+					if (!face_scores.empty())
 					{
+						face_score = face_scores[0];
 						for (auto fs : face_scores)
 						{
-							face_score = sugeno_weber(face_score, fs);
 							face_thrh = sugeno_weber(face_thrh, ABIS_FACE_THRESHOLD);
+							face_score = sugeno_weber(face_score, fs);
 						}
 					}
 
-					float finger_score = (finger_scores.empty() ? 0.f : finger_scores[0]);
+					float finger_score = 0.f;
 					float finger_thrh = ABIS_FINGER_GOST_THRESHOLD;
-					if (finger_scores.size() > 1)
+					if (!finger_scores.empty())
 					{
+						finger_score = finger_scores[0];
 						for (auto fs : finger_scores)
 						{
-							finger_score = sugeno_weber(finger_score, fs);
 							finger_thrh = sugeno_weber(finger_thrh, ABIS_FINGER_GOST_THRESHOLD);
+							finger_score = sugeno_weber(finger_score, fs);
 						}
 					}
 
