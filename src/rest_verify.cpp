@@ -65,6 +65,8 @@ void verify_get(http_request request)
 
 						if (step)
 						{
+							float face_cmp_score = 0.f;
+							float finger_cmp_score = 0.f;
 							for (int r = 0; r < PQntuples(sql_res); r++)
 							{
 								int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
@@ -84,7 +86,7 @@ void verify_get(http_request request)
 										if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get face template";
 									}
 
-									if (step) face_scores.push_back(cmp_face_tmp(json_tmp_ptr, db_tmp_ptr));
+									if (step) face_cmp_score = max(face_cmp_score, cmp_face_tmp(json_tmp_ptr, db_tmp_ptr));
 									if (db_tmp_ptr != nullptr) free(db_tmp_ptr);
 								}
 								if (db_tmp_type == ABIS_FINGER_GOST_TEMPLATE && db_tmp_type == json_tmp_type)
@@ -100,10 +102,12 @@ void verify_get(http_request request)
 										step = db_gost_tmp_by_id(db, db_tmp_id, gost_db) > 0;
 										if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get finger template";
 									}
-									if (step) finger_scores.push_back(cmp_fingerprint_gost_template(((uchar*)json_tmp_ptr) + ABIS_TEMPLATE_SIZE, gost_db));
+									if (step) finger_cmp_score = max(finger_cmp_score, cmp_fingerprint_gost_template(((uchar*)json_tmp_ptr) + ABIS_TEMPLATE_SIZE, gost_db));
 									if (gost_db != nullptr) free(gost_db);
 								}
 							}
+							if (face_cmp_score >= ABIS_FLOAT_THRESHOLD) face_scores.push_back(face_cmp_score);
+							if (finger_cmp_score >= ABIS_FLOAT_THRESHOLD) finger_scores.push_back(finger_cmp_score);
 						}
 						if (json_tmp_ptr != nullptr) free(json_tmp_ptr);
 					}
