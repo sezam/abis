@@ -141,8 +141,8 @@ void verify_get(http_request request)
 					}
 					else
 					{
-						if (face_score > ABIS_FLOAT_THRESHOLD) score = min(face_score / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
-						if (finger_score > ABIS_FLOAT_THRESHOLD) score = min(finger_score / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
+						if (face_score > ABIS_FLOAT_THRESHOLD) score = face_score;
+						if (finger_score > ABIS_FLOAT_THRESHOLD) score = finger_score;
 					}
 
 					answer[ELEMENT_VALUE] = json::value::number(score);
