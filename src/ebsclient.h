@@ -47,6 +47,6 @@ float sugeno_weber(float x, float y);
 /*
 расчет комплексной оценки по двум оценкам
 */
-float multi_score(float x, float y)
+float multi_score(float x, float y);
 
 #endif
