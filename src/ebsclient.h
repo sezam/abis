@@ -44,4 +44,9 @@ float cmp_finger_tmp(void* tmp1, void* tmp2);
 */
 float sugeno_weber(float x, float y);
 
+/*
+расчет комплексной оценки по двум оценкам
+*/
+float multi_score(float x, float y)
+
 #endif

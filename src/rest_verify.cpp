@@ -109,40 +109,34 @@ void verify_get(http_request request)
 					}
 
 					float face_score = 0.f;
-					float face_thrh = ABIS_FACE_THRESHOLD;
 					if (!face_scores.empty())
 					{
-						face_score = face_scores[0];
+						face_score = min(face_scores[0] / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
 						for (auto fs : face_scores)
 						{
-							face_thrh = sugeno_weber(face_thrh, ABIS_FACE_THRESHOLD);
-							face_score = sugeno_weber(face_score, fs);
+							face_score = multi_score(face_score, min(fs / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
 						}
 					}
 
 					float finger_score = 0.f;
-					float finger_thrh = ABIS_FINGER_GOST_THRESHOLD;
 					if (!finger_scores.empty())
 					{
-						finger_score = finger_scores[0];
+						finger_score = min(finger_scores[0] / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
 						for (auto fs : finger_scores)
 						{
-							finger_thrh = sugeno_weber(finger_thrh, ABIS_FINGER_GOST_THRESHOLD);
-							finger_score = sugeno_weber(finger_score, fs);
+							finger_score = multi_score(finger_score, min(fs / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
 						}
 					}
 
 					float score = 0.f;
-					if (face_score > 0.f && finger_score > 0.f)
+					if (face_score > ABIS_FLOAT_THRESHOLD && finger_score > ABIS_FLOAT_THRESHOLD)
 					{
-						float trhld = sugeno_weber(face_thrh, finger_thrh);
-						score = sugeno_weber(face_score, finger_score);
-						score = min(score * ABIS_INTEGRA_THRESHOLD / trhld, 1.0f);
+						score = multi_score(face_score, finger_score);
 					}
 					else
 					{
-						if (face_score > 0.f) score = min(face_score * ABIS_INTEGRA_THRESHOLD / face_thrh, 1.0f);
-						if (finger_score > 0.f) score = min(finger_score * ABIS_INTEGRA_THRESHOLD / finger_thrh, 1.0f);
+						if (face_score > ABIS_FLOAT_THRESHOLD) score = min(face_score / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
+						if (finger_score > ABIS_FLOAT_THRESHOLD) score = min(finger_score / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
 					}
 
 					answer[ELEMENT_VALUE] = json::value::number(score);

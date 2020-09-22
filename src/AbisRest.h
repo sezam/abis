@@ -109,6 +109,7 @@ using namespace utility;
 #define ABIS_FINGER_THRESHOLD		0.42f
 #define ABIS_FINGER_GOST_THRESHOLD	0.22f
 #define ABIS_EQUAL_THRESHOLD		0.95f
+#define ABIS_FLOAT_THRESHOLD		0.0001f
 
 #define ABIS_TEMPLATE_LEN			512 
 #define ABIS_TEMPLATE_SIZE			ABIS_TEMPLATE_LEN * sizeof(float)

@@ -326,3 +326,60 @@ float sugeno_weber(float x, float y)
 	BOOST_LOG_TRIVIAL(debug) << "sugeno_weber: score = " << score;
 	return score;
 }
+
+float multi_score(float x, float y)
+{
+	float z = 0.f;
+	float f00_1 = 0.f;
+	float f01_1 = ABIS_INTEGRA_THRESHOLD / 4.f;
+	float f10_1 = ABIS_INTEGRA_THRESHOLD / 4.f;
+	float f11_1 = ABIS_INTEGRA_THRESHOLD * 0.8f;
+	float b1_1 = f00_1;
+	float b2_1 = f10_1 - f00_1;
+	float b3_1 = f01_1 - f00_1;
+	float b4_1 = f00_1 - f10_1 - f01_1 + f11_1;
+	float f00_2 = ABIS_INTEGRA_THRESHOLD / 4.f;
+	float f01_2 = ABIS_INTEGRA_THRESHOLD * 0.8f;
+	float f10_2 = ABIS_INTEGRA_THRESHOLD / 2.f;
+	float f11_2 = ABIS_INTEGRA_THRESHOLD - ABIS_FLOAT_THRESHOLD;
+	float b1_2 = f00_2;
+	float b2_2 = f10_2 - f00_2;
+	float b3_2 = f01_2 - f00_2;
+	float b4_2 = f00_2 - f10_2 - f01_2 + f11_2;
+	float f00_4 = ABIS_INTEGRA_THRESHOLD;
+	float f01_4 = ABIS_INTEGRA_THRESHOLD * 3.f / 2.f;
+	float f10_4 = ABIS_INTEGRA_THRESHOLD * 3.f / 2.f;
+	float f11_4 = ABIS_INTEGRA_THRESHOLD * 2.f;
+	float b1_4 = f00_4;
+	float b2_4 = f10_4 - f00_4;
+	float b3_4 = f01_4 - f00_4;
+	float b4_4 = f00_4 - f10_4 - f01_4 + f11_4;
+
+	if (x < ABIS_INTEGRA_THRESHOLD && abs(ABIS_INTEGRA_THRESHOLD - x) >= ABIS_FLOAT_THRESHOLD 
+		&& y < ABIS_INTEGRA_THRESHOLD 
+		&& abs(ABIS_INTEGRA_THRESHOLD - y) >= ABIS_FLOAT_THRESHOLD)
+	{
+		z = b1_1 + b2_1 * 2.f * x + b3_1 * 2.f * y + b4_1 * 4.f * x * y;
+	}
+	else if ((x >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - x) < ABIS_FLOAT_THRESHOLD) 
+		&& y < ABIS_INTEGRA_THRESHOLD 
+		&& abs(ABIS_INTEGRA_THRESHOLD - y) >= ABIS_FLOAT_THRESHOLD)
+	{
+		z = b1_2 + b2_2 * 2.f * (x - ABIS_INTEGRA_THRESHOLD) + b3_2 * 2.f * y + b4_2 * 4.f * (x - ABIS_INTEGRA_THRESHOLD) * y;
+	}
+	else if (x < ABIS_INTEGRA_THRESHOLD && abs(ABIS_INTEGRA_THRESHOLD - x) >= ABIS_FLOAT_THRESHOLD 
+		&& (y >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - y) < ABIS_FLOAT_THRESHOLD))
+	{
+		z = b1_2 + b2_2 * 2.f * (y - ABIS_INTEGRA_THRESHOLD) + b3_2 * 2.f * x + b4_2 * 4.f * x * (y - ABIS_INTEGRA_THRESHOLD);
+	}
+	else if ((x >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - x) < ABIS_FLOAT_THRESHOLD) 
+		&& (y >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - y) < ABIS_FLOAT_THRESHOLD))
+	{
+		z = b1_4 + b2_4 * 2.f * (x - ABIS_INTEGRA_THRESHOLD) + b3_4 * 2.f * (y - ABIS_INTEGRA_THRESHOLD) 
+			+ b4_4 * 4.f * (x - ABIS_INTEGRA_THRESHOLD) * (y - ABIS_INTEGRA_THRESHOLD);
+	}
+
+	BOOST_LOG_TRIVIAL(debug) << "multi_score: x = " << x << ", y = " << y << ", score = " << z;
+
+	return z;
+}
