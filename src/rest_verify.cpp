@@ -112,9 +112,12 @@ void verify_get(http_request request)
 					if (!face_scores.empty())
 					{
 						face_score = min(face_scores[0] / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
-						for (auto fs : face_scores)
+						if (face_scores.size() > 1)
 						{
-							face_score = multi_score(face_score, min(fs / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
+							for (size_t i = 1; i < face_scores.size(); i++)
+							{
+								face_score = multi_score(face_score, min(face_scores[i] / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
+							}
 						}
 					}
 
@@ -122,9 +125,12 @@ void verify_get(http_request request)
 					if (!finger_scores.empty())
 					{
 						finger_score = min(finger_scores[0] / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
-						for (auto fs : finger_scores)
+						if (finger_scores.size() > 1)
 						{
-							finger_score = multi_score(finger_score, min(fs / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
+							for (size_t i = 1; i < finger_scores.size(); i++)
+							{
+								finger_score = multi_score(finger_score, min(finger_scores[i] / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
+							}
 						}
 					}
 
