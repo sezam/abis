@@ -120,16 +120,14 @@ void search_get(http_request request)
 
 											if (step)
 											{
-												json_tmp[ELEMENT_ID] = json::value::number(tmp_id);
-
 												char bc_gid[50];
-												step = db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) > 0;
-												if (step)
+												if (db_get_bc_for_tmp(db, tmp_type, tmp_id, bc_gid) > 0)
 												{
 													json_tmp[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));
-													if(is_compare) json_tmp[ELEMENT_VALUE] = json::value::number(score);
+													if (is_compare) json_tmp[ELEMENT_VALUE] = json::value::number(score);
 												}
 											}
+											json_tmp[ELEMENT_ID] = json::value::number(tmp_id);
 											json_tmp[ELEMENT_RESULT] = json::value::boolean(step);
 											json_tmps[j] = json_tmp;
 										}
@@ -165,7 +163,7 @@ void search_get(http_request request)
 				JSON_EXCEPTION(answer, ec.what());
 			}
 
-			for (auto db: dbs) db_close(db);
+			for (auto db : dbs) db_close(db);
 		});
 	request.reply(sc, "");
 }
