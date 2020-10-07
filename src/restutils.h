@@ -11,6 +11,7 @@
 #define ELEMENT_UUID    U("uuid")
 #define ELEMENT_INFO    U("info")
 #define ELEMENT_COUNT	U("limit")
+#define ELEMENT_COMPARE	U("compare")
 
 #define ELEMENT_RESULT	U("ok")
 #define ELEMENT_ERROR	U("error")

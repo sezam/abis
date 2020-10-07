@@ -49,9 +49,11 @@ void search_get(http_request request)
 									int tmp_type = ABIS_DATA;
 									void* tmp_in = nullptr;
 									bool step = false;
+									bool is_compare = true;
 
 									int search_count = 1;
 									if (arr[i].has_field(ELEMENT_COUNT)) search_count = arr[i].at(ELEMENT_COUNT).as_integer();
+									if (arr[i].has_field(ELEMENT_COMPARE)) is_compare = arr[i].at(ELEMENT_COMPARE).as_bool();
 
 									int element_type = arr[i].at(ELEMENT_TYPE).as_integer();
 									if (element_type != ABIS_DATA)
@@ -83,7 +85,7 @@ void search_get(http_request request)
 											int tmp_id = ids[j];
 											float score = 0;
 
-											if (tmp_type == ABIS_FACE_TEMPLATE)
+											if (tmp_type == ABIS_FACE_TEMPLATE && is_compare)
 											{
 												void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
 												step = tmp_db != nullptr;
@@ -99,7 +101,7 @@ void search_get(http_request request)
 												if (step) score = cmp_face_tmp(tmp_in, tmp_db);
 												if (tmp_db != nullptr) free(tmp_db);
 											}
-											if (tmp_type == ABIS_FINGER_GOST_TEMPLATE)
+											if (tmp_type == ABIS_FINGER_GOST_TEMPLATE && is_compare)
 											{
 												void* gost_db = malloc(ABIS_FINGER_TMP_GOST_SIZE);
 												step = gost_db != nullptr;
@@ -125,7 +127,7 @@ void search_get(http_request request)
 												if (step)
 												{
 													json_tmp[ELEMENT_UUID] = json::value::string(conversions::to_string_t(bc_gid));
-													json_tmp[ELEMENT_VALUE] = json::value::number(score);
+													if(is_compare) json_tmp[ELEMENT_VALUE] = json::value::number(score);
 												}
 											}
 											json_tmp[ELEMENT_RESULT] = json::value::boolean(step);

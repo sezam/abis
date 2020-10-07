@@ -318,9 +318,8 @@ void biocard_put(http_request request)
 						else db_sp_rollback(transact_db, "finger_template");
 					}
 
-					res &= 0x4000;
 					if (step) json_row[ELEMENT_ID] = json::value::number(tmp_id);
-					if (!step) answer[ELEMENT_ERROR] = json::value::number(abs(res));
+					if (!step) answer[ELEMENT_ERROR] = json::value::number(0x4000 + abs(res));
 					json_row[ELEMENT_TYPE] = json::value::number(tmp_type);
 					json_row[ELEMENT_RESULT] = json::value::boolean(step);
 
