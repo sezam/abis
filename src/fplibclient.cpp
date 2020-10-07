@@ -60,17 +60,21 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 	return res;
 }
 
+interprocess_semaphore mx_finger(1);
+
 float cmp_fingerprint_gost_template(void* tmp1, void* tmp2) {
 	assert(tmp1 != nullptr);
 	assert(tmp2 != nullptr);
 
-	//float score = 0.0123456;
-	//float score = 0.654321;
 	float score = 1.0123456789;
+
+	mx_finger.wait();
 	// only linux implementation
 #ifndef _WIN32		
 	score = matchSegmentsTemplateArea((unsigned char*)tmp1, 0, 0, (unsigned char*)tmp2, 0, 0) / 100.0f;
 #endif
+	mx_finger.post();
+
 	BOOST_LOG_TRIVIAL(debug) << "cmp_fingerprint_gost_template: score = " << score;
 	return score;
 }
