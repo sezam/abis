@@ -94,14 +94,8 @@
     <ClInclude Include="..\src\liveclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\BioTemplate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\biocard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ebsclient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

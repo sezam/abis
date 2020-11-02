@@ -74,6 +74,11 @@ void search_get(http_request request)
 											step = db_search_finger_tmps(db, tmp_in, search_count, ids) > 0;
 											if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error search finger template";
 										}
+										if (tmp_type == ABIS_IRIS_TEMPLATE)
+										{
+											step = db_search_iris_tmps(db, tmp_in, search_count, ids) > 0;
+											if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error search iris template";
+										}
 									}
 
 									if (step)
@@ -87,35 +92,15 @@ void search_get(http_request request)
 
 											if (tmp_type == ABIS_FACE_TEMPLATE && is_compare)
 											{
-												void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
-												step = tmp_db != nullptr;
-												if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error memory allocate 1";
-
-												if (step)
-												{
-													memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
-													step = db_face_tmp_by_id(db, tmp_id, tmp_db) > 0;
-													if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error get face template";
-												}
-
-												if (step) score = cmp_face_tmp(tmp_in, tmp_db);
-												if (tmp_db != nullptr) free(tmp_db);
+												step = db_tmp_cmp_by_id(db, tmp_type, tmp_in, tmp_id, score) > 0;
 											}
 											if (tmp_type == ABIS_FINGER_GOST_TEMPLATE && is_compare)
 											{
-												void* gost_db = malloc(ABIS_FINGER_TMP_GOST_SIZE);
-												step = gost_db != nullptr;
-												if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error memory allocate 2";
-
-												if (step)
-												{
-													memset(gost_db, 0, ABIS_FINGER_TMP_GOST_SIZE);
-
-													step = db_gost_tmp_by_id(db, tmp_id, gost_db) > 0;
-													if (!step) BOOST_LOG_TRIVIAL(debug) << "search_get: error get finger template phase 2";
-												}
-												if (step) score = cmp_fingerprint_gost_template(((uchar*)tmp_in) + ABIS_TEMPLATE_SIZE, gost_db);
-												if (gost_db != nullptr) free(gost_db);
+												step = db_tmp_cmp_by_id(db, tmp_type, tmp_in, tmp_id, score) > 0;
+											}
+											if (tmp_type == ABIS_IRIS_TEMPLATE && is_compare)
+											{
+												step = db_tmp_cmp_by_id(db, tmp_type, tmp_in, tmp_id, score) > 0;
 											}
 
 											if (step)

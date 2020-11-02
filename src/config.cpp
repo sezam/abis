@@ -20,6 +20,11 @@ string finger_vector("finger_vector");
 string finger_index("finger_index");
 string finger_param("finger_param");
 
+int iris_parts = 8;
+string iris_vector("iris_vector");
+string iris_index("iris_index");
+string iris_param("iris_param");
+
 string logging_path("../log");
 string logging_level("info");
 
@@ -131,7 +136,11 @@ void load_settings(char* path)
 			("liveface.ir_threshold", po::value< float >(&ir_threshold), "ir_threshold")
 			("liveface.fish_threshold", po::value< float >(&fish_threshold), "fish_threshold")
 			("liveface.ir_threshold_select", po::value< float >(&ir_threshold_select), "ir_threshold_select")
-			("liveface.ensembled_threshold", po::value< float >(&ensembled_threshold), "ensembled_threshold");
+			("liveface.ensembled_threshold", po::value< float >(&ensembled_threshold), "ensembled_threshold")
+			("iris.parts", po::value< int >(&iris_parts), "parts")
+			("iris.vector", po::value< string >(&iris_vector), "vector table")
+			("iris.index", po::value< string >(&iris_index), "index table")
+			("iris.param", po::value< string >(&iris_param), "param table");
 
 		po::variables_map vm;
 		po::store(po::parse_config_file(path, desc), vm);

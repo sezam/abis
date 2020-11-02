@@ -10,6 +10,7 @@ static const string SQL_TMP_IDS_BY_BC_GID("SELECT * FROM t_biocard_template_link
 
 static const string SQL_FACE_TMP_SEQ("SELECT nextval('template_face_seq'::regclass) uid");
 static const string SQL_FINGER_TMP_SEQ("SELECT nextval('template_finger_seq'::regclass) uid");
+static const string SQL_IRIS_TMP_SEQ("SELECT nextval('template_iris_seq'::regclass) uid");
 
 static const string SQL_TMP_BY_ID("SELECT * FROM %1% tmp WHERE tmp.id=$1::integer");
 
@@ -55,7 +56,7 @@ void db_prepare();
 
 PGconn* db_open();
 void db_close(PGconn* db);
-PGresult* db_exec_param(PGconn* db, string sql, int nParams, const char* const* params, int resFormat);
+PGresult* db_exec_param(PGconn* db, string sql, const int nParams, const char* const* params, const int resFormat);
 
 void db_tx_begin(PGconn* db);
 void db_tx_commit(PGconn* db);
@@ -67,41 +68,47 @@ void db_sp_release(PGconn* db, const char* name);
 
 int db_get_face_seq(PGconn* db);
 int db_get_finger_seq(PGconn* db);
+int db_get_iris_seq(PGconn* db);
+int db_get_sequence(PGconn* db, const int tmp_type);
 
 /*
 шаблоны
 */
-int db_search_face_tmps(PGconn* db, const void* tmp_arr, int count, vector<int>& ids);
+int db_search_face_tmps(PGconn* db, const void* tmp_arr, const int count, vector<int>& ids);
 int db_search_face_tmp(PGconn* db, const void* tmp_arr, int& id);
+int db_insert_face_tmp(PGconn* db, const void* tmp_arr, const int tmp_id);
+int db_face_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr);
 
-int db_search_finger_tmps(PGconn* db, const void* tmp_arr, int count, vector<int>& ids);
+int db_search_finger_tmps(PGconn* db, const void* tmp_arr, const int count, vector<int>& ids);
 int db_search_finger_tmp(PGconn* db, const void* tmp_arr, int& id);
+int db_insert_finger_tmp(PGconn* db, const void* tmp_arr, const int tmp_id);
+int db_append_finger_gost(PGconn* db, const void* tmp_arr, const int tmp_id);
+int db_set_finger_num(PGconn* db, const int tmp_id, const int fnum);
+int db_finger_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr);
+int db_gost_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr);
 
-int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id);
-int db_insert_finger_tmp(PGconn* db, const void* tmp_arr, int tmp_id);
+int db_search_iris_tmps(PGconn* db, const void* tmp_arr, const int count, vector<int>& ids);
+int db_search_iris_tmp(PGconn* db, const void* tmp_arr, int& id);
+int db_insert_iris_tmp(PGconn* db, const void* tmp_arr, const int tmp_id);
+int db_iris_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr);
 
-int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id);
-int db_set_finger_num(PGconn* db, int tmp_id, int fnum);
-
-int db_face_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr);
-int db_finger_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr);
-int db_gost_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr);
+int db_tmp_cmp_by_id(PGconn* db, const int tmp_type, const void* tmp_ptr, const int tmp_id, float& score);
 
 /*
 биокарты
 */
 int db_add_bc(PGconn* db, const char* gid, const char* info);
-int db_del_bc(PGconn* db, int bc_id);
+int db_del_bc(PGconn* db, const int bc_id);
 int db_del_bc(PGconn* db, const char* gid);
 int db_get_bc_by_gid(PGconn* db, const char* gid);
-int db_get_bc_for_tmp(PGconn* db, int tmp_type, int tmp_id, char* gid);
+int db_get_bc_for_tmp(PGconn* db, const int tmp_type, const int tmp_id, char* gid);
 
 /*
 связи
 */
-int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id);
-int db_del_link(PGconn* db, int tmp_type, int tmp_id, const char* gid);
-int db_del_links(PGconn* db, int bc_id);
+int db_add_link(PGconn* db, const int tmp_type, const int tmp_id, const int bc_id);
+int db_del_link(PGconn* db, const int tmp_type, const int tmp_id, const char* gid);
+int db_del_links(PGconn* db, const int bc_id);
 int db_del_links(PGconn* db, const char* gid);
 
 #endif

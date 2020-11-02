@@ -51,6 +51,7 @@ void verify_get(http_request request)
 					json::array arr = req_json.as_array();
 					vector<float> face_scores;
 					vector<float> finger_scores;
+					vector<float> iris_scores;
 
 					for (size_t i = 0; i < arr.size(); i++)
 					{
@@ -67,6 +68,7 @@ void verify_get(http_request request)
 						{
 							float face_cmp_score = 0.f;
 							float finger_cmp_score = 0.f;
+							float iris_cmp_score = 0.f;
 							for (int r = 0; r < PQntuples(sql_res); r++)
 							{
 								int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
@@ -74,48 +76,34 @@ void verify_get(http_request request)
 
 								if (db_tmp_type == ABIS_FACE_TEMPLATE && db_tmp_type == json_tmp_type)
 								{
-									void* db_tmp_ptr = malloc(ABIS_TEMPLATE_SIZE);
-									step = db_tmp_ptr != nullptr;
-									if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error memory allocate 1";
-
-									if (step)
-									{
-										memset(db_tmp_ptr, 0, ABIS_TEMPLATE_SIZE);
-
-										step = db_face_tmp_by_id(db, db_tmp_id, db_tmp_ptr) > 0;
-										if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get face template";
-									}
-
-									if (step) face_cmp_score = max(face_cmp_score, cmp_face_tmp(json_tmp_ptr, db_tmp_ptr));
-									if (db_tmp_ptr != nullptr) free(db_tmp_ptr);
+									float score = 0.f;
+									step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
+									if (step) face_cmp_score = max(face_cmp_score, score);
 								}
 								if (db_tmp_type == ABIS_FINGER_GOST_TEMPLATE && db_tmp_type == json_tmp_type)
 								{
-									void* gost_db = malloc(ABIS_FINGER_TMP_GOST_SIZE);
-									step = gost_db != nullptr;
-									if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error memory allocate 2";
-
-									if (step)
-									{
-										memset(gost_db, 0, ABIS_FINGER_TMP_GOST_SIZE);
-
-										step = db_gost_tmp_by_id(db, db_tmp_id, gost_db) > 0;
-										if (!step) BOOST_LOG_TRIVIAL(debug) << "verify_get: error get finger template";
-									}
-									if (step) finger_cmp_score = max(finger_cmp_score, cmp_fingerprint_gost_template(((uchar*)json_tmp_ptr) + ABIS_TEMPLATE_SIZE, gost_db));
-									if (gost_db != nullptr) free(gost_db);
+									float score = 0.f;
+									step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
+									if (step) finger_cmp_score = max(finger_cmp_score, score);
+								}
+								if (db_tmp_type == ABIS_IRIS_TEMPLATE && db_tmp_type == json_tmp_type)
+								{
+									float score = 0.f;
+									step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
+									if (step) iris_cmp_score = max(iris_cmp_score, score);
 								}
 							}
 							if (face_cmp_score >= ABIS_FLOAT_THRESHOLD) face_scores.push_back(face_cmp_score);
 							if (finger_cmp_score >= ABIS_FLOAT_THRESHOLD) finger_scores.push_back(finger_cmp_score);
+							if (iris_cmp_score >= ABIS_FLOAT_THRESHOLD) iris_scores.push_back(iris_cmp_score);
 						}
 						if (json_tmp_ptr != nullptr) free(json_tmp_ptr);
 					}
 
-					float face_score = 0.f;
+					vector<float> scores;
 					if (!face_scores.empty())
 					{
-						face_score = min(face_scores[0] / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
+						float face_score = min(face_scores[0] / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
 						if (face_scores.size() > 1)
 						{
 							for (size_t i = 1; i < face_scores.size(); i++)
@@ -123,12 +111,12 @@ void verify_get(http_request request)
 								face_score = multi_score(face_score, min(face_scores[i] / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
 							}
 						}
+						scores.push_back(face_score);
 					}
 
-					float finger_score = 0.f;
 					if (!finger_scores.empty())
 					{
-						finger_score = min(finger_scores[0] / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
+						float finger_score = min(finger_scores[0] / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
 						if (finger_scores.size() > 1)
 						{
 							for (size_t i = 1; i < finger_scores.size(); i++)
@@ -136,17 +124,33 @@ void verify_get(http_request request)
 								finger_score = multi_score(finger_score, min(finger_scores[i] / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
 							}
 						}
+						scores.push_back(finger_score);
+					}
+
+					if (!iris_scores.empty())
+					{
+						float iris_score = min(iris_scores[0] / ABIS_IRIS_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
+						if (iris_scores.size() > 1)
+						{
+							for (size_t i = 1; i < iris_scores.size(); i++)
+							{
+								iris_score = multi_score(iris_score, min(iris_scores[i] / ABIS_IRIS_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
+							}
+						}
+						scores.push_back(iris_score);
 					}
 
 					float score = 0.f;
-					if (face_score > ABIS_FLOAT_THRESHOLD && finger_score > ABIS_FLOAT_THRESHOLD)
+					if (!scores.empty())
 					{
-						score = multi_score(face_score, finger_score);
-					}
-					else
-					{
-						if (face_score > ABIS_FLOAT_THRESHOLD) score = face_score;
-						if (finger_score > ABIS_FLOAT_THRESHOLD) score = finger_score;
+						score = min(scores[0], 1.f);
+						if (scores.size() > 1)
+						{
+							for (size_t i = 1; i < scores.size(); i++)
+							{
+								score = multi_score(score, min(scores[i], 1.f));
+							}
+						}
 					}
 
 					answer[ELEMENT_VALUE] = json::value::number(score);

@@ -101,7 +101,7 @@ void db_get_array(char**& ar, char* mem)
 	BOOST_LOG_TRIVIAL(debug) << __func__ << ": el_count = " << nEle << " el_size = " << sizeof(char*);
 }
 
-void logging_res(string fname, PGresult* sql_res)
+void logging_res(const string fname, PGresult* sql_res)
 {
 	stringstream ss;
 	ss << fname << ": resStatus = " << PQresStatus(PQresultStatus(sql_res));
@@ -132,12 +132,12 @@ void logging_res(string fname, PGresult* sql_res)
 	BOOST_LOG_TRIVIAL(debug) << ss.str();
 }
 
-void logging_conn(string fname, PGconn* db)
+void logging_conn(const string fname, PGconn* db)
 {
 	BOOST_LOG_TRIVIAL(debug) << fname << ": msg = " << PQerrorMessage(db);
 }
 
-void logging_ex(string fname, PGresult* sql_res, const std::exception& ec)
+void logging_ex(const string fname, PGresult* sql_res, const std::exception& ec)
 {
 	BOOST_LOG_TRIVIAL(debug) << PQcmdStatus(sql_res);
 	BOOST_LOG_TRIVIAL(error) << fname << " : " << ec.what();
@@ -170,7 +170,7 @@ void db_close(PGconn* db)
 	PQfinish(db);
 }
 
-PGresult* db_exec_param(PGconn* db, string sql, int nParams, const char* const* params, int resFormat)
+PGresult* db_exec_param(PGconn* db, string sql, const int nParams, const char* const* params, const int resFormat)
 {
 	return PQexecParams(db, sql.c_str(), nParams, nullptr, params, nullptr, nullptr, resFormat);
 }
@@ -205,7 +205,7 @@ void db_tx_rollback(PGconn* db)
 void db_sp_begin(PGconn* db, const char* name)
 {
 	string q("SAVEPOINT ");
-	q.append(name);
+	q.append(ABIS_STR_PREFIX).append(name);
 
 	PGresult* res = PQexec(db, q.c_str());
 	logging_res(__func__, res);
@@ -217,7 +217,7 @@ void db_sp_begin(PGconn* db, const char* name)
 void db_sp_rollback(PGconn* db, const char* name)
 {
 	string q("ROLLBACK TO SAVEPOINT ");
-	q.append(name);
+	q.append(ABIS_STR_PREFIX).append(name);
 
 	PGresult* res = PQexec(db, q.c_str());
 	logging_res(__func__, res);
@@ -228,7 +228,7 @@ void db_sp_rollback(PGconn* db, const char* name)
 void db_sp_release(PGconn* db, const char* name)
 {
 	string q("RELEASE SAVEPOINT ");
-	q.append(name);
+	q.append(ABIS_STR_PREFIX).append(name);
 
 	PGresult* res = PQexec(db, q.c_str());
 	logging_res(__func__, res);
@@ -237,7 +237,7 @@ void db_sp_release(PGconn* db, const char* name)
 	PQclear(res);
 }
 
-int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string param_name, string vector_name, int count, vector<int>& ids)
+int db_search_tmps(PGconn* db, const void* tmp_arr, const string index_name, const string param_name, const string vector_name, const int count, vector<int>& ids)
 {
 	assert(tmp_arr != nullptr);
 
@@ -287,7 +287,7 @@ int db_search_tmps(PGconn* db, const void* tmp_arr, string index_name, string pa
 }
 
 
-int db_search_face_tmps(PGconn* db, const void* tmp_arr, int count, vector<int>& ids)
+int db_search_face_tmps(PGconn* db, const void* tmp_arr, const int count, vector<int>& ids)
 {
 	return db_search_tmps(db, tmp_arr, face_index, face_param, face_vector, count, ids);
 }
@@ -301,7 +301,7 @@ int db_search_face_tmp(PGconn* db, const void* tmp_arr, int& id)
 	return res;
 }
 
-int db_search_finger_tmps(PGconn* db, const void* tmp_arr, int count, vector<int>& ids)
+int db_search_finger_tmps(PGconn* db, const void* tmp_arr, const int count, vector<int>& ids)
 {
 	return db_search_tmps(db, tmp_arr, finger_index, finger_param, finger_vector, count, ids);
 }
@@ -315,7 +315,21 @@ int db_search_finger_tmp(PGconn* db, const void* tmp_arr, int& id)
 	return res;
 }
 
-int db_insert_tmp(PGconn* db, const void* tmp_arr, int tmp_id, string index_name, string param_name, string vector_name)
+int db_search_iris_tmps(PGconn* db, const void* tmp_arr, const int count, vector<int>& ids)
+{
+	return db_search_tmps(db, tmp_arr, iris_index, iris_param, iris_vector, count, ids);
+}
+
+int db_search_iris_tmp(PGconn* db, const void* tmp_arr, int& id)
+{
+	vector<int> ids;
+	int res = db_search_iris_tmps(db, tmp_arr, 1, ids);
+
+	if (res > 0 && ids.size() > 0) id = ids[0];
+	return res;
+}
+
+int db_insert_tmp(PGconn* db, const void* tmp_arr, const int tmp_id, const string index_name, const string param_name, const string vector_name)
 {
 	assert(tmp_arr != nullptr);
 	assert(tmp_id > 0);
@@ -354,17 +368,22 @@ int db_insert_tmp(PGconn* db, const void* tmp_arr, int tmp_id, string index_name
 	return result;
 }
 
-int db_insert_face_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
+int db_insert_face_tmp(PGconn* db, const void* tmp_arr, const int tmp_id)
 {
 	return db_insert_tmp(db, tmp_arr, tmp_id, face_index, face_param, face_vector);
 }
 
-int db_insert_finger_tmp(PGconn* db, const void* tmp_arr, int tmp_id)
+int db_insert_finger_tmp(PGconn* db, const void* tmp_arr, const int tmp_id)
 {
 	return db_insert_tmp(db, tmp_arr, tmp_id, finger_index, finger_param, finger_vector);
 }
 
-int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
+int db_insert_iris_tmp(PGconn* db, const void* tmp_arr, const int tmp_id)
+{
+	return db_insert_tmp(db, tmp_arr, tmp_id, iris_index, iris_param, iris_vector);
+}
+
+int db_append_finger_gost(PGconn* db, const void* tmp_arr, const int tmp_id)
 {
 	assert(tmp_arr != nullptr);
 	assert(tmp_id > 0);
@@ -405,7 +424,7 @@ int db_append_finger_gost(PGconn* db, const void* tmp_arr, int tmp_id)
 	return result;
 }
 
-int db_set_finger_num(PGconn* db, int tmp_id, int fnum)
+int db_set_finger_num(PGconn* db, const int tmp_id, const int fnum)
 {
 	assert(tmp_id > 0);
 
@@ -437,7 +456,7 @@ int db_set_finger_num(PGconn* db, int tmp_id, int fnum)
 	return result;
 }
 
-int db_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr, string table)
+int db_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr, const string table)
 {
 	assert(tmp_arr != nullptr);
 	assert(tmp_id > 0);
@@ -473,7 +492,7 @@ int db_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr, string table)
 	return result;
 }
 
-int db_gost_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr)
+int db_gost_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr)
 {
 	assert(tmp_arr != nullptr);
 	assert(tmp_id > 0);
@@ -517,20 +536,63 @@ int db_gost_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr)
 	return result;
 }
 
-int db_face_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr)
+int db_face_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr)
 {
 	return db_tmp_by_id(db, tmp_id, tmp_arr, face_vector);
 }
 
-int db_finger_tmp_by_id(PGconn* db, int tmp_id, const void* tmp_arr)
+int db_finger_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr)
 {
 	return db_tmp_by_id(db, tmp_id, tmp_arr, finger_vector);
+}
+
+int db_iris_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr)
+{
+	return db_tmp_by_id(db, tmp_id, tmp_arr, iris_vector);
+}
+
+int db_tmp_cmp_by_id(PGconn* db, const int tmp_type, const void* tmp_ptr, const int tmp_id, float& score)
+{
+	assert(tmp_ptr != nullptr);
+	assert(tmp_id > 0);
+	assert(tmp_type > 0);
+
+	int res = 0;
+	score = 0.f;
+
+	void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
+	res = tmp_db != nullptr;
+	if (res <= 0) BOOST_LOG_TRIVIAL(debug) << __func__ << ": error memory allocate";
+
+	if (res > 0)
+	{
+		memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
+
+		if (tmp_type == ABIS_FACE_TEMPLATE) res = db_face_tmp_by_id(db, tmp_id, tmp_db);
+		if (tmp_type == ABIS_FINGER_TEMPLATE) res = db_finger_tmp_by_id(db, tmp_id, tmp_db);
+		if (tmp_type == ABIS_FINGER_GOST_TEMPLATE) res = db_gost_tmp_by_id(db, tmp_id, tmp_db);
+		if (tmp_type == ABIS_IRIS_TEMPLATE) res = db_iris_tmp_by_id(db, tmp_id, tmp_db);
+
+		if (res <= 0) BOOST_LOG_TRIVIAL(debug) << __func__ << ": error get template by id";
+	}
+
+	if (res > 0)
+	{
+		if (tmp_type == ABIS_FACE_TEMPLATE) score = cmp_face_tmp(tmp_ptr, tmp_db);
+		if (tmp_type == ABIS_FINGER_TEMPLATE) score = cmp_finger_tmp(tmp_ptr, tmp_db);
+		if (tmp_type == ABIS_FINGER_GOST_TEMPLATE) score = cmp_fingerprint_gost_template(((uchar*)tmp_ptr) + ABIS_TEMPLATE_SIZE, tmp_db);
+		if (tmp_type == ABIS_IRIS_TEMPLATE) score = cmp_iris_tmp(tmp_ptr, tmp_db);
+	}
+	if (tmp_db != nullptr) free(tmp_db);
+
+	return res;
 }
 
 int db_get_bc_for_tmp(PGconn* db, int tmp_type, int tmp_id, char* gid)
 {
 	assert(gid != nullptr);
 	assert(tmp_id > 0);
+	assert(tmp_type > 0);
 
 	int result = 0;
 
@@ -622,7 +684,7 @@ int db_add_bc(PGconn* db, const char* gid, const char* info)
 	return result;
 }
 
-int db_del_bc(PGconn* db, int bc_id)
+int db_del_bc(PGconn* db, const int bc_id)
 {
 	assert(bc_id > 0);
 
@@ -671,9 +733,11 @@ int db_del_bc(PGconn* db, const char* gid)
 	return result;
 }
 
-int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id)
+int db_add_link(PGconn* db, const int tmp_type, const int tmp_id, const int bc_id)
 {
 	assert(tmp_id > 0);
+	assert(tmp_type > 0);
+	assert(bc_id > 0);
 
 	int result = 0;
 	string tmp_type_s = to_string(tmp_type);
@@ -698,9 +762,11 @@ int db_add_link(PGconn* db, int tmp_type, int tmp_id, int bc_id)
 	return result;
 }
 
-int db_del_link(PGconn* db, int tmp_type, int tmp_id, const char* gid)
+int db_del_link(PGconn* db, const int tmp_type, const int tmp_id, const char* gid)
 {
 	assert(tmp_id > 0);
+	assert(tmp_type > 0);
+	assert(gid != nullptr);
 
 	int result = 0;
 	string tmp_type_s = to_string(tmp_type);
@@ -724,7 +790,7 @@ int db_del_link(PGconn* db, int tmp_type, int tmp_id, const char* gid)
 	return result;
 }
 
-int db_del_links(PGconn* db, int bc_id)
+int db_del_links(PGconn* db, const int bc_id)
 {
 	assert(bc_id > 0);
 
@@ -773,13 +839,13 @@ int db_del_links(PGconn* db, const char* gid)
 	return result;
 }
 
-int db_get_face_seq(PGconn* db)
+int db_get_sequence(PGconn* db, const string sql)
 {
 	int result = 0;
 	PGresult* sql_res = nullptr;
 	try
 	{
-		sql_res = db_exec_param(db, SQL_FACE_TMP_SEQ, 0, nullptr, 1);
+		sql_res = db_exec_param(db, sql, 0, nullptr, 1);
 		logging_res(__func__, sql_res);
 
 		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
@@ -798,27 +864,29 @@ int db_get_face_seq(PGconn* db)
 	return result;
 }
 
+int db_get_sequence(PGconn* db, const int tmp_type)
+{
+	assert(tmp_type > 0);
+
+	string sql = "";
+	if (tmp_type == ABIS_FACE_TEMPLATE) sql = SQL_FACE_TMP_SEQ;
+	if (tmp_type == ABIS_FINGER_GOST_TEMPLATE) sql = SQL_FINGER_TMP_SEQ;
+	if (tmp_type == ABIS_IRIS_TEMPLATE) sql = SQL_IRIS_TMP_SEQ;
+
+	return db_get_sequence(db, sql);
+}
+
+int db_get_face_seq(PGconn* db)
+{
+	return db_get_sequence(db, SQL_FACE_TMP_SEQ);
+}
+
 int db_get_finger_seq(PGconn* db)
 {
-	int result = 0;
-	PGresult* sql_res = nullptr;
-	try
-	{
-		sql_res = db_exec_param(db, SQL_FINGER_TMP_SEQ, 0, nullptr, 1);
-		logging_res(__func__, sql_res);
+	return db_get_sequence(db, SQL_FINGER_TMP_SEQ);
+}
 
-		if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
-		{
-			int uid_num = PQfnumber(sql_res, "uid");
-			result = pg_ntoh64(*(uint64_t*)(PQgetvalue(sql_res, 0, uid_num)));
-		}
-	}
-	catch (const std::exception& ec)
-	{
-		logging_ex(__func__, sql_res, ec);
-		result = -1;
-	}
-
-	PQclear(sql_res);
-	return result;
+int db_get_iris_seq(PGconn* db)
+{
+	return db_get_sequence(db, SQL_IRIS_TMP_SEQ);
 }

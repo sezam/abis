@@ -43,16 +43,16 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 			for (size_t i = 0; i < xyt->nrows; i++) q += (int)(xyt->quality[i] >= finger_min_quality);
 			res = (int)(q >= xyt->nrows * finger_min_goodpoints / 100);
 		}
-		BOOST_LOG_TRIVIAL(debug) << "get_fingerprint_template: points = " << xyt->nrows << " good = " << q << " res = " << res;
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": points = " << xyt->nrows << " good = " << q << " res = " << res;
 	}
 	catch (const boost::system::error_code& ec)
 	{
-		BOOST_LOG_TRIVIAL(error) << "Exception: get_fingerprint_template " << ec.message();
+		BOOST_LOG_TRIVIAL(error) << __func__ << "Exception: " << ec.message();
 		res = -ec.value();
 	}
 	catch (const std::exception& ec)
 	{
-		BOOST_LOG_TRIVIAL(error) << "Exception: get_fingerprint_template " << ec.what();
+		BOOST_LOG_TRIVIAL(error) << __func__ << "Exception: " << ec.what();
 		res = -std::error_code().value();
 	}
 
@@ -62,7 +62,7 @@ int get_fingerprint_template(const unsigned char* image_data, const size_t image
 
 interprocess_semaphore mx_finger(1);
 
-float cmp_fingerprint_gost_template(void* tmp1, void* tmp2) {
+float cmp_fingerprint_gost_template(const void* tmp1, const void* tmp2) {
 	assert(tmp1 != nullptr);
 	assert(tmp2 != nullptr);
 
@@ -75,6 +75,6 @@ float cmp_fingerprint_gost_template(void* tmp1, void* tmp2) {
 #endif
 	mx_finger.post();
 
-	BOOST_LOG_TRIVIAL(debug) << "cmp_fingerprint_gost_template: score = " << score;
+	BOOST_LOG_TRIVIAL(debug) << __func__ << ": score = " << score;
 	return score;
 }

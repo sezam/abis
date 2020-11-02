@@ -4,6 +4,7 @@
 #include "ebsclient.h"
 #include "fplibclient.h"
 #include "liveclient.h"
+#include "dbclient.h"
 
 void JSON_EXCEPTION(web::json::value& obj, const string msg)
 {
@@ -304,6 +305,44 @@ int livecheck_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	return res;
 }
 
+int iris_tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
+{
+	int res = 0;
+
+	int element_type = el.at(ELEMENT_TYPE).as_integer();
+	if (element_type == ABIS_IRIS_IMAGE)
+	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": extract " << element_type;
+		auto element_image = el.at(ELEMENT_VALUE).as_string();
+		while ((element_image.length() % 4) != 0) element_image += U("=");
+		vector<unsigned char> buf = conversions::from_base64(element_image);
+
+		float* face_tmp = (float*)malloc(ABIS_TEMPLATE_SIZE);
+		memset(face_tmp, 0, ABIS_TEMPLATE_SIZE);
+
+		tmp_type = ABIS_IRIS_TEMPLATE;
+		tmp_ptr = face_tmp;
+
+		res = extract_iris_template(buf.data(), buf.size(), face_tmp, ABIS_TEMPLATE_SIZE);
+
+		if (res > 0)
+		{
+			float summ = 0.f;
+			for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++) summ += face_tmp[i] * face_tmp[i];
+			if (abs(summ - 1.f) >= 0.0001) res = -tmp_type;
+		}
+	}
+	if (element_type == ABIS_IRIS_TEMPLATE)
+	{
+		BOOST_LOG_TRIVIAL(debug) << __func__ << ": parse " << element_type;
+		tmp_type = ABIS_IRIS_TEMPLATE;
+		tmp_ptr = json2tmp(el);
+		res = (check_tmp(tmp_ptr) ? 1 : -tmp_type);
+	}
+
+	return res;
+}
+
 int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 {
 	int res = 0;
@@ -313,8 +352,38 @@ int tmp_from_json(json::value el, int& tmp_type, void*& tmp_ptr)
 	if (element_type == ABIS_FINGER_IMAGE || element_type == ABIS_FINGER_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
 	if (element_type == ABIS_FINGER_GOST_IMAGE || element_type == ABIS_FINGER_GOST_TEMPLATE) res = finger_tmp_from_json(el, tmp_type, tmp_ptr);
 	if (element_type == ABIS_LIVEFACE_IMAGE) res = livecheck_from_json(el, tmp_type, tmp_ptr);
+	if (element_type == ABIS_IRIS_IMAGE || element_type == ABIS_IRIS_TEMPLATE) res = iris_tmp_from_json(el, tmp_type, tmp_ptr);
 
 	if (res < 0) res -= element_type * 1000;
 	return res;
 }
 
+bool tmp_cmp_by_id(PGconn* db, int const tmp_type, void* const tmp_ptr, int const tmp_id, float& score)
+{
+	score = 0.f;
+
+	void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
+	bool step = tmp_db != nullptr;
+	if (!step) BOOST_LOG_TRIVIAL(debug) << __func__ << ": error memory allocate";
+
+	if (step)
+	{
+		memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
+
+		if (tmp_type == ABIS_FACE_TEMPLATE) step = db_face_tmp_by_id(db, tmp_id, tmp_db) > 0;
+		if (tmp_type == ABIS_FINGER_GOST_TEMPLATE) step = db_gost_tmp_by_id(db, tmp_id, tmp_db) > 0;
+		if (tmp_type == ABIS_IRIS_TEMPLATE) step = db_iris_tmp_by_id(db, tmp_id, tmp_db) > 0;
+
+		if (!step) BOOST_LOG_TRIVIAL(debug) << __func__ << ": error get template";
+	}
+
+	if (step) 
+	{
+		if (tmp_type == ABIS_FACE_TEMPLATE) score = cmp_face_tmp(tmp_ptr, tmp_db);
+		if (tmp_type == ABIS_FINGER_GOST_TEMPLATE) score = cmp_fingerprint_gost_template(tmp_ptr, tmp_db);
+		if (tmp_type == ABIS_IRIS_TEMPLATE) score = cmp_iris_tmp(tmp_ptr, tmp_db);
+	}
+	if (tmp_db != nullptr) free(tmp_db);
+
+	return step;
+}

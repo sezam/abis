@@ -298,6 +298,13 @@ int extract_finger_templates(const unsigned char* image_data, const size_t image
 	return res;
 }
 
+int extract_iris_template(const unsigned char* image_data, const size_t image_data_len,
+	void* template_buf, const size_t template_buf_size)
+{
+	return ebs_request(image_data, image_data_len, template_buf, template_buf_size,
+		EBS_CMD_EXTRACT_IRIS, EBS_CHECK_EXTRACT_IRIS, 1);
+}
+
 float fvec_eq_dis(const float* x, const float* y, size_t size)
 {
 	float res = 0;
@@ -308,26 +315,32 @@ float fvec_eq_dis(const float* x, const float* y, size_t size)
 	return sqrt(res);
 }
 
-float cmp_face_tmp(void* tmp1, void* tmp2) {
+float cmp_face_tmp(const void* tmp1, const void* tmp2) {
 	float score = 1.0f - min(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, ABIS_TEMPLATE_LEN), 2.0f) / 2.0f;
-	BOOST_LOG_TRIVIAL(debug) << "cmp_face_tmp: score = " << score;
+	BOOST_LOG_TRIVIAL(debug) << __func__ << ": score = " << score;
 	return score;
 }
 
-float cmp_finger_tmp(void* tmp1, void* tmp2) {
+float cmp_finger_tmp(const void* tmp1, const void* tmp2) {
 	float score = 1.0f - min(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, ABIS_TEMPLATE_LEN), 2.0f) / 2.0f;
-	BOOST_LOG_TRIVIAL(debug) << "cmp_finger_tmp: score = " << score;
+	BOOST_LOG_TRIVIAL(debug) << __func__ << ": score = " << score;
 	return score;
 }
 
-float sugeno_weber(float x, float y)
+float cmp_iris_tmp(const void* tmp1, const void* tmp2) {
+	float score = 1.0f - min(fvec_eq_dis((const float*)tmp1, (const float*)tmp2, ABIS_TEMPLATE_LEN), 2.0f) / 2.0f;
+	BOOST_LOG_TRIVIAL(debug) << __func__ << ": score = " << score;
+	return score;
+}
+
+float sugeno_weber(const float x, const float y)
 {
 	float score = max((x + y + x * y * SW_NORM_P - 1) / (SW_NORM_P + 1), 0.0f);
-	BOOST_LOG_TRIVIAL(debug) << "sugeno_weber: score = " << score;
+	BOOST_LOG_TRIVIAL(debug) << __func__ << ": score = " << score;
 	return score;
 }
 
-float multi_score(float x, float y)
+float multi_score(const float x, const float y)
 {
 	float z = 0.f;
 	float f00_1 = 0.f;

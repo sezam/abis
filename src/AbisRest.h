@@ -81,6 +81,9 @@ using namespace web::http;
 using namespace web::http::experimental::listener;
 using namespace utility;
 
+#include <pplx/threadpool.h>
+using namespace crossplat;
+
 #include <libpq-fe.h>
 #ifndef _WIN32
 #include <server/postgres_fe.h>
@@ -110,11 +113,14 @@ using namespace utility;
 #define ABIS_FACE_THRESHOLD			0.5f
 #define ABIS_FINGER_THRESHOLD		0.42f
 #define ABIS_FINGER_GOST_THRESHOLD	0.22f
+#define ABIS_IRIS_THRESHOLD			0.5f
 #define ABIS_EQUAL_THRESHOLD		0.95f
 #define ABIS_FLOAT_THRESHOLD		0.0001f
 
 #define ABIS_TEMPLATE_LEN			512 
 #define ABIS_TEMPLATE_SIZE			ABIS_TEMPLATE_LEN * sizeof(float)
+
+#define ABIS_STR_PREFIX				"abis"
 
 void load_settings(char* path);
 void JSON_EXCEPTION(web::json::value& obj, const string msg);
@@ -141,6 +147,11 @@ extern int finger_parts;
 extern string finger_vector;
 extern string finger_index;
 extern string finger_param;
+
+extern int iris_parts;
+extern string iris_vector;
+extern string iris_index;
+extern string iris_param;
 
 extern float threshold_min;
 extern float threshold_max;

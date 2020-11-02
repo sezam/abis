@@ -36,7 +36,7 @@ void extract_get(http_request request)
 
 				if (step)
 				{
-					if (tmp_type == ABIS_FACE_TEMPLATE || tmp_type == ABIS_FINGER_TEMPLATE)
+					if (tmp_type == ABIS_FACE_TEMPLATE || tmp_type == ABIS_FINGER_TEMPLATE || tmp_type == ABIS_IRIS_TEMPLATE)
 					{
 						for (size_t i = 0; i < ABIS_TEMPLATE_LEN; i++)
 							answer[ELEMENT_VALUE][i] = json::value::number(((float*)tmp_ptr)[i]);

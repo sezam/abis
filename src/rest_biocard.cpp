@@ -211,7 +211,6 @@ void biocard_put(http_request request)
 						if (!step) db_sp_rollback(transact_db, "face_template");
 					}
 
-
 					if (step && tmp_type == ABIS_FINGER_GOST_TEMPLATE)
 					{
 						db_sp_begin(transact_db, "finger_template");
@@ -316,6 +315,64 @@ void biocard_put(http_request request)
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template in biocard - " << res;
 						}
 						else db_sp_rollback(transact_db, "finger_template");
+					}
+
+					if (step && tmp_type == ABIS_IRIS_TEMPLATE)
+					{
+						db_sp_begin(transact_db, "iris_template");
+						if (step)
+						{
+							step = db_search_iris_tmp(readonly_db, tmp_in, tmp_id) > 0;
+							if (!step) res = -101;
+							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error search iris template - " << res;
+						}
+
+						if (step)
+						{
+							void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
+							step = tmp_db != nullptr;
+							if (!step) res = -102;
+							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error memory allocate 1 - " << res;
+
+							if (step)
+							{
+								memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
+								step = db_iris_tmp_by_id(readonly_db, tmp_id, tmp_db) > 0;
+								if (!step) res = -103;
+								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get iris template - " << res;
+							}
+
+							if (step)
+							{
+								float fscore = cmp_iris_tmp(tmp_in, tmp_db);
+								if (step && fscore >= ABIS_IRIS_THRESHOLD)
+								{
+									char bc_gid[50];
+									step = db_get_bc_for_tmp(transact_db, tmp_type, tmp_id, bc_gid) == 0;
+									if (!step) res = -104;
+									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: iris template already in biocard - " << res;
+								}
+								if (step && fscore <= ABIS_EQUAL_THRESHOLD)
+								{
+									tmp_id = db_get_iris_seq(readonly_db);
+									step = tmp_id > 0;
+									if (step) step = db_insert_iris_tmp(readonly_db, tmp_in, tmp_id);
+									if (!step) res = -105;
+									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert iris template - " << res;
+								}
+							}
+							if (tmp_db != nullptr) free(tmp_db);
+						}
+
+						if (step)
+						{
+							step = db_add_link(transact_db, ABIS_IRIS_TEMPLATE, tmp_id, bc_id) > 0;
+							if (!step) res = -106;
+							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error add iris template to biocard - " << res;
+						}
+
+						if (step) inserted++;
+						if (!step) db_sp_rollback(transact_db, "iris_template");
 					}
 
 					if (step) json_row[ELEMENT_ID] = json::value::number(tmp_id);
