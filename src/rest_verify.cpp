@@ -43,6 +43,8 @@ void verify_get(http_request request)
 				const char* paramValues[1] = { s1.c_str() };
 
 				sql_res = db_exec_param(db, SQL_TMP_IDS_BY_BC_GID, 1, paramValues, 1);
+				logging_res(__func__, sql_res);
+
 				if (PQresultStatus(sql_res) == PGRES_TUPLES_OK && PQntuples(sql_res) > 0)
 				{
 					int id_num = PQfnumber(sql_res, "tmp_id");

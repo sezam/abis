@@ -52,6 +52,8 @@ void db_get_array(vector<T>& arr, char* mem);
 void db_get_array(char*& ar, char* mem);
 void db_get_array(char**& ar, char* mem);
 
+void logging_res(const string fname, PGresult* sql_res);
+
 void db_prepare();
 
 PGconn* db_open();

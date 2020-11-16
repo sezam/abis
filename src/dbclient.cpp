@@ -515,8 +515,6 @@ int db_gost_tmp_by_id(PGconn* db, const int tmp_id, const void* tmp_arr)
 			if (res_ptr != nullptr)
 			{
 				result = PQgetlength(sql_res, 0, arr_num);
-				//unsigned char* arr_ptr = (unsigned char*)tmp_arr;
-				//if (result > 0) db_get_array(arr_ptr, res_ptr);
 				if (base64::encoded_size(ABIS_FINGER_TMP_GOST_SIZE) == result)
 				{
 					auto res = base64::decode((void*)tmp_arr, res_ptr, base64::encoded_size(ABIS_FINGER_TMP_GOST_SIZE));
@@ -560,7 +558,7 @@ int db_tmp_cmp_by_id(PGconn* db, const int tmp_type, const void* tmp_ptr, const 
 	int res = 0;
 	score = 0.f;
 
-	void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
+	void* tmp_db = malloc(tmp_type == ABIS_FINGER_GOST_TEMPLATE ? ABIS_FINGER_TMP_GOST_SIZE: ABIS_TEMPLATE_SIZE);
 	res = tmp_db != nullptr;
 	if (res <= 0) BOOST_LOG_TRIVIAL(debug) << __func__ << ": error memory allocate";
 
