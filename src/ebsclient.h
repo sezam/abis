@@ -62,4 +62,6 @@ float sugeno_weber(const float x, const float y);
 */
 float multi_score(const float x, const float y);
 
+float calc_score(const vector<float> scores, const float modal_threshold);
+
 #endif

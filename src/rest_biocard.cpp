@@ -217,7 +217,7 @@ void biocard_put(http_request request)
 						if (step)
 						{
 							step = db_search_finger_tmp(readonly_db, tmp_in, tmp_id) > 0;
-							if (!step) res = -201;
+							if (!step) res = -301;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error search finger template - " << res;
 						}
 
@@ -226,7 +226,7 @@ void biocard_put(http_request request)
 						{
 							void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
 							step = tmp_db != nullptr;
-							if (!step) res = -202;
+							if (!step) res = -302;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error memory allocate 2 - " << res;
 
 
@@ -234,7 +234,7 @@ void biocard_put(http_request request)
 							{
 								memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
 								step = db_finger_tmp_by_id(readonly_db, tmp_id, tmp_db) > 0;
-								if (!step) res = -203;
+								if (!step) res = -303;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get finger template - " << res;
 							}
 							if (step) score_tmp = cmp_finger_tmp(tmp_in, tmp_db);
@@ -248,22 +248,22 @@ void biocard_put(http_request request)
 							if (score_tmp < ABIS_EQUAL_THRESHOLD)
 							{
 								if (step) step = (tmp_id = db_get_finger_seq(readonly_db)) > 0;
-								if (!step) res = -204;
+								if (!step) res = -304;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get finger sequence - " << res;
 
 								if (step) step = db_insert_finger_tmp(readonly_db, tmp_in, tmp_id) > 0;
-								if (!step) res = -205;
+								if (!step) res = -305;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template - " << res;
 
 								if (step) step = db_append_finger_gost(readonly_db, ((uchar*)tmp_in) + ABIS_TEMPLATE_SIZE, tmp_id) > 0;
-								if (!step) res = -206;
+								if (!step) res = -306;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template 2 - " << res;
 							}
 							else
 							{
 								void* db_gost = malloc(ABIS_FINGER_TMP_GOST_SIZE);
 								step = db_gost != nullptr;
-								if (!step) res = -207;
+								if (!step) res = -307;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error memory allocate 3 - " << res;
 
 								if (step)
@@ -272,7 +272,7 @@ void biocard_put(http_request request)
 									int gost_len = db_gost_tmp_by_id(readonly_db, tmp_id, db_gost);
 									is_gost = gost_len == ABIS_FINGER_TMP_GOST_SIZE;
 									step = gost_len >= 0;
-									if (!step) res = -207;
+									if (!step) res = -308;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get finger template 2 - " << res;
 								}
 
@@ -289,12 +289,12 @@ void biocard_put(http_request request)
 								{
 									char bc_gid[50];
 									step = db_get_bc_for_tmp(transact_db, tmp_type, tmp_id, bc_gid) == 0;
-									if (!step) res = -208;
+									if (!step) res = -309;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: finger template already in biocard - " << res;
 								}
 								else
 								{
-									if (!step) res = -209;
+									if (!step) res = -310;
 									BOOST_LOG_TRIVIAL(warning) << "biocard_put: bad cmp finger template phase 2 - " << res;
 									step = false;
 								}
@@ -302,7 +302,7 @@ void biocard_put(http_request request)
 							else
 							{
 								if (step) step = db_append_finger_gost(readonly_db, ((uchar*)tmp_in) + ABIS_TEMPLATE_SIZE, tmp_id) > 0;
-								if (!step) res = -210;
+								if (!step) res = -311;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template 2 - " << res;
 							}
 						}
@@ -311,7 +311,7 @@ void biocard_put(http_request request)
 						{
 							step = db_add_link(transact_db, ABIS_FINGER_GOST_TEMPLATE, tmp_id, bc_id);
 							if (step) inserted++;
-							if (!step) res = -211;
+							if (!step) res = -312;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert finger template in biocard - " << res;
 						}
 						else db_sp_rollback(transact_db, "finger_template");
@@ -323,7 +323,7 @@ void biocard_put(http_request request)
 						if (step)
 						{
 							step = db_search_iris_tmp(readonly_db, tmp_in, tmp_id) > 0;
-							if (!step) res = -101;
+							if (!step) res = -501;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error search iris template - " << res;
 						}
 
@@ -331,14 +331,14 @@ void biocard_put(http_request request)
 						{
 							void* tmp_db = malloc(ABIS_TEMPLATE_SIZE);
 							step = tmp_db != nullptr;
-							if (!step) res = -102;
+							if (!step) res = -502;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error memory allocate 1 - " << res;
 
 							if (step)
 							{
 								memset(tmp_db, 0, ABIS_TEMPLATE_SIZE);
 								step = db_iris_tmp_by_id(readonly_db, tmp_id, tmp_db) > 0;
-								if (!step) res = -103;
+								if (!step) res = -503;
 								if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error get iris template - " << res;
 							}
 
@@ -349,7 +349,7 @@ void biocard_put(http_request request)
 								{
 									char bc_gid[50];
 									step = db_get_bc_for_tmp(transact_db, tmp_type, tmp_id, bc_gid) == 0;
-									if (!step) res = -104;
+									if (!step) res = -504;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: iris template already in biocard - " << res;
 								}
 								if (step && fscore <= ABIS_EQUAL_THRESHOLD)
@@ -357,7 +357,7 @@ void biocard_put(http_request request)
 									tmp_id = db_get_iris_seq(readonly_db);
 									step = tmp_id > 0;
 									if (step) step = db_insert_iris_tmp(readonly_db, tmp_in, tmp_id);
-									if (!step) res = -105;
+									if (!step) res = -505;
 									if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error insert iris template - " << res;
 								}
 							}
@@ -367,7 +367,7 @@ void biocard_put(http_request request)
 						if (step)
 						{
 							step = db_add_link(transact_db, ABIS_IRIS_TEMPLATE, tmp_id, bc_id) > 0;
-							if (!step) res = -106;
+							if (!step) res = -506;
 							if (!step) BOOST_LOG_TRIVIAL(debug) << "biocard_put: error add iris template to biocard - " << res;
 						}
 
@@ -383,7 +383,6 @@ void biocard_put(http_request request)
 					json_out[i] = json_row;
 
 					if (tmp_in != nullptr) free(tmp_in);
-
 				}
 				//if (inserted > 0)
 				if (step)

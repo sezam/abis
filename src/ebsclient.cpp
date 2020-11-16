@@ -368,31 +368,45 @@ float multi_score(const float x, const float y)
 	float b3_4 = f01_4 - f00_4;
 	float b4_4 = f00_4 - f10_4 - f01_4 + f11_4;
 
-	if (x < ABIS_INTEGRA_THRESHOLD && abs(ABIS_INTEGRA_THRESHOLD - x) >= ABIS_FLOAT_THRESHOLD 
-		&& y < ABIS_INTEGRA_THRESHOLD 
+	if (x < ABIS_INTEGRA_THRESHOLD && abs(ABIS_INTEGRA_THRESHOLD - x) >= ABIS_FLOAT_THRESHOLD
+		&& y < ABIS_INTEGRA_THRESHOLD
 		&& abs(ABIS_INTEGRA_THRESHOLD - y) >= ABIS_FLOAT_THRESHOLD)
 	{
 		z = b1_1 + b2_1 * 2.f * x + b3_1 * 2.f * y + b4_1 * 4.f * x * y;
 	}
-	else if ((x >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - x) < ABIS_FLOAT_THRESHOLD) 
-		&& y < ABIS_INTEGRA_THRESHOLD 
+	else if ((x >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - x) < ABIS_FLOAT_THRESHOLD)
+		&& y < ABIS_INTEGRA_THRESHOLD
 		&& abs(ABIS_INTEGRA_THRESHOLD - y) >= ABIS_FLOAT_THRESHOLD)
 	{
 		z = b1_2 + b2_2 * 2.f * (x - ABIS_INTEGRA_THRESHOLD) + b3_2 * 2.f * y + b4_2 * 4.f * (x - ABIS_INTEGRA_THRESHOLD) * y;
 	}
-	else if (x < ABIS_INTEGRA_THRESHOLD && abs(ABIS_INTEGRA_THRESHOLD - x) >= ABIS_FLOAT_THRESHOLD 
+	else if (x < ABIS_INTEGRA_THRESHOLD && abs(ABIS_INTEGRA_THRESHOLD - x) >= ABIS_FLOAT_THRESHOLD
 		&& (y >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - y) < ABIS_FLOAT_THRESHOLD))
 	{
 		z = b1_2 + b2_2 * 2.f * (y - ABIS_INTEGRA_THRESHOLD) + b3_2 * 2.f * x + b4_2 * 4.f * x * (y - ABIS_INTEGRA_THRESHOLD);
 	}
-	else if ((x >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - x) < ABIS_FLOAT_THRESHOLD) 
+	else if ((x >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - x) < ABIS_FLOAT_THRESHOLD)
 		&& (y >= ABIS_INTEGRA_THRESHOLD || abs(ABIS_INTEGRA_THRESHOLD - y) < ABIS_FLOAT_THRESHOLD))
 	{
-		z = b1_4 + b2_4 * 2.f * (x - ABIS_INTEGRA_THRESHOLD) + b3_4 * 2.f * (y - ABIS_INTEGRA_THRESHOLD) 
+		z = b1_4 + b2_4 * 2.f * (x - ABIS_INTEGRA_THRESHOLD) + b3_4 * 2.f * (y - ABIS_INTEGRA_THRESHOLD)
 			+ b4_4 * 4.f * (x - ABIS_INTEGRA_THRESHOLD) * (y - ABIS_INTEGRA_THRESHOLD);
 	}
 
 	BOOST_LOG_TRIVIAL(debug) << "multi_score: x = " << x << ", y = " << y << ", score = " << z;
 
 	return z;
+}
+
+float calc_score(const vector<float> scores, const float modal_threshold) {
+	assert(!scores.empty());
+
+	float score = min(scores[0] / modal_threshold * ABIS_INTEGRA_THRESHOLD, 1.f);
+	if (scores.size() > 1)
+	{
+		for (size_t i = 1; i < scores.size(); i++)
+		{
+			score = multi_score(score, min(scores[i] / modal_threshold * ABIS_INTEGRA_THRESHOLD, 1.f));
+		}
+	}
+	return score;
 }

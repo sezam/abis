@@ -74,23 +74,23 @@ void verify_get(http_request request)
 								int db_tmp_id = ntohl(*(int*)(PQgetvalue(sql_res, r, id_num)));
 								int db_tmp_type = ntohl(*(int*)(PQgetvalue(sql_res, r, type_num)));
 
-								if (db_tmp_type == ABIS_FACE_TEMPLATE && db_tmp_type == json_tmp_type)
+								if (json_tmp_type == ABIS_FACE_TEMPLATE) 
 								{
-									float score = 0.f;
-									step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
-									if (step) face_cmp_score = max(face_cmp_score, score);
+									float score = ABIS_FLOAT_THRESHOLD;
+									if (db_tmp_type == json_tmp_type) step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
+									face_cmp_score = max(face_cmp_score, score);
 								}
-								if (db_tmp_type == ABIS_FINGER_GOST_TEMPLATE && db_tmp_type == json_tmp_type)
+								if (json_tmp_type == ABIS_FINGER_GOST_TEMPLATE)
 								{
-									float score = 0.f;
-									step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
-									if (step) finger_cmp_score = max(finger_cmp_score, score);
+									float score = ABIS_FLOAT_THRESHOLD;
+									if (db_tmp_type == json_tmp_type) step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
+									finger_cmp_score = max(finger_cmp_score, score);
 								}
-								if (db_tmp_type == ABIS_IRIS_TEMPLATE && db_tmp_type == json_tmp_type)
+								if (json_tmp_type == ABIS_IRIS_TEMPLATE)
 								{
-									float score = 0.f;
-									step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
-									if (step) iris_cmp_score = max(iris_cmp_score, score);
+									float score = ABIS_FLOAT_THRESHOLD;
+									if (db_tmp_type == json_tmp_type) step = db_tmp_cmp_by_id(db, db_tmp_type, json_tmp_ptr, db_tmp_id, score) > 0;
+									iris_cmp_score = max(iris_cmp_score, score);
 								}
 							}
 							if (face_cmp_score >= ABIS_FLOAT_THRESHOLD) face_scores.push_back(face_cmp_score);
@@ -101,57 +101,12 @@ void verify_get(http_request request)
 					}
 
 					vector<float> scores;
-					if (!face_scores.empty())
-					{
-						float face_score = min(face_scores[0] / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
-						if (face_scores.size() > 1)
-						{
-							for (size_t i = 1; i < face_scores.size(); i++)
-							{
-								face_score = multi_score(face_score, min(face_scores[i] / ABIS_FACE_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
-							}
-						}
-						scores.push_back(face_score);
-					}
-
-					if (!finger_scores.empty())
-					{
-						float finger_score = min(finger_scores[0] / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
-						if (finger_scores.size() > 1)
-						{
-							for (size_t i = 1; i < finger_scores.size(); i++)
-							{
-								finger_score = multi_score(finger_score, min(finger_scores[i] / ABIS_FINGER_GOST_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
-							}
-						}
-						scores.push_back(finger_score);
-					}
-
-					if (!iris_scores.empty())
-					{
-						float iris_score = min(iris_scores[0] / ABIS_IRIS_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f);
-						if (iris_scores.size() > 1)
-						{
-							for (size_t i = 1; i < iris_scores.size(); i++)
-							{
-								iris_score = multi_score(iris_score, min(iris_scores[i] / ABIS_IRIS_THRESHOLD * ABIS_INTEGRA_THRESHOLD, 1.f));
-							}
-						}
-						scores.push_back(iris_score);
-					}
+					if (!face_scores.empty()) scores.push_back(calc_score(face_scores, ABIS_FACE_THRESHOLD));
+					if (!finger_scores.empty()) scores.push_back(calc_score(finger_scores, ABIS_FINGER_GOST_THRESHOLD));
+					if (!iris_scores.empty()) scores.push_back(calc_score(iris_scores, ABIS_IRIS_THRESHOLD));
 
 					float score = 0.f;
-					if (!scores.empty())
-					{
-						score = min(scores[0], 1.f);
-						if (scores.size() > 1)
-						{
-							for (size_t i = 1; i < scores.size(); i++)
-							{
-								score = multi_score(score, min(scores[i], 1.f));
-							}
-						}
-					}
+					if (!scores.empty()) score = calc_score(scores, ABIS_INTEGRA_THRESHOLD);
 
 					answer[ELEMENT_VALUE] = json::value::number(score);
 					answer[ELEMENT_RESULT] = json::value::boolean(true);
